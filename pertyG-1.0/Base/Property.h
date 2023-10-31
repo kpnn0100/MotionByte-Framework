@@ -1,14 +1,17 @@
 #pragma once
 #include "FrameRenderer.h"
+#include <functional>
 namespace pertyG
 {
+
 class Property : public IFrameEventListener
 {
     double last;
     double lastSetTime;
     double current;
     double target;
-    bool isSet = true;
+    bool mIsSet = true;
+    std::function<void()> mSetCallback;
 public:
     Property()
     {
@@ -16,6 +19,24 @@ public:
         lastSetTime = 0.0;
         current = 0;
         
+    }
+    ~Property()
+    {
+        
+    }
+    void setCallback(std::function<void()> function)
+    {
+        mSetCallback= function;
+    }
+    void onTargetReached()
+    {
+        current = target;
+        last = target;
+        mIsSet = true;
+        if (mSetCallback)
+        {
+            mSetCallback();
+        }
     }
     void setValue(double value)
     {
@@ -26,7 +47,7 @@ public:
         }
         target = value;
         last = current;
-        isSet = false;
+        mIsSet = false;
 
     }
     double getValue()
@@ -39,11 +60,17 @@ public:
     }
     void onFrameInitialized() override
     {
-        if (isSet)
+        if (mIsSet)
         {
             return;
         }
+        //dummy
+        onTargetReached();
         //do behavior for property change
+    }
+    bool isSet()
+    {
+        return mIsSet;
     }
 };
 }
