@@ -3,7 +3,6 @@
 #include <iostream>
 namespace pertyG
 {
-GlwfManager instance;
 class GlwfManager
 {
 public:
@@ -20,4 +19,5 @@ public:
         glfwTerminate();
     }
 };
+GlwfManager instance;
 }

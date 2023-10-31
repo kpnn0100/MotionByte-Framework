@@ -1,30 +1,9 @@
-#include <GLFW/glfw3.h>
-
+#include "../pertyG-1.0/Base/Window.h"
+using namespace pertyG;
 int main() {
-    if (!glfwInit()) {
-        return -1;
-    }
-
-    // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window) {
-        glfwTerminate();
-        return -1;
-    }
-
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
-
-    while (!glfwWindowShouldClose(window)) {
-        // Your rendering code here
-
-        // Swap front and back buffers
-        glfwSwapBuffers(window);
-
-        // Poll for and process events
-        glfwPollEvents();
-    }
-
-    glfwTerminate();
+    Window window;
+    window.show();
+    window.setSize(200,300);
+    window.waitToClose();
     return 0;
 }
