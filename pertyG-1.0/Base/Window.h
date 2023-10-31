@@ -1,28 +1,33 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include "Property.h"
+#include "PropertyManager.h"
 #include "GlwfManager.h"
 #include "FrameRenderer.h"
 namespace pertyG
 {
-    class Window : public IPropertyListener, public IFrameEventListener
+    class Window : public IFrameEventListener
     {
     private:
         GLFWwindow* mMainWindow;
+        PropertyManager mPropertyManager;
         enum PropertyList
         {
+            WindowWidth,
+            WindowHeight,
             PropertyCount
         };
         Property size[2];
-        bool mChanged = false;
+        bool mNeedUpdate = true;
         std::thread renderThread;
     public:
-        Window()
+        Window() : mPropertyManager(PropertyManager(PropertyCount))
         {
+
             mMainWindow = nullptr;
-            size[0].setValue(800.0);  // Default width
-            size[1].setValue(600.0);  // Default height
-            create((int)size[0].getTargetValue(),(int)size[1].getTargetValue(), "hello");
+            mPropertyManager.setValue(WindowWidth,800.0);  // Default width
+            mPropertyManager.setValue(WindowHeight,600.0);  // Default height
+            create((int)mPropertyManager.getTargetValue(WindowWidth),(int)mPropertyManager.getTargetValue(WindowHeight), "hello");
         }
 
         void create(int width, int height, const char* title)
@@ -74,25 +79,23 @@ namespace pertyG
 
         void setSize(int width, int height)
         {
-            size[0].setValue((double)width);
-            size[1].setValue((double)height);
-            mChanged = true;
-        }
-        void onPropertyChanged() override
-        {
-
+            mPropertyManager.setValue(WindowWidth,(double)width);
+            mPropertyManager.setValue(WindowHeight,(double)height);
         }
         void onFrameProcessed() override
         {
             if (mMainWindow)
             {
-                std::cout<<"set new Window size"<<std::endl;
-                glfwSetWindowSize(mMainWindow, (int)size[0].getValue(), (int)size[1].getValue());
+                if (mNeedUpdate)
+                {
+                    std::cout<<"set new Window size"<<std::endl;
+                    glfwSetWindowSize(mMainWindow, (int)mPropertyManager.getValue(WindowWidth), (int)mPropertyManager.getValue(WindowHeight));
+                } 
             }
         }
         void onFrameRendered() override
         {
-
+            mNeedUpdate = !mPropertyManager.isSet();
         }
         void waitToClose()
         {

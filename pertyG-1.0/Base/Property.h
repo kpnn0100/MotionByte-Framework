@@ -64,9 +64,16 @@ public:
         {
             return;
         }
-        //dummy
-        onTargetReached();
+        
         //do behavior for property change
+    }
+    void onFrameRendered() override
+    {
+        if (mIsSet)
+        {
+            return;
+        }
+        onTargetReached();
     }
     bool isSet()
     {
