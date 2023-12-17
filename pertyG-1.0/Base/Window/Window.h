@@ -1,16 +1,24 @@
 #pragma once
 #include <GLFW/glfw3.h>
-#include "Property.h"
-#include "PropertyManager.h"
 #include "GlwfManager.h"
-#include "FrameRenderer.h"
+
+#include <atomic>
+#include <queue>
+#include <functional>
+#include <thread>
+
+#include "../FrameRenderer/FrameRenderer.h"
+#include "../Property/Property.h"
+#include "../Property/PropertyManager.h"
 namespace pertyG
 {
     class Window : public IFrameEventListener
     {
     private:
-        GLFWwindow* mMainWindow;
+        std::atomic<GLFWwindow*> mMainWindow;
         PropertyManager mPropertyManager;
+        std::mutex mTaskListLocker;
+        std::queue<std::function<void()>> mTaskList;
         enum PropertyList
         {
             WindowWidth,
@@ -21,15 +29,40 @@ namespace pertyG
         bool mNeedUpdate = true;
         std::thread renderThread;
     public:
-        Window() : mPropertyManager(PropertyManager(PropertyCount))
+        Window(int width, int height) : mPropertyManager(PropertyManager(PropertyCount))
         {
-
             mMainWindow = nullptr;
-            mPropertyManager.setValue(WindowWidth,800.0);  // Default width
-            mPropertyManager.setValue(WindowHeight,600.0);  // Default height
-            create((int)mPropertyManager.getTargetValue(WindowWidth),(int)mPropertyManager.getTargetValue(WindowHeight), "hello");
+            create(width, height, "hello");
         }
+        void addTask(std::function<void()> task)
+        {
+            std::lock_guard<std::mutex> lock(mTaskListLocker);
+            mTaskList.push(task);
+        }
+        void handleWindow()
+        {
+            // Make the window's context current
+            glfwMakeContextCurrent(mMainWindow);
 
+            // Enter the rendering loop in a separate thread
+            while (!glfwWindowShouldClose(mMainWindow))
+            {
+
+                // Your rendering code here
+                {
+                    std::lock_guard<std::mutex> lock(mTaskListLocker);
+                    for (; !mTaskList.empty(); mTaskList.pop())
+                    {
+                        mTaskList.front()();
+                    }
+                }
+                // Swap front and back buffers
+                glfwSwapBuffers(mMainWindow);
+
+                // Poll for and process events
+                glfwPollEvents();
+            }
+        }
         void create(int width, int height, const char* title)
         {
             if (mMainWindow == nullptr)
@@ -44,6 +77,7 @@ namespace pertyG
                 // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
                 mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+               
                 if (!mMainWindow)
                 {
                     // Window creation failed
@@ -51,8 +85,7 @@ namespace pertyG
                     return;
                 }
 
-                // Make the window's context current
-                glfwMakeContextCurrent(mMainWindow);
+                
             }
         }
 
@@ -60,27 +93,19 @@ namespace pertyG
         {
             if (mMainWindow)
             {
-                renderThread = std::thread([this] {
-                    // Enter the rendering loop in a separate thread
-                    while (!glfwWindowShouldClose(mMainWindow))
-                    {
-
-                        // Your rendering code here
-
-                        // Swap front and back buffers
-                        glfwSwapBuffers(mMainWindow);
-
-                        // Poll for and process events
-                        glfwPollEvents();
-                    }
-                });
+                handleWindow();
             }
         }
 
         void setSize(int width, int height)
         {
-            mPropertyManager.setValue(WindowWidth,(double)width);
-            mPropertyManager.setValue(WindowHeight,(double)height);
+            mPropertyManager.setValue(WindowWidth, width);
+            mPropertyManager.setValue(WindowHeight, height);
+            mNeedUpdate = !mPropertyManager.isSet();
+        }
+        void onFrameInitialized() override
+        {
+            int a = 2;
         }
         void onFrameProcessed() override
         {
@@ -88,8 +113,13 @@ namespace pertyG
             {
                 if (mNeedUpdate)
                 {
-                    std::cout<<"set new Window size"<<std::endl;
-                    glfwSetWindowSize(mMainWindow, (int)mPropertyManager.getValue(WindowWidth), (int)mPropertyManager.getValue(WindowHeight));
+                    std::cout << "add task" << std::endl;
+                    addTask([this]
+                        {
+                            glfwSetWindowSize(mMainWindow,
+                                mPropertyManager.getValue(WindowWidth),
+                                mPropertyManager.getValue(WindowHeight));
+                        });
                 } 
             }
         }

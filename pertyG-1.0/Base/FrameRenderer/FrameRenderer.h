@@ -23,15 +23,15 @@ namespace pertyG
         std::condition_variable poller;
         std::mutex pollerMutex;
         std::atomic<bool> mTimerRunning;
-
-        void startTimer();
         void timerCall();
         void framePolling();
-
+        //private constructor for singleton
+        
     public:
         FrameRenderer();
         FrameRenderer(double fps);
         ~FrameRenderer();
+        void startTimer();
         void stopTimer();
 
         static FrameRenderer *instance();
