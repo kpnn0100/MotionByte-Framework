@@ -28,6 +28,10 @@ namespace pertyG
             }
             setCount = propertyCount;
         }
+        void initValue(int id, double value)
+        {
+            mPropertyList[id].initValue(value);
+        }
         void setValue(int id, double value)
         {
             if (mPropertyList[id].getTargetValue() == value)
@@ -56,6 +60,10 @@ namespace pertyG
         bool isSet()
         {
             return setCount == mPropertyList.size();
+        }
+        Property& getProperty(int id)
+        {
+            return mPropertyList[id];
         }
     };
 }

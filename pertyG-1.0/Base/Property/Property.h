@@ -26,6 +26,8 @@ public:
 
     }
     ~Property();
+    void initValue(double value);
+    void setInterpolator(std::shared_ptr<Interpolator> interpolator);
     void setCallback(std::function<void()> function);
     void onTargetReached();
     void setValue(double value);
