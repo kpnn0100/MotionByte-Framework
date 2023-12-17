@@ -43,6 +43,7 @@ namespace pertyG
         void onSetCallback()
         {
             setCount+=1;
+            std::cout << "set count" << setCount;
         }
         double getValue(int id)
         {

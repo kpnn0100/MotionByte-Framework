@@ -16,7 +16,11 @@ namespace pertyG
                 startTime = std::chrono::high_resolution_clock::now();
             }
         }
-
+        void restart()
+        {
+            isRunning = true;
+            startTime = std::chrono::high_resolution_clock::now();
+        }
         void stop()
         {
             if (isRunning)
@@ -40,7 +44,7 @@ namespace pertyG
         {
             isRunning = false;
         }
-
+        //return in second
         double getDuration() const
         {
             if (isRunning)
