@@ -12,6 +12,15 @@ namespace pertyG
     {
 
     }
+    void Property::initValue(double value)
+    {
+        last = value;
+        current = value;
+    }
+    void Property::setInterpolator(std::shared_ptr<Interpolator> interpolator)
+    {
+        mInterpolator = interpolator;
+    }
     void Property::setCallback(std::function<void()> function)
     {
         mSetCallback = function;

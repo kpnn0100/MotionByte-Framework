@@ -19,20 +19,22 @@ namespace pertyG
         PropertyManager mPropertyManager;
         std::mutex mTaskListLocker;
         std::queue<std::function<void()>> mTaskList;
+        Property size[2];
+        bool mNeedUpdate = true;
+        std::thread renderThread;
+    public:
         enum PropertyList
         {
             WindowWidth,
             WindowHeight,
             PropertyCount
         };
-        Property size[2];
-        bool mNeedUpdate = true;
-        std::thread renderThread;
-    public:
         Window(int width, int height) : mPropertyManager(PropertyManager(PropertyCount))
         {
             mMainWindow = nullptr;
             create(width, height, "hello");
+            mPropertyManager.initValue(WindowWidth, width);
+            mPropertyManager.initValue(WindowHeight, height);
         }
         void addTask(std::function<void()> task)
         {
@@ -145,7 +147,10 @@ namespace pertyG
                 renderThread.join();
             }
         }
-
+        PropertyManager& getPropertyManager()
+        {
+            return mPropertyManager;
+        }
         ~Window()
         {
             if (mMainWindow)
