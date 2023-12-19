@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(WindowsTestProject)
 include_directories("../SDK/glfw-3.3.8.bin.WIN64/include")
+include_directories("../SDK/glad/include")
+include_directories("../SDK/glew-2.1.0/include")
 # Gather a list of all .cpp files in the "pertyG-1.0" directory recursively
+find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE PERTYG_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/../pertyG-1.0/**/*.cpp")
 message("Source files: ${PERTYG_SOURCE_FILES}")
-
 # Create the executable
-add_executable(windows_test "main.cpp" ${PERTYG_SOURCE_FILES})
+add_executable(windows_test "main.cpp" ${PERTYG_SOURCE_FILES} "../SDK/glad/src/gl.c")
+# add_executable(windows_test "main.cpp")
 #target_link_libraries(windows_test PRIVATE "G:/Dev/pertyG framework/SDK/glfw-3.3.8.bin.WIN64/lib-vc2017/glfw3.lib")
-target_link_libraries(windows_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../SDK/glfw-3.3.8.bin.WIN64/lib-vc2017/glfw3.lib")
+target_link_libraries(windows_test opengl32.lib)
+target_link_libraries(windows_test "${CMAKE_CURRENT_SOURCE_DIR}/../SDK/glfw-3.3.8.bin.WIN64/lib-vc2017/glfw3.lib")
+target_link_libraries(windows_test "${CMAKE_CURRENT_SOURCE_DIR}/../SDK/glew-2.1.0/lib/Release/x64/glew32s.lib")
