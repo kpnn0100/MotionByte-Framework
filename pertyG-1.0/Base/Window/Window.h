@@ -10,11 +10,13 @@
 #include "../FrameRenderer/FrameRenderer.h"
 #include "../Property/Property.h"
 #include "../Property/PropertyManager.h"
+#include "../Graphic/Frame.h"
 namespace pertyG
 {
     class Window : public IFrameEventListener
     {
     private:
+        std::shared_ptr<Frame> mMainFrame;
         std::atomic<GLFWwindow*> mMainWindow;
         PropertyManager mPropertyManager;
         std::mutex mTaskListLocker;
@@ -45,7 +47,7 @@ namespace pertyG
         {
             // Make the window's context current
             glfwMakeContextCurrent(mMainWindow);
-
+            mMainFrame->fillColor(Color(255, 255, 255, 255));
             // Enter the rendering loop in a separate thread
             while (!glfwWindowShouldClose(mMainWindow))
             {
@@ -79,7 +81,7 @@ namespace pertyG
                 // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
                 mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
-               
+                mMainFrame = std::make_shared<Frame>(mMainWindow);
                 if (!mMainWindow)
                 {
                     // Window creation failed
