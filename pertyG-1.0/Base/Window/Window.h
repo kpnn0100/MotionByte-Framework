@@ -1,7 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include "GlwfManager.h"
-
+#include <GL/glew.h>
 #include <atomic>
 #include <queue>
 #include <functional>

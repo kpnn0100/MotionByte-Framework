@@ -35,157 +35,118 @@
 //    return 0;
 //}
 
+// Include standard headers
+#include <stdio.h>
+#include <stdlib.h>
+
+// Include GLEW
 #include <GL/glew.h>
+
+// Include GLFW
 #include <GLFW/glfw3.h>
-#include <iostream>
+GLFWwindow* window;
 
-// Vertex shader source code
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main() {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    }
-)";
+// Include GLM
+#include <glm/glm.hpp>
+using namespace glm;
 
-// Fragment shader source code
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-    void main() {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
-)";
+int main(void)
+{
+	// Initialise GLFW
+	if (!glfwInit())
+	{
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		getchar();
+		return -1;
+	}
 
-int main() {
-    // Initialize GLFW
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Set GLFW to use the OpenGL core profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// Open a window and create its OpenGL context
+	window = glfwCreateWindow(1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
+	if (window == NULL) {
+		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+		getchar();
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
 
-    // Create a GLFW windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Demo", NULL, NULL);
-    if (!window) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
+	// Initialize GLEW
+	glewExperimental = true; // Needed for core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		getchar();
+		glfwTerminate();
+		return -1;
+	}
 
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    // Initialize GLEW
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
-        return -1;
-    }
+	// Dark blue background
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-    // Create and compile vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
 
-    // Check for vertex shader compilation errors
-    GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, sizeof(infoLog), NULL, infoLog);
-        std::cerr << "Vertex shader compilation failed:\n" << infoLog << std::endl;
-    }
+	// Create and compile our GLSL program from the shaders
 
-    // Create and compile fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
 
-    // Check for fragment shader compilation errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, sizeof(infoLog), NULL, infoLog);
-        std::cerr << "Fragment shader compilation failed:\n" << infoLog << std::endl;
-    }
+	static const GLfloat g_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,
+		 0.0f,  1.0f, 0.0f,
+	};
 
-    // Link shaders into a program
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-    // Check for shader program linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
-        std::cerr << "Shader program linking failed:\n" << infoLog << std::endl;
-    }
+	do {
 
-    // Delete the shaders as they're linked into our program now and no longer needed
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT);
 
-    // Set up vertex data (a triangle)
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
 
-    // Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glVertexAttribPointer(
+			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
 
-    // Bind VAO and VBO
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		// Draw the triangle !
+		glDrawArrays(GL_TRIANGLES, 0, 3); // 3 indices starting at 0 -> 1 triangle
 
-    // Specify vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+		glDisableVertexAttribArray(0);
 
-    // Unbind VAO and VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+		// Swap buffers
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 
-    // Game loop
-    while (!glfwWindowShouldClose(window)) {
-        // Poll for and process events
-        glfwPollEvents();
+	} // Check if the ESC key was pressed or the window was closed
+	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+		glfwWindowShouldClose(window) == 0);
 
-        // Render
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+	// Cleanup VBO
+	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteVertexArrays(1, &VertexArrayID);
 
-        // Use the shader program
-        glUseProgram(shaderProgram);
+	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
 
-        // Bind VAO
-        glBindVertexArray(VAO);
-
-        // Draw the triangle
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        // Unbind VAO
-        glBindVertexArray(0);
-
-        // Swap the front and back buffers
-        glfwSwapBuffers(window);
-    }
-
-    // Clean up resources
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-
-    // Terminate GLFW
-    glfwTerminate();
-
-    return 0;
+	return 0;
 }
+
