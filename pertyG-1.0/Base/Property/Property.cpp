@@ -1,16 +1,24 @@
 #include "Property.h"
 namespace pertyG
 {
-    Property::Property()
+    Property::Property() : Property (0.0)
     {
-        last = 0.0;
-        lastSetTime = 0.0;
-        current = 0;
+
+    }
+    Property::Property(double value)
+    {
+        last =value;
+        lastSetTime = value;
+        current =value;
         mInterpolator = InterpolatorFactory::createStep();
     }
     Property::~Property()
     {
 
+    }
+    Property::operator double() const
+    {
+        return current.load();
     }
     void Property::initValue(double value)
     {

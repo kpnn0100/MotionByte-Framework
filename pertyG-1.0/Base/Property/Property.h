@@ -21,11 +21,13 @@ class Property : public IFrameEventListener
     std::function<void()> mSetCallback;
 public:
     Property();
+    Property(double value);
     Property(const pertyG::Property&)
     {
-
+        
     }
     ~Property();
+    operator double() const;
     void initValue(double value);
     void setInterpolator(std::shared_ptr<Interpolator> interpolator);
     void setCallback(std::function<void()> function);
