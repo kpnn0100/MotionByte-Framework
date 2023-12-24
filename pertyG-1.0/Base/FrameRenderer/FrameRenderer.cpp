@@ -100,11 +100,13 @@ namespace pertyG
             std::cout << "Don't register null pointer" << std::endl;
             return;
         }
+        //std::lock_guard<std::mutex> lock(mEventListenerMutex);
         mEventListenerList.push_back(listener);
     }
 
     void FrameRenderer::removeListener(IFrameEventListener *listener)
     {
+        std::lock_guard<std::mutex> lock(mEventListenerMutex);
         for (int i = 0; i < mEventListenerList.size(); i++)
         {
             if (mEventListenerList[i] == listener)

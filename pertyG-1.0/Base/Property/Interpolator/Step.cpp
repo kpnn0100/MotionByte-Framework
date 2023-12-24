@@ -8,18 +8,10 @@ namespace pertyG
 	}
 	bool Step::isSet(double time)
 	{
-		if (time > 0.0)
-		{
-			return true;
-		}
-		return false;
+		return true;
 	}
 	double Step::getValueAtTime(double initValue, double targetValue, double time)
 	{
-		if (time > 0.0)
-		{
-			return targetValue;
-		}
-		return initValue;
+		return targetValue;
 	}
 }

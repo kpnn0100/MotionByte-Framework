@@ -12,6 +12,11 @@ namespace pertyG
         current =value;
         mInterpolator = InterpolatorFactory::createStep();
     }
+    Property::Property(const Property& other)
+    {
+        Property newProperty;
+        newProperty = other;
+    }
     Property::~Property()
     {
 
@@ -19,6 +24,37 @@ namespace pertyG
     Property::operator double() const
     {
         return current.load();
+    }
+    Property& Property::operator=(double value)
+    {
+        setValue(value);
+        return *this;
+    }
+    Property& Property::operator=(const Property& other)
+    {
+        if (this != &other) {
+            // Copy non-atomic members
+            mInterpolatorTimer = other.mInterpolatorTimer;
+            lastSetTime = other.lastSetTime;
+            mIsSet = other.mIsSet;
+            mInterpolator = other.mInterpolator;
+            mSetCallback = other.mSetCallback;
+
+            // Note: If your class contains dynamic memory or other resources,
+            // you might need to perform deep copying or resource management here.
+
+            // For atomic types, you can use the atomic store member function
+            last.store(other.last.load());
+            current.store(other.current.load());
+            target.store(other.target.load());
+
+            // Assuming Interpolator is copyable
+            mInterpolator = other.mInterpolator;
+
+            // Assuming std::function is copyable
+            mSetCallback = other.mSetCallback;
+        }
+        return *this;
     }
     void Property::initValue(double value)
     {
