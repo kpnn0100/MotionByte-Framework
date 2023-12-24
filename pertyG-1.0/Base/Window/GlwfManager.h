@@ -1,23 +1,15 @@
 #pragma once
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <iostream>
 namespace pertyG
 {
 class GlwfManager
 {
 public:
-    GlwfManager()
-    {
-        if (!glfwInit()) {
-            
-        }
-        std::cout<<"GLFW done init"<<std::endl;
-    }
-    ~GlwfManager()
-    {
-        std::cout<<"Program exit"<<std::endl;
-        glfwTerminate();
-    }
+    GlwfManager();
+    ~GlwfManager();
 };
-GlwfManager instance;
+
 }

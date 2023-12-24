@@ -1,11 +1,13 @@
 #pragma once
+#include <functional>
+#include <memory>
+#include <atomic>
+
 #include "../FrameRenderer/FrameRenderer.h"
 #include "Interpolator.h"
 #include "InterpolatorFactory.h"
 #include "../../Functional/Timer.h"
-#include <functional>
-#include <memory>
-#include <atomic>
+
 namespace pertyG
 {
 
@@ -22,12 +24,12 @@ class Property : public IFrameEventListener
 public:
     Property();
     Property(double value);
-    Property(const pertyG::Property&)
-    {
-        
-    }
+    Property(const Property& other);
     ~Property();
     operator double() const;
+    Property& operator=(double value);
+    Property& operator=(const Property & other);
+    
     void initValue(double value);
     void setInterpolator(std::shared_ptr<Interpolator> interpolator);
     void setCallback(std::function<void()> function);
