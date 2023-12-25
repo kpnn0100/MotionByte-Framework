@@ -26,7 +26,7 @@ public:
     Property(double value);
     Property(const Property& other);
     ~Property();
-    operator double() const;
+    operator double();
     Property& operator=(double value);
     Property& operator=(const Property & other);
     

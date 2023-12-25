@@ -149,7 +149,6 @@ namespace pertyG
     }
     void Window::onFrameRendered()
     {
-        mNeedUpdate = !mPropertyManager.isSet();
     }
     void Window::waitToClose()
     {
@@ -172,7 +171,8 @@ namespace pertyG
     void Window::paint()
     {
         mainFrame.fillColor(Color(0, 0, 0,255));
-        mainFrame.drawRectangle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 2.0);
+        Rectangle drawArea = mBound.withSizeKeepCenter(200, 300);
+        mainFrame.drawRectangle(Color(50, 50, 50), drawArea, 2.0);
         // mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
     }
     PropertyManager& Window::getPropertyManager()
