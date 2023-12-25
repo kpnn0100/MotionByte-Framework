@@ -168,12 +168,10 @@ namespace pertyG
             renderThread.join();
         }
     }
-    void Window::paint()
+    void Window::paint(Frame& frame)
     {
-        mainFrame.fillColor(Color(0, 0, 0,255));
-        Rectangle drawArea = mBound.withSizeKeepCenter(200, 300);
-        mainFrame.drawRectangle(Color(50, 50, 50), drawArea, 2.0);
-        // mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
+        frame.fillColor(Color(0, 0, 0,255));
+        //mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
     }
     PropertyManager& Window::getPropertyManager()
     {

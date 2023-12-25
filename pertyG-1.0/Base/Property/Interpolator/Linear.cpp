@@ -20,7 +20,6 @@ namespace pertyG
 		{
 			return targetValue;
 		}
-		std::cout << time << std::endl;
 		return initValue + time/ mPropertyList[ParameterList::Duration] * (targetValue- initValue);
 	}
 }

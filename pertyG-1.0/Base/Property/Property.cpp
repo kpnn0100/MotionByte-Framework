@@ -92,6 +92,13 @@ namespace pertyG
         mIsSet = false;
         mInterpolatorTimer.restart();
     }
+    Property Property::shift(double value) const
+    {
+        Property shiftProperty = *this;
+        shiftProperty.last.store(shiftProperty.last.load() + value);
+        shiftProperty.target.store(shiftProperty.target.load() + value);
+        return shiftProperty;
+    }
     double Property::getValue()
     {
         current = mInterpolator->getValueAtTime(last, target, mInterpolatorTimer.getDuration());
@@ -104,24 +111,6 @@ namespace pertyG
     double Property::getTargetValue()
     {
         return target;
-    }
-    void Property::onFrameInitialized()
-    {
-        if (mIsSet)
-        {
-            return;
-        }
-
-        //do behavior for property change
-        current = mInterpolator->getValueAtTime(last,target,mInterpolatorTimer.getDuration());
-        if (mInterpolator->isSet(mInterpolatorTimer.getDuration()))
-        {
-            onTargetReached();
-        }
-    }
-    void Property::onFrameRendered()
-    {
-
     }
     bool Property::isSet()
     {

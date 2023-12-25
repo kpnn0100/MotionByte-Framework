@@ -15,6 +15,7 @@ namespace pertyG
     {
         windowWidth = width;
         windowHeight = height;
+        glViewport(0, 0, width, height);
     }
     void Frame::fillColor(Color color)
 	{
@@ -25,11 +26,11 @@ namespace pertyG
     {
         std::vector<float> vertices;
         const float radius = 0.5f;
-        const int segments = 100;
+        const int segments = 4;
         const float lineThickness = stroke;  // Adjust this value for the desired line thickness
 
         for (int i = 0; i <= segments; ++i) {
-            float theta = 2.0f * 3.14159265 * static_cast<float>(i) / static_cast<float>(segments);
+            float theta = 2.0f * 3.14159265 * (static_cast<float>(i)+0.5) / static_cast<float>(segments);
 
             // Outer point
             float x_outer = (radius + lineThickness) * glm::cos(theta);
@@ -55,16 +56,16 @@ namespace pertyG
         std::vector<float> vertices;
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
 
-        for (int i = 0; i < Rectangle::CornerCount; ++i) {
-            Point currentCorner = bound.getCorner(i);
-            Point nextCorner = bound.getCorner((i+1)% Rectangle::CornerCount);
-            float x_outer = (currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            float y_outer = (currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
-
+        for (int i = 0; i <= Rectangle::CornerCount; ++i) {
+            Point currentCorner = bound.getCorner(i% Rectangle::CornerCount);
+            float x_outer = (mBound->getPosition().getX()+currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            float y_outer = (mBound->getPosition().getY()+currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            y_outer = -y_outer;
 
             // Inner point
-            float x_inner = (nextCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            float y_inner = (nextCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            float x_inner = (mBound->getPosition().getX()+currentCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            float y_inner = (mBound->getPosition().getY()+currentCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            y_inner = -y_inner;
             vertices.push_back(x_outer);
             vertices.push_back(y_outer);
             vertices.push_back(x_inner);
@@ -74,7 +75,7 @@ namespace pertyG
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, (void*)0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
     }
     void Frame::drawSomething()

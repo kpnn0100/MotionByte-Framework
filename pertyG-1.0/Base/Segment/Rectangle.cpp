@@ -11,6 +11,18 @@ namespace pertyG
         mSize[0].initValue(width);
         mSize[1].initValue(height);
     }
+    Rectangle Rectangle::operator=(const Rectangle& other)
+    {
+        mSize[0] = other.mSize[0];
+        mSize[1] = other.mSize[1];
+        mPosition = other.mPosition;
+        return *this;
+    }
+    Rectangle::Rectangle(const Rectangle& other) : mPosition(other.mPosition)
+    {
+        mSize[0] = other.mSize[0];
+        mSize[1] = other.mSize[1];
+    }
 
     // Getter methods
 

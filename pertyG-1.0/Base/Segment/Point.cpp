@@ -14,10 +14,9 @@ namespace pertyG
 	}
 	Point Point::operator=(const Point& other)
 	{
-		Point newPoint;
-		newPoint.mPosition[0] = other.mPosition[0];
-		newPoint.mPosition[1] = other.mPosition[1];
-		return newPoint;
+		mPosition[0] = other.mPosition[0];
+		mPosition[1] = other.mPosition[1];
+		return *this;
 	}
 	Property &Point::getX() { 
 		return mPosition[X]; 
@@ -38,7 +37,7 @@ namespace pertyG
 	void Point::move(Point vector)
 	{
 		for (int i = 0 ; i <2;i++)
-			mPosition[i].setValue(mPosition[i].getTargetValue() + vector.getX().getTargetValue());
+			mPosition[i] = mPosition[i].shift(vector.mPosition[i].getTargetValue());
 	}
 
 	Point Point::withOffset(Point offset)
