@@ -16,6 +16,6 @@ namespace pertyG
         Property &getPosition(int dimension);
         void setPosition(int dimension, double value);
         void move(Point& vector);
-        Point withOffset(Point& offset);
+        Point withOffset(Point offset);
     };
 }

@@ -48,21 +48,53 @@ namespace pertyG
             std::unique_lock<std::mutex> lock(pollerMutex);
             poller.wait(lock, [this] { return isNextTick; });
             {
-                std::lock_guard<std::mutex> lock(mEventListenerMutex);
-                for (auto listener : mEventListenerList)
-                {
-                    listener->onFrameInitialized();
-                }
-                for (auto listener : mEventListenerList)
-                {
-                    listener->onFrameProcessed();
-                }
-                for (auto listener : mEventListenerList)
-                {
-                    listener->onFrameRendered();
-                }
+                processWaitList();
+                notifyListener();
                 isNextTick = false;
             }
+        }
+    }
+
+    void FrameRenderer::processWaitList()
+    {
+        std::lock_guard<std::mutex> lock(mEventListenerMutex);
+        std::lock_guard<std::mutex> lock2(mWaitlistMutex);
+        //process unsub list
+        for (int i = 0; i < mUnsubscriberWaitList.size(); i++)
+        {
+            for (int j = 0; j < mEventListenerList.size(); j++)
+            {
+                if (mUnsubscriberWaitList[i] == mEventListenerList[j])
+                {
+                    mEventListenerList.erase(mEventListenerList.begin() + j);
+                    mUnsubscriberWaitList.erase(mUnsubscriberWaitList.begin() + i);
+                    i -=1;
+                    break;
+                }
+            }
+        }
+        //process sub list
+        for (int i = 0; i < mSubscriberWaitList.size(); i++)
+        {
+            mEventListenerList.push_back(mSubscriberWaitList[i]);
+        }
+        mSubscriberWaitList.clear();
+    }
+
+    void FrameRenderer::notifyListener()
+    {
+        std::lock_guard<std::mutex> lock(mEventListenerMutex);
+        for (auto listener : mEventListenerList)
+        {
+            listener->onFrameInitialized();
+        }
+        for (auto listener : mEventListenerList)
+        {
+            listener->onFrameProcessed();
+        }
+        for (auto listener : mEventListenerList)
+        {
+            listener->onFrameRendered();
         }
     }
 
@@ -100,19 +132,21 @@ namespace pertyG
             std::cout << "Don't register null pointer" << std::endl;
             return;
         }
-        //std::lock_guard<std::mutex> lock(mEventListenerMutex);
-        mEventListenerList.push_back(listener);
+        std::lock_guard<std::mutex> lock(mWaitlistMutex);
+        mSubscriberWaitList.push_back(listener);
     }
 
     void FrameRenderer::removeListener(IFrameEventListener *listener)
     {
-        std::lock_guard<std::mutex> lock(mEventListenerMutex);
-        for (int i = 0; i < mEventListenerList.size(); i++)
+        std::lock_guard<std::mutex> lock(mWaitlistMutex);
+        for (int i = 0; i < mSubscriberWaitList.size(); i++)
         {
-            if (mEventListenerList[i] == listener)
+            if (mSubscriberWaitList[i] == listener)
             {
-                mEventListenerList.erase(mEventListenerList.begin() + i);
+                mSubscriberWaitList.erase(mSubscriberWaitList.begin() + i);
+                return;
             }
         }
+        mUnsubscriberWaitList.push_back(listener);
     }
 }

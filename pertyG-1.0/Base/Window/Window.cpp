@@ -47,6 +47,7 @@ namespace pertyG
             // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+            Frame::onWindowSizeChanged(mMainWindow,width,height);
             glfwSetWindowSizeCallback(mMainWindow, Frame::onWindowSizeChanged);
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
             //mMainFrame = std::make_shared<Frame>(mMainWindow);
@@ -172,6 +173,7 @@ namespace pertyG
     {
         mainFrame.fillColor(Color(0, 0, 0,255));
         mainFrame.drawRectangle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 2.0);
+        // mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
     }
     PropertyManager& Window::getPropertyManager()
     {

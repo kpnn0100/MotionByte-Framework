@@ -15,6 +15,9 @@ namespace pertyG
         static std::unique_ptr<FrameRenderer> mInstance;
         std::mutex mEventListenerMutex;
         std::vector<IFrameEventListener *> mEventListenerList;
+        std::mutex mWaitlistMutex;
+        std::vector<IFrameEventListener *> mSubscriberWaitList;
+        std::vector<IFrameEventListener *> mUnsubscriberWaitList;
         double mFps;
         bool isNextTick = false;
 
@@ -26,7 +29,8 @@ namespace pertyG
         void timerCall();
         void framePolling();
         //private constructor for singleton
-        
+        void processWaitList();
+        void notifyListener();
     public:
         FrameRenderer();
         FrameRenderer(double fps);
