@@ -40,7 +40,7 @@ namespace pertyG
 
 	}
 
-	Point Point::withOffset(Point& offset)
+	Point Point::withOffset(Point offset)
 	{
 		Point newPoint = *this;
 		newPoint.setPosition(0, this->getX().getValue() + offset.getX().getValue());
