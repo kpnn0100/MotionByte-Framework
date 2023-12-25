@@ -10,20 +10,20 @@ namespace pertyG
         last =value;
         lastSetTime = value;
         current =value;
+        target = value;
         mInterpolator = InterpolatorFactory::createStep();
     }
     Property::Property(const Property& other)
     {
-        Property newProperty;
-        newProperty = other;
+        *this = other;
     }
     Property::~Property()
     {
 
     }
-    Property::operator double() const
+    Property::operator double()
     {
-        return current.load();
+        return getValue();
     }
     Property& Property::operator=(double value)
     {
@@ -60,6 +60,7 @@ namespace pertyG
     {
         last = value;
         current = value;
+        target = value;
     }
     void Property::setInterpolator(std::shared_ptr<Interpolator> interpolator)
     {
@@ -93,6 +94,11 @@ namespace pertyG
     }
     double Property::getValue()
     {
+        current = mInterpolator->getValueAtTime(last, target, mInterpolatorTimer.getDuration());
+        if (mInterpolator->isSet(mInterpolatorTimer.getDuration()))
+        {
+            onTargetReached();
+        }
         return current;
     }
     double Property::getTargetValue()

@@ -35,9 +35,10 @@ namespace pertyG
 		}
 	}
 
-	void Point::move(Point& vector)
+	void Point::move(Point vector)
 	{
-
+		for (int i = 0 ; i <2;i++)
+			mPosition[i].setValue(mPosition[i].getTargetValue() + vector.getX().getTargetValue());
 	}
 
 	Point Point::withOffset(Point offset)

@@ -58,7 +58,7 @@ namespace pertyG
         for (int i = 0; i < Rectangle::CornerCount; ++i) {
             Point currentCorner = bound.getCorner(i);
             Point nextCorner = bound.getCorner((i+1)% Rectangle::CornerCount);
-            float x_outer = (currentCorner.getX().getValue()- lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            float x_outer = (currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
             float y_outer = (currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
 

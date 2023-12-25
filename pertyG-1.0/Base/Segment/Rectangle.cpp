@@ -57,7 +57,10 @@ namespace pertyG
 
     // Move the rectangle by a certain offset
 
-    void Rectangle::moveBy(const Point& vector) { mPosition; }
+    void Rectangle::moveBy(Point vector)
+    {
+        mPosition.move(vector);
+    }
 
     // Resize the rectangle by a certain factor
 
