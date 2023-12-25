@@ -21,6 +21,7 @@ class Property
     bool mIsSet = true;
     std::shared_ptr<Interpolator> mInterpolator;
     std::function<void()> mSetCallback;
+    void update();
 public:
     Property();
     Property(double value);
@@ -35,7 +36,7 @@ public:
     void setCallback(std::function<void()> function);
     void onTargetReached();
     void setValue(double value);
-    Property shift(double value) const;
+    Property shift(double value);
     double getValue();
     double getTargetValue();
     bool isSet();

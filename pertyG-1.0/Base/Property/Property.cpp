@@ -1,6 +1,7 @@
 #include "Property.h"
 namespace pertyG
 {
+
     Property::Property() : Property (0.0)
     {
 
@@ -21,6 +22,18 @@ namespace pertyG
     {
 
     }
+    void Property::update()
+    {
+        if (mIsSet)
+        {
+            return;
+        }
+        current = mInterpolator->getValueAtTime(last, target, mInterpolatorTimer.getDuration());
+        if (mInterpolator->isSet(mInterpolatorTimer.getDuration()))
+        {
+            onTargetReached();
+        }
+    }
     Property::operator double()
     {
         return getValue();
@@ -28,11 +41,13 @@ namespace pertyG
     Property& Property::operator=(double value)
     {
         setValue(value);
+        update();
         return *this;
     }
     Property& Property::operator=(const Property& other)
     {
         if (this != &other) {
+            
             // Copy non-atomic members
             mInterpolatorTimer = other.mInterpolatorTimer;
             lastSetTime = other.lastSetTime;
@@ -53,6 +68,7 @@ namespace pertyG
 
             // Assuming std::function is copyable
             mSetCallback = other.mSetCallback;
+            update();
         }
         return *this;
     }
@@ -61,6 +77,7 @@ namespace pertyG
         last = value;
         current = value;
         target = value;
+        mIsSet = true;
     }
     void Property::setInterpolator(std::shared_ptr<Interpolator> interpolator)
     {
@@ -72,9 +89,7 @@ namespace pertyG
     }
     void Property::onTargetReached()
     {
-        current = (double)target;
-        last = (double)target;
-        mIsSet = true;
+        initValue((double)target);
         if (mSetCallback)
         {
             mSetCallback();
@@ -82,6 +97,7 @@ namespace pertyG
     }
     void Property::setValue(double value)
     {
+        update();
         if (target == value)
         {
             //nothing change
@@ -92,8 +108,9 @@ namespace pertyG
         mIsSet = false;
         mInterpolatorTimer.restart();
     }
-    Property Property::shift(double value) const
+    Property Property::shift(double value)
     {
+        update();
         Property shiftProperty = *this;
         shiftProperty.last.store(shiftProperty.last.load() + value);
         shiftProperty.target.store(shiftProperty.target.load() + value);
@@ -101,19 +118,17 @@ namespace pertyG
     }
     double Property::getValue()
     {
-        current = mInterpolator->getValueAtTime(last, target, mInterpolatorTimer.getDuration());
-        if (mInterpolator->isSet(mInterpolatorTimer.getDuration()))
-        {
-            onTargetReached();
-        }
+        update();
         return current;
     }
     double Property::getTargetValue()
     {
+        update();
         return target;
     }
     bool Property::isSet()
     {
+        update();
         return mIsSet;
     }
 }

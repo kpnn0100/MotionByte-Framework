@@ -31,8 +31,8 @@ int main() {
 
     window.addSegment(temp);
     temp->setBound(Rectangle(Point(50, 60), 100, 200));
-    temp->getBound().getWidth().setInterpolator(InterpolatorFactory::createLinear(2.0));
-    temp->getBound().getHeight().setInterpolator(InterpolatorFactory::createLinear(2.0));
+    temp->getBound().getWidth().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
+    temp->getBound().getHeight().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
     std::thread submainThread(submain, &window);
     window.show();
 

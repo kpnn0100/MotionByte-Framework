@@ -10,4 +10,8 @@ namespace pertyG
 	{
 		return std::make_shared<Linear>(duration);
 	}
+	std::shared_ptr<Interpolator> InterpolatorFactory::createEaseInOut(double duration)
+	{
+		return std::make_shared<EaseInOut>(duration);
+	}
 }
