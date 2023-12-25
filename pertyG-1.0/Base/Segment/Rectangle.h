@@ -20,11 +20,8 @@ namespace pertyG
         };
         Rectangle();
         Rectangle(Point position, double width, double height);
-        Rectangle(const Rectangle& other): mPosition(other.mPosition)
-        {
-            mSize[0] = other.mSize[0];
-            mSize[1] = other.mSize[1];
-        }
+        Rectangle(const Rectangle& other);
+        Rectangle operator=(const Rectangle& other);
         // Getter methods
         Point& getPosition();
         Point getCorner(int cornerID);

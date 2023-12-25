@@ -9,13 +9,17 @@ namespace pertyG
     {
         mBound = bound;
     }
+    Rectangle& Segment::getBound()
+    {
+        return mBound;
+    }
     void Segment::addSegment(std::shared_ptr<Segment> segment)
     {
         mChildrenList.push_back(segment);
     }
     void Segment::triggerPaint()
     {
-        paint();
+        paint(mainFrame);
         for (auto children : mChildrenList)
         {
             children->triggerPaint();

@@ -14,8 +14,10 @@ namespace pertyG
     public:
         Segment();
         void setBound(Rectangle bound);
+        Rectangle& getBound();
+
         void addSegment(std::shared_ptr<Segment> segment);
         void triggerPaint();
-        virtual void paint() = 0;
+        virtual void paint(Frame &frame) = 0;
     };
 }

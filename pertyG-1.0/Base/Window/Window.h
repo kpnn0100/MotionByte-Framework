@@ -49,7 +49,7 @@ namespace pertyG
         void onFrameRendered() override;
         void waitToClose();
         void close();
-        virtual void paint() override;
+        virtual void paint(Frame &frame) override;
         PropertyManager& getPropertyManager();
         ~Window();
     };

@@ -11,7 +11,7 @@
 namespace pertyG
 {
 
-class Property : public IFrameEventListener
+class Property
 {
     Timer mInterpolatorTimer;
     std::atomic<double> last;
@@ -35,10 +35,9 @@ public:
     void setCallback(std::function<void()> function);
     void onTargetReached();
     void setValue(double value);
+    Property shift(double value) const;
     double getValue();
     double getTargetValue();
-    void onFrameInitialized() override;
-    void onFrameRendered() override;
     bool isSet();
 };
 }
