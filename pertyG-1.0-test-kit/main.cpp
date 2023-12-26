@@ -11,7 +11,7 @@ public:
     {
         Rectangle drawer = mBound;
         drawer.setPosition(Point(0, 0));
-        frame.drawRectangle(Color(50, 50, 50), mBound, 2.0);
+        frame.drawRectangle(Color(50, 50, 50,255), mBound, 2.0);
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();

@@ -1,21 +1,41 @@
 #include "Window.h"
 const char* vertexShaderSource = R"(
     #version 330 core
-    layout (location = 0) in vec2 position;
 
-    void main()
-    {
-        gl_Position = vec4(position, 0.0, 1.0);
+    // Input vertex data, different for all executions of this shader.
+    layout(location = 0) in vec2 vertexPosition_modelspace;
+    layout(location = 1) in vec3 vertexColor;
+
+    // Output data ; will be interpolated for each fragment.
+    out vec3 fragmentColor;
+    // Values that stay constant for the whole mesh.
+
+    void main(){	
+
+	    // Output position of the vertex, in clip space : MVP * position
+	     gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
+
+	    // The color of each vertex will be interpolated
+	    // to produce the color of each fragment
+	    fragmentColor = vertexColor;
     }
 )";
 
 const char* fragmentShaderSource = R"(
     #version 330 core
+
+    // Interpolated values from the vertex shaders
+    in vec3 fragmentColor;
+
+    // Ouput data
     out vec4 color;
 
-    void main()
-    {
-        color = vec4(1.0, 1.0, 1.0, 1.0);
+    void main(){
+
+    // Output color = color specified in the vertex shader, 
+    // interpolated between all 3 surrounding vertices
+    color = vec4(fragmentColor, 1.0);
+
     }
 )";
 namespace pertyG
@@ -103,6 +123,10 @@ namespace pertyG
         GLuint vertexBuffer;
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+        GLuint colorBuffer;
+        glGenBuffers(1, &colorBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         mMainFrame->fillColor(Color(0, 0, 0, 255));
 
         // glfwSetMouseButtonCallback(mMainWindow, [](GLFWwindow* window, int button, int action, int mods) {
