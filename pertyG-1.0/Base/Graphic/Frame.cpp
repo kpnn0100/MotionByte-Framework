@@ -55,7 +55,7 @@ namespace pertyG
     {
         std::vector<float> vertices;
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
-
+        std::vector<float> colors;  // Add color information
         for (int i = 0; i <= Rectangle::CornerCount; ++i) {
             Point currentCorner = bound.getCorner(i% Rectangle::CornerCount);
             float x_outer = (mBound->getPosition().getX()+currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
@@ -66,17 +66,35 @@ namespace pertyG
             float x_inner = (mBound->getPosition().getX()+currentCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
             float y_inner = (mBound->getPosition().getY()+currentCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
             y_inner = -y_inner;
+            colors.push_back((double)color.getRed() / 255.0); // R
+            colors.push_back((double)color.getGreen() / 255.0); // G
+            colors.push_back((double)color.getBlue() / 255.0); // B
+            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
+
+            colors.push_back((double)color.getRed() / 255.0); // R
+            colors.push_back((double)color.getGreen() / 255.0); // G
+            colors.push_back((double)color.getBlue() / 255.0); // B
+
+            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
             vertices.push_back(x_outer);
             vertices.push_back(y_outer);
             vertices.push_back(x_inner);
             vertices.push_back(y_inner);
         }
-
+        
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_STATIC_DRAW);
+        // Specify the layout of the color data
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);  // Assuming each color has 4 components (R, G, B, Alpha)
+        
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, (void*)0);
+
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+    }
+    void Frame::fillRectangle(Color color, Rectangle bound)
+    {
     }
     void Frame::drawSomething()
     {
