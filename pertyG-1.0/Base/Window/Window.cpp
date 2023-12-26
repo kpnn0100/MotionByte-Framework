@@ -45,12 +45,11 @@ namespace pertyG
             // Set GLFW window hints (optional)
             // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
+            glfwWindowHint(GLFW_SAMPLES, 4);
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
             Frame::onWindowSizeChanged(mMainWindow,width,height);
             glfwSetWindowSizeCallback(mMainWindow, Frame::onWindowSizeChanged);
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
-            //mMainFrame = std::make_shared<Frame>(mMainWindow);
             if (!mMainWindow)
             {
                 // Window creation failed
@@ -72,6 +71,8 @@ namespace pertyG
     {
         // Make the window's context current
         glfwMakeContextCurrent(mMainWindow);
+        // Enable anti-aliasing (multisampling)
+        glEnable(GL_MULTISAMPLE);
         glewExperimental = true;
         if (glewInit() != GLEW_OK) {
             fprintf(stderr, "Failed to initialize GLEW\n");
@@ -103,6 +104,14 @@ namespace pertyG
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         mMainFrame->fillColor(Color(0, 0, 0, 255));
+
+        // glfwSetMouseButtonCallback(mMainWindow, [](GLFWwindow* window, int button, int action, int mods) {
+        // if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        //     double xpos, ypos;
+        //     glfwGetCursorPos(window, &xpos, &ypos);
+        //     std::cout << "Mouse clicked at position: (" << xpos << ", " << ypos << ")" << std::endl;
+        // }
+        // });
         // Enter the rendering loop in a separate thread
         while (!glfwWindowShouldClose(mMainWindow))
         {
