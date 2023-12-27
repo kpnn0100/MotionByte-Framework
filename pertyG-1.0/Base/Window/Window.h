@@ -29,6 +29,8 @@ namespace pertyG
         Property size[2];
         bool mNeedUpdate = true;
         std::thread renderThread;
+        GLuint vertexBuffer;
+        GLuint colorBuffer;
     public:
         enum PropertyList
         {
@@ -37,6 +39,8 @@ namespace pertyG
             PropertyCount
         };
         Window(int width, int height);
+        GLuint& getVertexBuffer();
+        GLuint& getColorBuffer();
         void addTask(std::function<void()> task);
         void handleWindow();
         void create(int width, int height, const char* title);

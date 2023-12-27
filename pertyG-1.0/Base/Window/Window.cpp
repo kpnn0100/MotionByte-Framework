@@ -4,15 +4,14 @@ const char* vertexShaderSource = R"(
 
     // Input vertex data, different for all executions of this shader.
     layout(location = 0) in vec2 vertexPosition_modelspace;
-    layout(location = 1) in vec3 vertexColor;
+    layout(location = 1) in vec4 vertexColor;
 
     // Output data ; will be interpolated for each fragment.
-    out vec3 fragmentColor;
+    out vec4 fragmentColor;
     // Values that stay constant for the whole mesh.
 
     void main(){	
 
-	    // Output position of the vertex, in clip space : MVP * position
 	     gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
 
 	    // The color of each vertex will be interpolated
@@ -25,7 +24,7 @@ const char* fragmentShaderSource = R"(
     #version 330 core
 
     // Interpolated values from the vertex shaders
-    in vec3 fragmentColor;
+    in vec4 fragmentColor;
 
     // Ouput data
     out vec4 color;
@@ -34,7 +33,7 @@ const char* fragmentShaderSource = R"(
 
     // Output color = color specified in the vertex shader, 
     // interpolated between all 3 surrounding vertices
-    color = vec4(fragmentColor, 1.0);
+    color = fragmentColor;
 
     }
 )";
@@ -43,10 +42,19 @@ namespace pertyG
 
     Window::Window(int width, int height) : mPropertyManager(PropertyManager(PropertyCount))
     {
+        mTopParent = this;
         mMainWindow = nullptr;
         create(width, height, "hello");
         mPropertyManager.initValue(WindowWidth, width);
         mPropertyManager.initValue(WindowHeight, height);
+    }
+    GLuint& Window::getVertexBuffer()
+    {
+        return vertexBuffer;
+    }
+    GLuint& Window::getColorBuffer()
+    {
+        return colorBuffer;
     }
     void Window::addTask(std::function<void()> task)
     {
@@ -120,11 +128,11 @@ namespace pertyG
         glGenVertexArrays(1, &vertexArrayID);
         glBindVertexArray(vertexArrayID);
 
-        GLuint vertexBuffer;
+
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
-        GLuint colorBuffer;
+
         glGenBuffers(1, &colorBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         mMainFrame->fillColor(Color(0, 0, 0, 255));
