@@ -1,4 +1,5 @@
 #include "Frame.h"
+#include "../Window/Window.h"
 namespace pertyG
 {
     int Frame::windowWidth = 0;
@@ -7,6 +8,11 @@ namespace pertyG
     Frame::Frame(Rectangle* bound)
     {
         mBound = bound;
+    }
+
+    void Frame::setWindow(Window* window)
+    {
+        mWindow = window;
     }
 
     // Method to fill color in the buffer
@@ -95,6 +101,37 @@ namespace pertyG
     }
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
+        std::vector<float> vertices;
+        std::vector<float> colors;  // Add color information
+        for (int i = 0; i <= Rectangle::CornerCount; ++i) {
+            Point currentCorner = bound.getCorner(i % Rectangle::CornerCount);
+            float x_outer = (mBound->getPosition().getX() + currentCorner.getX().getValue()) / (double)windowWidth * 2.0 - 1.0;
+            float y_outer = (mBound->getPosition().getY() + currentCorner.getY().getValue()) / (double)windowHeight * 2.0 - 1.0;
+            y_outer = -y_outer;
+            vertices.push_back(x_outer);
+            vertices.push_back(y_outer);
+            colors.push_back((double)color.getRed() / 255.0); // R
+            colors.push_back((double)color.getGreen() / 255.0); // G
+            colors.push_back((double)color.getBlue() / 255.0); // B
+            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getColorBuffer());
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        // Draw
+        glDrawArrays(GL_QUADS, 0, vertices.size() / 2);
+
+        glBindVertexArray(0);
     }
     void Frame::drawSomething()
     {
