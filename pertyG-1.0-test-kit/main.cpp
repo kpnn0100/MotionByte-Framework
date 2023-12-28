@@ -31,7 +31,7 @@ void submain(Window * window) {
     while (true)
     {
         int num1, num2, num3, num4;
-        std::cout << "Enter 3 integers: " << std::endl;
+        std::cout << "Enter 4 integers for color (R, G, B, A): " << std::endl;
         std::cin >> num1 >> num2 >> num3 >> num4;
         std::cout << std::endl;
         temp->setColor((double)num1 / 255.0, (double)num2 / 255.0, (double)num3 / 255.0, (double)num4 / 255.0);
