@@ -4,10 +4,10 @@ namespace pertyG
 {
     // Constructors
     Color::Color(Property r, Property g, Property b, Property a)
-        : red((double)r < 0.0 ? 0.0 : ((double)r > 1.0 ? 1.0 : r)),
-        green((double)g < 0.0 ? 0.0 : ((double)g > 1.0 ? 1.0 : g)),
-        blue((double)b < 0.0 ? 0.0 : ((double)b > 1.0 ? 1.0 : b)),
-        alpha((double)a < 0.0 ? 0.0 : ((double)a > 1.0 ? 1.0 : a)) {}
+        : red((double)r < 0.0 ? Property(0.0) : ((double)r > 1.0 ? Property(1.0) : r)),
+        green((double)g < 0.0 ? Property(0.0) : ((double)g > 1.0 ? Property(1.0) : g)),
+        blue((double)b < 0.0 ? Property(0.0) : ((double)b > 1.0 ? Property(1.0) : b)),
+        alpha((double)a < 0.0 ? Property(0.0) : ((double)a > 1.0 ? Property(1.0) : a)) {}
 
     Color::Color(int r, int g, int b, int a)
         : red((r < 0 ? 0.0 : (r > 255 ? 1.0 : static_cast<double>(r) / 255.0))),
