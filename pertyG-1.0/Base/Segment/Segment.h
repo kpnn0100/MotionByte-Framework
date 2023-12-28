@@ -3,6 +3,7 @@
 #include <memory>
 #include "Rectangle.h"
 #include "../Graphic/Frame.h"
+#include <string>
 namespace pertyG
 {
     class Window;
@@ -14,6 +15,8 @@ namespace pertyG
         Rectangle mBound;
         Frame mainFrame;
         Window* mTopParent;
+        std::string mSegmentTypeName;
+        int mSegmentTypeID;
     public:
         Segment();
         void setBound(Rectangle bound);

@@ -135,6 +135,9 @@ namespace pertyG
 
         glGenBuffers(1, &colorBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         mMainFrame->fillColor(Color(0, 0, 0, 255));
 
         // glfwSetMouseButtonCallback(mMainWindow, [](GLFWwindow* window, int button, int action, int mods) {

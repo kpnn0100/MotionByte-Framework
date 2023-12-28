@@ -110,10 +110,10 @@ namespace pertyG
             y_outer = -y_outer;
             vertices.push_back(x_outer);
             vertices.push_back(y_outer);
-            colors.push_back((double)color.getRed() / 255.0); // R
-            colors.push_back((double)color.getGreen() / 255.0); // G
-            colors.push_back((double)color.getBlue() / 255.0); // B
-            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
+            colors.push_back((double)color.getRed()); // R
+            colors.push_back((double)color.getGreen()); // G
+            colors.push_back((double)color.getBlue()); // B
+            colors.push_back((double)color.getAlpha()); // Alpha
         }
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
