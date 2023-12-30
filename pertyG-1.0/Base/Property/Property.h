@@ -43,6 +43,7 @@ public:
     void onTargetReached();
     void setValue(double value);
     Property shift(double value);
+    double getLastVelocity();
     double getLastValue();
     double getValue();
     double getTargetValue();

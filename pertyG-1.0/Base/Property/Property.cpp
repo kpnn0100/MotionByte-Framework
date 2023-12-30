@@ -56,6 +56,7 @@ namespace pertyG
     Property& Property::operator=(double value)
     {
         setValue(value);
+
         update();
         return *this;
     }
@@ -69,11 +70,12 @@ namespace pertyG
             mIsSet = other.mIsSet;
             mInterpolator = other.mInterpolator;
             mSetCallback = other.mSetCallback;
-
+            
             // Note: If your class contains dynamic memory or other resources,
             // you might need to perform deep copying or resource management here.
 
             // For atomic types, you can use the atomic store member function
+            lastVelocity.store(other.lastVelocity.load());
             last.store(other.last.load());
             current.store(other.current.load());
             target.store(other.target.load());
@@ -118,6 +120,7 @@ namespace pertyG
             //nothing change
             return;
         }
+        lastVelocity = mInterpolator->getVelocityAtTime(*this);
         target = value;
         last = (double)current;
         mIsSet = false;
@@ -130,6 +133,10 @@ namespace pertyG
         shiftProperty.last.store(shiftProperty.last.load() + value);
         shiftProperty.target.store(shiftProperty.target.load() + value);
         return shiftProperty;
+    }
+    double Property::getLastVelocity()
+    {
+        return lastVelocity.load();
     }
     double Property::getLastValue()
     {

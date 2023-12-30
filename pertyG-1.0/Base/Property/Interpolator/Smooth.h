@@ -4,15 +4,16 @@
 
 namespace pertyG
 {
-	class EaseInOut : public Interpolator
+	class Smooth : public Interpolator
 	{
 	public:
 		enum ParameterList
 		{
-			Duration,
+			Accelerator,
+			ExpectedVelocity,
 			ParameterCount
 		};
-		EaseInOut(double duration);
+		Smooth(double accelerator, double expectedVelocity);
 
 		bool isSet(Property& property) override;
 		virtual double getVelocityAtTime(Property& property) override;

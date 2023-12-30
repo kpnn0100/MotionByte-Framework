@@ -14,4 +14,8 @@ namespace pertyG
 	{
 		return std::make_shared<EaseInOut>(duration);
 	}
+	std::shared_ptr<Interpolator> InterpolatorFactory::createSmooth(double acceleration, double expectedVelocity)
+	{
+		return  std::make_shared<Smooth>(acceleration,expectedVelocity);
+	}
 }

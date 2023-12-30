@@ -6,7 +6,7 @@ namespace pertyG
 {
     std::unique_ptr<FrameRenderer> FrameRenderer::mInstance = nullptr;
 
-    FrameRenderer::FrameRenderer() : FrameRenderer(120.0) {}
+    FrameRenderer::FrameRenderer() : FrameRenderer(60.0) {}
 
     FrameRenderer::FrameRenderer(double fps)
     {
