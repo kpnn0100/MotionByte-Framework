@@ -1,27 +1,33 @@
-#include "EaseInOut.h"
-
-pertyG::EaseInOut::EaseInOut(double duration) : Interpolator(ParameterCount)
+#include "../PropertyHeader.h"
+namespace pertyG
 {
-	mPropertyList[ParameterList::Duration] = duration;
-}
-
-bool pertyG::EaseInOut::isSet(double time)
-{
-	return time > mPropertyList[ParameterList::Duration];
-}
-
-double pertyG::EaseInOut::getValueAtTime(double initValue, double targetValue, double time)
-{
-	if (time > mPropertyList[ParameterList::Duration])
+	EaseInOut::EaseInOut(double duration) : Interpolator(ParameterCount)
 	{
-		return targetValue;
+		mPropertyList[ParameterList::Duration] = duration;
 	}
 
-	double t = time / mPropertyList[ParameterList::Duration];
-	t /= 0.5;
-	if (t < 1.0) {
-		return initValue + (targetValue- initValue)*0.5 * t * t * t;
+	bool EaseInOut::isSet(Property& property)
+	{
+		double time = property.getElapsedTime();
+		return time > mPropertyList[ParameterList::Duration];
 	}
-	t -= 2.0;
-	return initValue + (targetValue - initValue) * 0.5 * (t * t * t + 2.0);
+
+	double EaseInOut::getValueAtTime(Property& property)
+	{
+		double time = property.getElapsedTime();
+		double initValue = property.getLastValue();
+		double targetValue = property.getTargetValue();
+		if (time > mPropertyList[ParameterList::Duration])
+		{
+			return targetValue;
+		}
+
+		double t = time / mPropertyList[ParameterList::Duration];
+		t /= 0.5;
+		if (t < 1.0) {
+			return initValue + (targetValue - initValue) * 0.5 * t * t * t;
+		}
+		t -= 2.0;
+		return initValue + (targetValue - initValue) * 0.5 * (t * t * t + 2.0);
+	}
 }

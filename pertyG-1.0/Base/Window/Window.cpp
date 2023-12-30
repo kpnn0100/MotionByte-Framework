@@ -139,14 +139,16 @@ namespace pertyG
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         mMainFrame->fillColor(Color(0, 0, 0, 255));
-
-        // glfwSetMouseButtonCallback(mMainWindow, [](GLFWwindow* window, int button, int action, int mods) {
-        // if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        //     double xpos, ypos;
-        //     glfwGetCursorPos(window, &xpos, &ypos);
-        //     std::cout << "Mouse clicked at position: (" << xpos << ", " << ypos << ")" << std::endl;
-        // }
-        // });
+        glfwSetWindowUserPointer(mMainWindow, this);
+        GLFWmousebuttonfun callbackFunction = [](GLFWwindow* window, int button, int action, int mods) {
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+                double xpos, ypos;
+                glfwGetCursorPos(window, &xpos, &ypos);
+                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+                instance->clickAt(Point(xpos, ypos));
+            }
+        };
+        glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
         // Enter the rendering loop in a separate thread
         while (!glfwWindowShouldClose(mMainWindow))
         {

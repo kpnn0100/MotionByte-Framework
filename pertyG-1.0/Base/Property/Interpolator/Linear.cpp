@@ -1,25 +1,34 @@
-#pragma once
-#include "Linear.h"
+#include "../PropertyHeader.h"
 namespace pertyG
 {
 	Linear::Linear(double duration) : Interpolator(1)
 	{
 		mPropertyList[ParameterList::Duration] = duration;
 	}
-	bool Linear::isSet(double time)
+	bool Linear::isSet(Property& property)
 	{
+		double time = property.getElapsedTime();
 		if (time > mPropertyList[ParameterList::Duration])
 		{
 			return true;
 		}
 		return false;
 	}
-	double Linear::getValueAtTime(double initValue, double targetValue, double time)
+	double Linear::getValueAtTime(Property& property)
 	{
+		double time = property.getElapsedTime();
+		double initValue = property.getLastValue();
+		double targetValue = property.getTargetValue();
 		if (time > mPropertyList[ParameterList::Duration])
 		{
 			return targetValue;
 		}
 		return initValue + time/ mPropertyList[ParameterList::Duration] * (targetValue- initValue);
+	}
+	double Linear::getVelocityAtTime(Property& property)
+	{
+		double initValue = property.getLastValue();
+		double targetValue = property.getTargetValue();
+		return (targetValue- initValue)/ mPropertyList[ParameterList::Duration];
 	}
 }

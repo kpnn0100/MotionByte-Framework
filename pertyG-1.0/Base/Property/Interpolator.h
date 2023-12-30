@@ -4,6 +4,7 @@
 #include <vector>
 namespace pertyG
 {
+	class Property;
 	class Interpolator
 	{
 	protected:
@@ -12,7 +13,8 @@ namespace pertyG
 	public:
 		Interpolator() = delete;
 		Interpolator(int numberOfProperty);
-		virtual bool isSet(double time) = 0;
-		virtual double getValueAtTime(double initValue, double targetValue, double time) = 0;
+		virtual bool isSet(Property& property) = 0;
+		virtual double getValueAtTime(Property & property) = 0;
+		virtual double getVelocityAtTime(Property& property);
 	};
 }

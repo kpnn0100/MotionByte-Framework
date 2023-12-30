@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "../FrameRenderer/FrameRenderer.h"
-#include "../Property/Property.h"
+#include "../Property/PropertyHeader.h"
 #include "../Property/PropertyManager.h"
 #include "../Graphic/Frame.h"
 #include "../Segment/Segment.h"

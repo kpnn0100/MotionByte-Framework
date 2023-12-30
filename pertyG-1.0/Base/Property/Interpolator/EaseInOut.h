@@ -15,8 +15,8 @@ namespace pertyG
 		};
 		EaseInOut(double duration);
 
-		bool isSet(double time) override;
+		bool isSet(Property& property) override;
 
-		double getValueAtTime(double initValue, double targetValue, double time) override;
+		virtual double getValueAtTime(Property& property) override;
 	};
 }

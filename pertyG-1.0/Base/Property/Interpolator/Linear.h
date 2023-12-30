@@ -11,7 +11,8 @@ namespace pertyG
 		};
 	public:
 		Linear(double duration);
-		virtual bool isSet(double time) override;
-		virtual double getValueAtTime(double initValue, double targetValue, double time) override;
+		virtual bool isSet(Property& property) override;
+		virtual double getValueAtTime(Property& property) override;
+		virtual double getVelocityAtTime(Property& property) override;
 	};
 }

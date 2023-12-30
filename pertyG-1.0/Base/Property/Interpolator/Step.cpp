@@ -1,17 +1,16 @@
-#pragma once
-#include "Step.h"
+#include "../PropertyHeader.h"
 namespace pertyG
 {
 	Step::Step() : Interpolator(0)
 	{
 
 	}
-	bool Step::isSet(double time)
+	bool Step::isSet(Property& property)
 	{
 		return true;
 	}
-	double Step::getValueAtTime(double initValue, double targetValue, double time)
+	double Step::getValueAtTime(Property& property)
 	{
-		return targetValue;
+		return property.getTargetValue();
 	}
 }

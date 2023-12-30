@@ -4,30 +4,36 @@
 #include <atomic>
 
 #include "../FrameRenderer/FrameRenderer.h"
-#include "Interpolator.h"
-#include "InterpolatorFactory.h"
 #include "../../Functional/Timer.h"
-
 namespace pertyG
 {
-
+class Interpolator;
 class Property
 {
+private:
     Timer mInterpolatorTimer;
     std::atomic<double> last;
     double lastSetTime;
     std::atomic<double> current;
     std::atomic<double> target;
+    std::atomic<double> lastVelocity;
     bool mIsSet = true;
     std::shared_ptr<Interpolator> mInterpolator;
     std::function<void()> mSetCallback;
     void update();
+    friend class Interpolator;
 public:
+    
     Property();
     Property(double value);
     Property(const Property& other);
     ~Property();
     operator double();
+    bool operator>(Property& other);
+    bool operator>=(Property& other);
+    bool operator<(Property& other);
+    bool operator<=(Property& other);
+
     Property& operator=(double value);
     Property& operator=(const Property & other);
     
@@ -37,8 +43,10 @@ public:
     void onTargetReached();
     void setValue(double value);
     Property shift(double value);
+    double getLastValue();
     double getValue();
     double getTargetValue();
+    double getElapsedTime();
     bool isSet();
 };
 }

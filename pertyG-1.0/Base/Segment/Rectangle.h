@@ -28,6 +28,7 @@ namespace pertyG
         Property& getWidth();
         Property& getHeight();
         Rectangle withSizeKeepCenter(double newWidth,double newHeight);
+        bool isInside(Point point);
         // Setter methods
         void setPosition(const Point& position);
         void setSize(double width, double height);

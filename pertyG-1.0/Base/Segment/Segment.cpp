@@ -1,6 +1,19 @@
 #include "Segment.h"
 namespace pertyG
 {
+    void Segment::recursiveClick(Point point, bool& handled)
+    {
+        for (auto& segment : mChildrenList)
+        {
+            if (segment->mBound.isInside(point))
+            {
+                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+                Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+                segment->clickAt(newClickedPoint);
+
+            }
+        }
+    }
     Segment::Segment() : mainFrame(&mBound)
     {
 

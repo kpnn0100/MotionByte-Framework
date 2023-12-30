@@ -8,6 +8,10 @@ class TempObject : public Segment
 {
     Color myColor;
 public:
+    TempObject()
+    {
+        mSegmentTypeName = "TempObject";
+    }
     void setColor(double red, double green, double blue, double alpha)
     {
         myColor.setRed(red);
@@ -23,7 +27,7 @@ public:
     {
         Rectangle drawer = mBound;
         drawer.setPosition(Point(0, 0));
-        frame.fillRectangle(myColor, mBound);
+        frame.fillRectangle(myColor, drawer);
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();

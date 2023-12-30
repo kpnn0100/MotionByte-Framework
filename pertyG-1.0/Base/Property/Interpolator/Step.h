@@ -6,7 +6,7 @@ namespace pertyG
 	{
 	public:
 		Step();
-		virtual bool isSet(double time) override;
-		virtual double getValueAtTime(double initValue, double targetValue, double time) override;
+		virtual bool isSet(Property& property) override;
+		virtual double getValueAtTime(Property& property) override;
 	};
 }

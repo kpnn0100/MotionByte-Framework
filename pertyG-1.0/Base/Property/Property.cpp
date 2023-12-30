@@ -1,4 +1,4 @@
-#include "Property.h"
+#include "PropertyHeader.h"
 namespace pertyG
 {
 
@@ -28,11 +28,26 @@ namespace pertyG
         {
             return;
         }
-        current = mInterpolator->getValueAtTime(last, target, mInterpolatorTimer.getDuration());
-        if (mInterpolator->isSet(mInterpolatorTimer.getDuration()))
+        current = mInterpolator->getValueAtTime(*this);
+        if (mInterpolator->isSet(*this))
         {
             onTargetReached();
         }
+    }
+    bool Property::operator>(Property& other) {
+        return getValue() > other.getValue();
+    }
+
+    bool Property::operator<(Property& other) {
+        return getValue() < other.getValue();
+    }
+
+    bool Property::operator>=(Property& other) {
+        return getValue() >= other.getValue();
+    }
+
+    bool Property::operator<=(Property& other) {
+        return getValue() <= other.getValue();
     }
     Property::operator double()
     {
@@ -116,6 +131,10 @@ namespace pertyG
         shiftProperty.target.store(shiftProperty.target.load() + value);
         return shiftProperty;
     }
+    double Property::getLastValue()
+    {
+        return last;
+    }
     double Property::getValue()
     {
         update();
@@ -123,8 +142,11 @@ namespace pertyG
     }
     double Property::getTargetValue()
     {
-        update();
         return target;
+    }
+    double Property::getElapsedTime()
+    {
+        return mInterpolatorTimer.getDuration();
     }
     bool Property::isSet()
     {

@@ -3,11 +3,12 @@
 #include <memory>
 #include "Rectangle.h"
 #include "../Graphic/Frame.h"
+#include "Event/MouseEvenHandler.h"
 #include <string>
 namespace pertyG
 {
     class Window;
-    class Segment
+    class Segment : public MouseEvenHandler
     {
     protected:
         Segment* mParent;
@@ -17,6 +18,7 @@ namespace pertyG
         Window* mTopParent;
         std::string mSegmentTypeName;
         int mSegmentTypeID;
+        virtual void recursiveClick(Point point, bool& handled) override;
     public:
         Segment();
         void setBound(Rectangle bound);
