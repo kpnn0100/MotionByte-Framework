@@ -25,9 +25,7 @@ public:
     }
     void paint(Frame& frame) override
     {
-        Rectangle drawer = mBound;
-        drawer.setPosition(Point(0, 0));
-        frame.fillRectangle(myColor, drawer);
+        frame.drawRectangle(myColor, this->getLocalBound(),6.0f);
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();
@@ -46,7 +44,7 @@ int main() {
     Window window(500, 600);
 
     window.addSegment(temp);
-    temp->setBound(Rectangle(Point(50, 60), 100, 200));
+    temp->setBound(Rectangle(Point(50, 60), 50, 50));
     temp->setColor(1, 0.5, 0.25, 1);
     temp->getSegmentPropertyManager().setInterpolatorForAll(InterpolatorFactory::createSmooth(1000, 1000));
     window.setClickCallback([](Point point)

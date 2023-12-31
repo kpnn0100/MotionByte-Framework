@@ -62,42 +62,65 @@ namespace pertyG
         std::vector<float> vertices;
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
         std::vector<float> colors;  // Add color information
-        for (int i = 0; i <= Rectangle::CornerCount; ++i) {
-            Point currentCorner = bound.getCorner(i% Rectangle::CornerCount);
-            float x_outer = (mBound->getPosition().getX()+currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            float y_outer = (mBound->getPosition().getY()+currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
+        for (int i = 0; i < Rectangle::CornerCount; ++i) 
+        {
+            Point currentCorner;
+            Point nextCorner;
+            if (i > 1)
+            {
+                nextCorner = bound.getCorner(i % Rectangle::CornerCount);
+                currentCorner = bound.getCorner((i + 1) % Rectangle::CornerCount);
+            }
+            else
+            {
+                currentCorner = bound.getCorner(i % Rectangle::CornerCount);
+                nextCorner = bound.getCorner((i + 1) % Rectangle::CornerCount);
+            }
 
-            // Inner point
-            float x_inner = (mBound->getPosition().getX()+currentCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            float y_inner = (mBound->getPosition().getY()+currentCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
-            y_inner = -y_inner;
-            colors.push_back((double)color.getRed() / 255.0); // R
-            colors.push_back((double)color.getGreen() / 255.0); // G
-            colors.push_back((double)color.getBlue() / 255.0); // B
-            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
+            float x[4];
+            float y[4];
+            double sign = i % 2 == 0 ? 1.0 : -1.0;
+            x[0] = (mBound->getPosition().getX() + currentCorner.getX().getValue() - sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[0] = (mBound->getPosition().getY() + currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
-            colors.push_back((double)color.getRed() / 255.0); // R
-            colors.push_back((double)color.getGreen() / 255.0); // G
-            colors.push_back((double)color.getBlue() / 255.0); // B
+            x[1] = (mBound->getPosition().getX() + nextCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[1] = (mBound->getPosition().getY() + nextCorner.getY().getValue() - sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
-            colors.push_back((double)color.getAlpha() / 255.0); // Alpha
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
-            vertices.push_back(x_inner);
-            vertices.push_back(y_inner);
+            x[2] = (mBound->getPosition().getX() + nextCorner.getX().getValue() + sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[2] = (mBound->getPosition().getY() + nextCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
+
+            x[3] = (mBound->getPosition().getX() + currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[3] = (mBound->getPosition().getY() + currentCorner.getY().getValue() + sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
+
+           for (int j = 0; j < Rectangle::CornerCount; j++)
+            {
+                y[j] = -y[j];
+                vertices.push_back(x[j]);
+                vertices.push_back(y[j]);
+                colors.push_back((double)color.getRed()); // R
+                colors.push_back((double)color.getGreen()); // G
+                colors.push_back((double)color.getBlue()); // B
+                colors.push_back((double)color.getAlpha()); // Alpha
+            }
         }
         
-        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_STATIC_DRAW);
-        // Specify the layout of the color data
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);  // Assuming each color has 4 components (R, G, B, Alpha)
-        
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, (void*)0);
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getColorBuffer());
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        // Draw
+        glDrawArrays(GL_QUADS, 0, vertices.size() / 2);
+
+        glBindVertexArray(0);
     }
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
