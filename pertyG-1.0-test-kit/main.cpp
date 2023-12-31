@@ -47,18 +47,11 @@ int main() {
 
     window.addSegment(temp);
     temp->setBound(Rectangle(Point(50, 60), 100, 200));
-    temp->setColor(1,1,1,1);
-    temp->getColor().getRed().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
-    temp->getColor().getGreen().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
-    temp->getColor().getBlue().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
-    temp->getColor().getAlpha().setInterpolator(InterpolatorFactory::createEaseInOut(2.0));
-
-    temp->getBound().getPosition().getX().setInterpolator(InterpolatorFactory::createSmooth(1000,1000));
-    temp->getBound().getPosition().getY().setInterpolator(InterpolatorFactory::createSmooth(1000,1000));
+    temp->setColor(1, 0.5, 0.25, 1);
+    temp->getSegmentPropertyManager().setInterpolatorForAll(InterpolatorFactory::createSmooth(1000, 1000));
     window.setClickCallback([](Point point)
         {
-            temp->getBound().getPosition().getX().setValue(point.getX());
-            temp->getBound().getPosition().getY().setValue(point.getY());
+            temp->setCenterPosition(point);
         });
     std::thread submainThread(submain, &window);
     window.show();

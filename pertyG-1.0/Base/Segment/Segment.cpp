@@ -14,17 +14,40 @@ namespace pertyG
             }
         }
     }
-    Segment::Segment() : mainFrame(&mBound)
+    Segment::Segment() : mainFrame(&mBound), mPropertyManager(PropertyCount)
     {
-
+        mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
+        mPropertyManager.setPropertyPointer(Y, &mBound.getPosition().getY());
+        mPropertyManager.setPropertyPointer(Width, &mBound.getWidth());
+        mPropertyManager.setPropertyPointer(Height, &mBound.getWidth());
+    }
+    PropertyManager& Segment::getSegmentPropertyManager()
+    {
+        return mPropertyManager;
+    }
+    void Segment::setTopLeftPosition(Point point)
+    {
+        mBound.getPosition().setPosition(0, point.getX());
+        mBound.getPosition().setPosition(1, point.getY());
+    }
+    void Segment::setCenterPosition(Point point)
+    {
+        mBound.getPosition().setPosition(0, point.getX()- mBound.getWidth()/2.0);
+        mBound.getPosition().setPosition(1, point.getY() - mBound.getHeight() / 2.0);
     }
     void Segment::setBound(Rectangle bound)
     {
         mBound = bound;
     }
-    Rectangle& Segment::getBound()
+    Rectangle Segment::getBound() const
     {
         return mBound;
+    }
+    Rectangle Segment::getLocalBound() const
+    {
+        Rectangle newBound = mBound;
+        newBound.setPosition(Point(0, 0));
+        return newBound;
     }
     void Segment::addSegment(std::shared_ptr<Segment> segment)
     {

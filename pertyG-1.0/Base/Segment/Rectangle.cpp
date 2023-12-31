@@ -58,6 +58,13 @@ namespace pertyG
         return newRectangle;
     }
 
+    Rectangle Rectangle::withPosition(Point position)
+    {
+        Rectangle newRectangle = *this;
+        newRectangle.setPosition(position);
+        return newRectangle;
+    }
+
     bool Rectangle::isInside(Point point)
     {
         if (point.getX() > getCorner(TopLeft).getX() 

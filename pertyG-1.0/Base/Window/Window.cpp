@@ -40,13 +40,11 @@ const char* fragmentShaderSource = R"(
 namespace pertyG
 {
 
-    Window::Window(int width, int height) : mPropertyManager(PropertyManager(PropertyCount))
+    Window::Window(int width, int height) : mPropertyManager(PropertyCount)
     {
         mTopParent = this;
         mMainWindow = nullptr;
         create(width, height, "hello");
-        mPropertyManager.initValue(WindowWidth, width);
-        mPropertyManager.initValue(WindowHeight, height);
     }
     GLuint& Window::getVertexBuffer()
     {

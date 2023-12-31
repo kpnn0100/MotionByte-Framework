@@ -4,6 +4,7 @@
 #include "Rectangle.h"
 #include "../Graphic/Frame.h"
 #include "Event/MouseEvenHandler.h"
+#include "../Property/PropertyHeader.h"
 #include <string>
 namespace pertyG
 {
@@ -11,6 +12,7 @@ namespace pertyG
     class Segment : public MouseEvenHandler
     {
     protected:
+        PropertyManager mPropertyManager;
         Segment* mParent;
         std::vector<std::shared_ptr<Segment>> mChildrenList;
         Rectangle mBound;
@@ -20,10 +22,21 @@ namespace pertyG
         int mSegmentTypeID;
         virtual void recursiveClick(Point point, bool& handled) override;
     public:
+        enum PropertyID
+        {
+            X,
+            Y,
+            Width,
+            Height,
+            PropertyCount
+        };
         Segment();
+        PropertyManager& getSegmentPropertyManager();
+        void setTopLeftPosition(Point point);
+        void setCenterPosition(Point point);
         void setBound(Rectangle bound);
-        Rectangle& getBound();
-
+        Rectangle getBound() const;
+        Rectangle getLocalBound() const;
         void addSegment(std::shared_ptr<Segment> segment);
         void triggerPaint();
         virtual void paint(Frame &frame) = 0;
