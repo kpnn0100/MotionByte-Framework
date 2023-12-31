@@ -23,6 +23,7 @@ namespace pertyG
         void drawCircle(Color color, Rectangle bound, double stroke);
         void drawRectangle(Color color, Rectangle bound, double stroke);
         void fillRectangle(Color color, Rectangle bound);
+        void fillCircle(Color color, Rectangle bound);
         // Method to draw something to the buffer (you can replace this with your drawing logic)
         void drawSomething();
 

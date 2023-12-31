@@ -25,12 +25,14 @@ public:
     }
     void paint(Frame& frame) override
     {
-        frame.drawRectangle(myColor, this->getLocalBound(),6.0f);
+        frame.fillColor(Color(0, 255, 0, 255));
+        frame.fillCircle(myColor, this->getLocalBound());
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();
+bool running = true;
 void submain(Window * window) {
-    while (true)
+    while (running)
     {
         int num1, num2, num3, num4;
         std::cout << "Enter 4 integers for color (R, G, B, A): " << std::endl;
@@ -59,9 +61,8 @@ int main() {
 
 
     // Wait for the submainThread to finish
-    
-
     window.waitToClose();
+    running = false;
     submainThread.join();
     return 0;
 }

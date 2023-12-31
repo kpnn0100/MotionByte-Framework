@@ -135,8 +135,8 @@ namespace pertyG
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        mMainFrame->fillColor(Color(0, 0, 0, 255));
+        mainFrame.setWindow(this);
+        mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
         GLFWmousebuttonfun callbackFunction = [](GLFWwindow* window, int button, int action, int mods) {
             if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {

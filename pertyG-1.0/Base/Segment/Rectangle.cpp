@@ -46,6 +46,12 @@ namespace pertyG
         }
         
     }
+    Point Rectangle::getCenter()
+    {
+        Point center = mPosition;
+        center = center.withOffset(Point(mSize[0] / 2.0, mSize[1] / 2.0));
+        return center;
+    }
     Property& Rectangle::getWidth() { return mSize[0]; }
     Property& Rectangle::getHeight() { return mSize[1]; }
 

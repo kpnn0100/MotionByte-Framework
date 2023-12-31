@@ -21,7 +21,6 @@ namespace pertyG
     class Window : public IFrameEventListener, public Segment
     {
     private:
-        std::shared_ptr<Frame> mMainFrame;
         std::atomic<GLFWwindow*> mMainWindow;
         PropertyManager mPropertyManager;
         std::mutex mTaskListLocker;

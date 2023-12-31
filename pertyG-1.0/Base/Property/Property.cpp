@@ -131,6 +131,7 @@ namespace pertyG
         update();
         Property shiftProperty = *this;
         shiftProperty.last.store(shiftProperty.last.load() + value);
+        shiftProperty.current.store(shiftProperty.current.load() + value);
         shiftProperty.target.store(shiftProperty.target.load() + value);
         return shiftProperty;
     }
