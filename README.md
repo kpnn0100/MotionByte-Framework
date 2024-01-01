@@ -39,6 +39,6 @@ cmake --build .
 
 After setting up the environment, you can run the test executable. For Windows, locate the `windows_test.exe` in the build folder and run it from your terminal. This will launch a window with a rectangle inside.
 
-You can interact with the rectangle by click any where. Observe the animation as the rectangle modifies accordingly.
+You can interact with the rectangle by click and drag on retangle. Observe the animation as the rectangle modifies accordingly.
 
 Feel free to experiment and provide me with feedback as I continue to develop and improve my project. Thank you for your interest!

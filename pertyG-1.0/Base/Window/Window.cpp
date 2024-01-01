@@ -143,10 +143,25 @@ namespace pertyG
                 double xpos, ypos;
                 glfwGetCursorPos(window, &xpos, &ypos);
                 Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-                instance->clickAt(Point(xpos, ypos));
+                instance->pressAt(Point(xpos, ypos));
+            }
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+                double xpos, ypos;
+                glfwGetCursorPos(window, &xpos, &ypos);
+                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+                instance->releaseAt(Point(xpos, ypos));
             }
         };
+
+        glfwSetCursorPosCallback(mMainWindow,
+            [](GLFWwindow* window, double xpos, double ypos)
+            {
+                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+                instance->mouseMove(Point(xpos, ypos));
+            }
+        );
         glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
+
         // Enter the rendering loop in a separate thread
         while (!glfwWindowShouldClose(mMainWindow))
         {

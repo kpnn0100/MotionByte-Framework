@@ -7,10 +7,23 @@ using namespace pertyG;
 class TempObject : public Segment
 {
     Color myColor;
+    double value;
+    Property percent;
+    void onMouseDragged(Point point) override
+    {
+        value = 1.0 - point.getY() / getLocalBound().getHeight();
+        value /= 2.0;
+        if (value < 0.0) value = 0.0;
+        if (value > 1.0) value = 1.0;
+        percent.setValue(value);
+    }
 public:
     TempObject()
     {
         mSegmentTypeName = "TempObject";
+        value = 0.0;
+        percent.setInterpolator(InterpolatorFactory::createSmooth(4.0, 4.0));
+        percent.setValue(value);
     }
     void setColor(double red, double green, double blue, double alpha)
     {
@@ -26,7 +39,8 @@ public:
     void paint(Frame& frame) override
     {
         frame.fillColor(Color(0, 255, 0, 255));
-        frame.fillCircle(myColor, this->getLocalBound());
+        double finalDegree = 240 + percent.getValue() * (-60 - 240);
+        frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();
@@ -49,10 +63,10 @@ int main() {
     temp->setBound(Rectangle(Point(50, 60), 50, 50));
     temp->setColor(1, 0.5, 0.25, 1);
     temp->getSegmentPropertyManager().setInterpolatorForAll(InterpolatorFactory::createSmooth(1000, 1000));
-    window.setClickCallback([](Point point)
-        {
-            temp->setCenterPosition(point);
-        });
+    //window.setClickCallback([](Point point)
+    //    {
+    //        temp->setCenterPosition(point);
+    //    });
     std::thread submainThread(submain, &window);
     window.show();
 

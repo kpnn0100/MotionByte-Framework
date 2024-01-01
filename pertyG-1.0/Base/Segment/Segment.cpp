@@ -1,7 +1,7 @@
 #include "Segment.h"
 namespace pertyG
 {
-    void Segment::recursiveClick(Point point, bool& handled)
+    void Segment::recursivePress(Point point, bool& handled)
     {
         for (auto& segment : mChildrenList)
         {
@@ -9,8 +9,45 @@ namespace pertyG
             {
                 Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
                 Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
-                segment->clickAt(newClickedPoint);
-
+                segment->pressAt(newClickedPoint);
+            }
+        }
+    }
+    void Segment::recursiveRelease(Point point, bool& handled)
+    {
+        for (auto& segment : mChildrenList)
+        {
+            if (segment->mBound.isInside(point))
+            {
+                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+                Point releasedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+                segment->releaseAt(releasedPoint);
+            }
+            else if (segment->isPressing())
+            {
+                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+                Point releasedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+                segment->releaseAt(releasedPoint);
+            }
+        }
+    }
+    void Segment::recursiveMove(Point point)
+    {
+        for (auto& segment : mChildrenList)
+        {
+            Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+            Point newPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+            segment->mouseMove(newPoint);
+            if (segment->mBound.isInside(point))
+            {
+                segment->mouseEnter();
+            }
+            else
+            {
+                if (segment->isHoverOn())
+                {
+                    segment->mouseExit();
+                }
             }
         }
     }

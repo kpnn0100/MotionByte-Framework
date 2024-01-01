@@ -4,7 +4,9 @@ namespace pertyG
 {
 	class Step : public Interpolator
 	{
+	
 	public:
+
 		Step();
 		virtual bool isSet(Property& property) override;
 		virtual double getValueAtTime(Property& property) override;

@@ -20,7 +20,9 @@ namespace pertyG
         Window* mTopParent;
         std::string mSegmentTypeName;
         int mSegmentTypeID;
-        virtual void recursiveClick(Point point, bool& handled) override;
+        virtual void recursivePress(Point point, bool& handled) override;
+        virtual void recursiveRelease(Point point, bool& handled) override;
+        virtual void recursiveMove(Point point) override;
     public:
         enum PropertyID
         {

@@ -1,5 +1,6 @@
 #include "Frame.h"
 #include "../Window/Window.h"
+#include <math.h>
 namespace pertyG
 {
     int Frame::windowWidth = 0;
@@ -235,6 +236,78 @@ namespace pertyG
             // Inner point
             float x_inner = mBound->getPosition().getX() + midPoint.getX();
             float y_inner = mBound->getPosition().getY() + midPoint.getY();
+            x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
+            y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
+            y_inner = -y_inner;
+            vertices.push_back(x_inner);
+            vertices.push_back(y_inner);
+
+            colors.push_back((double)color.getRed()); // R
+            colors.push_back((double)color.getGreen()); // G
+            colors.push_back((double)color.getBlue()); // B
+            colors.push_back((double)color.getAlpha()); // Alpha
+
+            colors.push_back((double)color.getRed()); // R
+            colors.push_back((double)color.getGreen()); // G
+            colors.push_back((double)color.getBlue()); // B
+            colors.push_back((double)color.getAlpha()); // Alpha
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+        glBindBuffer(GL_ARRAY_BUFFER, mWindow->getColorBuffer());
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(float), colors.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+    }
+    void Frame::drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction)
+    {
+        std::vector<float> vertices;
+        const int segments = 100;
+        const float lineThickness = stroke;  // Adjust this value for the desired line thickness
+        Point midPoint = bound.getCenter();
+        double width = bound.getWidth();
+        double height = bound.getHeight();
+        if (direction == ClockWise)
+        {
+            if (endDegree > startDegree)
+            {
+                endDegree -= 360;
+            }
+        }
+        else
+        {
+            if (startDegree  > endDegree)
+            {
+                startDegree -= 360;
+            }
+        }
+        double startRadian = -startDegree / 180.0 * 3.14159265;
+        double endRadian = -endDegree / 180.0 * 3.14159265;
+
+        std::vector<float> colors;  // Add color information
+        for (int i = 0; i <= segments; ++i) {
+            float ratio = (static_cast<float>(i)) / static_cast<float>(segments);
+            float theta = startRadian + ratio * (endRadian-startRadian);
+
+            // Outer point
+            float x_outer = mBound->getPosition().getX() + midPoint.getX() + (width / 2 + lineThickness) * glm::cos(theta);
+            float y_outer = mBound->getPosition().getY() + midPoint.getY() + (height / 2 + lineThickness) * glm::sin(theta);
+            x_outer = x_outer / (double)windowWidth * 2.0 - 1.0;
+            y_outer = y_outer / (double)windowHeight * 2.0 - 1.0;
+            y_outer = -y_outer;
+            vertices.push_back(x_outer);
+            vertices.push_back(y_outer);
+
+            // Inner point
+            float x_inner = mBound->getPosition().getX() + midPoint.getX() + (width / 2 - lineThickness) * glm::cos(theta);
+            float y_inner = mBound->getPosition().getY() + midPoint.getY() + (height / 2 - lineThickness) * glm::sin(theta);
             x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
             y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
             y_inner = -y_inner;
