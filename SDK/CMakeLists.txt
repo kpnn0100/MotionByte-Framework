@@ -45,7 +45,7 @@ set(GLEW_HEADERS
 )
 
 
-add_library(GLEW_1130 SHARED
+add_library(GLEW_1130 STATIC
 	${GLEW_SOURCE}
 )
 

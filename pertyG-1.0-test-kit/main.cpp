@@ -24,6 +24,11 @@ public:
         value = 0.0;
         percent.setInterpolator(InterpolatorFactory::createSmooth(4.0, 4.0));
         percent.setValue(value);
+        myColor.getAlpha().setPropertyName("alpha");
+        myColor.getAlpha().bind([this]
+            {
+                return percent.getValue();
+            });
     }
     void setColor(double red, double green, double blue, double alpha)
     {

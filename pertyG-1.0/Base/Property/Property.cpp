@@ -85,9 +85,15 @@ namespace pertyG
 
             // Assuming std::function is copyable
             mSetCallback = other.mSetCallback;
+            mPropertyName = other.mPropertyName;
+            mBindFunction = other.mBindFunction;
             update();
         }
         return *this;
+    }
+    void Property::setPropertyName(std::string propertyName)
+    {
+        mPropertyName = propertyName;
     }
     void Property::initValue(double value)
     {
@@ -135,6 +141,14 @@ namespace pertyG
         shiftProperty.target.store(shiftProperty.target.load() + value);
         return shiftProperty;
     }
+    void Property::bind(std::function<double()> bindFunction)
+    {
+        mBindFunction = bindFunction;
+    }
+    void Property::removeBind()
+    {
+        mBindFunction = std::function<int()>();
+    }
     double Property::getLastVelocity()
     {
         return lastVelocity.load();
@@ -145,6 +159,10 @@ namespace pertyG
     }
     double Property::getValue()
     {
+        if (mBindFunction)
+        {
+            return mBindFunction();
+        }
         update();
         return current;
     }
