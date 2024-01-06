@@ -27,9 +27,13 @@ namespace MotionByte
         void fillColor(Color color);
         void drawRectangle(Color color, Rectangle bound, double stroke);
         void fillRectangle(Color color, Rectangle bound);
+        void drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke);
+        void fillRoundedRectangle(Color color, Rectangle bound, double radius);
         void drawCircle(Color color, Rectangle bound, double stroke);
         void fillCircle(Color color, Rectangle bound);
         void drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction);
+        void drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction);
+        void drawAnnularArc(Color color, Point center, double innerRadius,double outerRadius, double startDegree, double endDegree, Direction direction);
         void drawSomething();
 
     };

@@ -23,6 +23,7 @@ namespace MotionByte
         virtual void recursivePress(Point point, bool& handled) override;
         virtual void recursiveRelease(Point point, bool& handled) override;
         virtual void recursiveMove(Point point) override;
+        virtual void recursiveAction(Point point, bool& handled, MouseButton button, MouseAction mouseEvent) override;
     public:
         enum PropertyID
         {

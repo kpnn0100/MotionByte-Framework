@@ -25,10 +25,10 @@ public:
         percent.setInterpolator(InterpolatorFactory::createSmooth(4.0, 4.0));
         percent.setValue(value);
         myColor.getAlpha().setPropertyName("alpha");
-        myColor.getAlpha().bind([this]
-            {
-                return percent.getValue();
-            });
+        //myColor.getAlpha().bind([this]
+        //    {
+        //        return percent.getValue();
+        //    });
     }
     void setColor(double red, double green, double blue, double alpha)
     {
@@ -45,7 +45,9 @@ public:
     {
         frame.fillColor(Color(0, 255, 0, 255));
         double finalDegree = 240 + percent.getValue() * (-60 - 240);
-        frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
+        //frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
+        frame.fillRoundedRectangle(myColor, this->getLocalBound(), percent.getValue()*100.0);
+        //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();
@@ -65,13 +67,13 @@ int main() {
     Window window(500, 600);
 
     window.addSegment(temp);
-    temp->setBound(Rectangle(Point(50, 60), 50, 50));
+    temp->setBound(Rectangle(Point(50.5, 60.5), 200, 200));
     temp->setColor(1, 0.5, 0.25, 1);
     temp->getSegmentPropertyManager().setInterpolatorForAll(InterpolatorFactory::createSmooth(1000, 1000));
-    //window.setClickCallback([](Point point)
-    //    {
-    //        temp->setCenterPosition(point);
-    //    });
+    window.setClickCallback([](Point point)
+        {
+            temp->setCenterPosition(point);
+        });
     std::thread submainThread(submain, &window);
     window.show();
 

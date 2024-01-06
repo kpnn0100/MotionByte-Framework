@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include "PausableTimer.h"
 namespace MotionByte
 {
     class Timer
@@ -13,20 +14,20 @@ namespace MotionByte
             if (!isRunning)
             {
                 isRunning = true;
-                startTime = std::chrono::high_resolution_clock::now();
+                startTime = PausableTimer::getInstance().now();
             }
         }
         void restart()
         {
             isRunning = true;
-            startTime = std::chrono::high_resolution_clock::now();
+            startTime = PausableTimer::getInstance().now();
         }
         void stop()
         {
             if (isRunning)
             {
                 isRunning = false;
-                endTime = std::chrono::high_resolution_clock::now();
+                endTime = PausableTimer::getInstance().now();
             }
         }
 
@@ -49,7 +50,7 @@ namespace MotionByte
         {
             if (isRunning)
             {
-                auto now = std::chrono::high_resolution_clock::now();
+                auto now = PausableTimer::getInstance().now();
                 return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0;
             }
             else

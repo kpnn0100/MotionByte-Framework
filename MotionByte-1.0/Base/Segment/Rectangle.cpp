@@ -52,6 +52,12 @@ namespace MotionByte
         center = center.withOffset(Point(mSize[0] / 2.0, mSize[1] / 2.0));
         return center;
     }
+    Point Rectangle::getLocalCenter()
+    {
+        Point center;
+        center = center.withOffset(Point(mSize[0] / 2.0, mSize[1] / 2.0));
+        return center;
+    }
     Property& Rectangle::getWidth() { return mSize[0]; }
     Property& Rectangle::getHeight() { return mSize[1]; }
 
@@ -60,14 +66,23 @@ namespace MotionByte
         Rectangle newRectangle;
         newRectangle = *this;
         newRectangle.moveBy(Point((mSize[0] - newWidth) / 2, (mSize[1] - newHeight) / 2));
-        newRectangle.setSize(newWidth, newHeight);
+        newRectangle.getWidth() = newRectangle.getWidth().shift(newWidth - newRectangle.getWidth());
+        newRectangle.getHeight() =  newRectangle.getHeight().shift(newHeight - newRectangle.getHeight());
         return newRectangle;
     }
 
-    Rectangle Rectangle::withPosition(Point position)
+    Rectangle Rectangle::withTopLeft(Point position)
     {
         Rectangle newRectangle = *this;
         newRectangle.setPosition(position);
+        return newRectangle;
+    }
+
+    Rectangle Rectangle::withCenter(Point position)
+    {
+        Rectangle newRectangle = *this;
+        newRectangle.mPosition = position;
+        newRectangle.mPosition = newRectangle.mPosition.withOffset(Point(-newRectangle.getWidth() / 2.0, -newRectangle.getHeight() / 2.0));
         return newRectangle;
     }
 

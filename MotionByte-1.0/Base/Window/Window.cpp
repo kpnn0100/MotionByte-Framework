@@ -99,6 +99,10 @@ namespace MotionByte
         glfwMakeContextCurrent(mMainWindow);
         // Enable anti-aliasing (multisampling)
         glEnable(GL_MULTISAMPLE);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glewExperimental = true;
         if (glewInit() != GLEW_OK) {
             fprintf(stderr, "Failed to initialize GLEW\n");
@@ -133,24 +137,47 @@ namespace MotionByte
 
         glGenBuffers(1, &colorBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         mainFrame.setWindow(this);
         mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
         GLFWmousebuttonfun callbackFunction = [](GLFWwindow* window, int button, int action, int mods) {
+            Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            Window::MouseButton mouseButton = MouseButton::Left;
+            Window::MouseAction mouseAction = MouseAction::Pressed;
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
             if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-                double xpos, ypos;
-                glfwGetCursorPos(window, &xpos, &ypos);
-                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
                 instance->pressAt(Point(xpos, ypos));
             }
             if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-                double xpos, ypos;
-                glfwGetCursorPos(window, &xpos, &ypos);
-                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
                 instance->releaseAt(Point(xpos, ypos));
             }
+            switch (button)
+            {
+            case GLFW_MOUSE_BUTTON_LEFT:
+                mouseButton = MouseButton::Left;
+                break;
+            case GLFW_MOUSE_BUTTON_RIGHT:
+                mouseButton = MouseButton::Right;
+                break;
+            case GLFW_MOUSE_BUTTON_MIDDLE:
+                mouseButton = MouseButton::Middle;
+                break;
+            default:
+                break;
+            }
+            switch (action)
+            {
+            case GLFW_PRESS:
+                mouseAction = MouseAction::Pressed;
+                break;
+            case GLFW_RELEASE:
+                mouseAction = MouseAction::Released;
+                break;
+            default:
+                break;
+            }
+            instance->mouseAction(Point(xpos, ypos),mouseButton,mouseAction);
         };
 
         glfwSetCursorPosCallback(mMainWindow,
@@ -201,7 +228,10 @@ namespace MotionByte
         {
             addTask([this]
                 {
+                    //Free time during render to avoid glitch
+                    PausableTimer::getInstance().pause();
                     triggerPaint();
+                    PausableTimer::getInstance().resume();
                 });
             
         }

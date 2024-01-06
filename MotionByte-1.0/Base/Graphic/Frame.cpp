@@ -158,6 +158,43 @@ namespace MotionByte
 
         glBindVertexArray(0);
     }
+    void Frame::drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke)
+    {
+
+    }
+    void Frame::fillRoundedRectangle(Color color, Rectangle bound, double radius)
+    {
+        if (radius > bound.getWidth() / 2.0)
+        {
+            radius = bound.getWidth() / 2.0;
+        }
+        if (radius > bound.getHeight() / 2.0)
+        {
+            radius = bound.getHeight() / 2.0;
+        }
+        //draw middle
+        Rectangle middleBound = bound;
+        middleBound = middleBound.withSizeKeepCenter(middleBound.getWidth(), middleBound.getHeight() - radius * 2);
+        fillRectangle(color, middleBound);
+        //upper rec and below rec
+        Rectangle upper;
+        upper.setPosition(Point(radius, 0.0));
+        upper.setSize(bound.getWidth() - radius * 2, radius);
+        fillRectangle(color, upper);
+        Rectangle below;
+        below.setPosition(Point(radius, bound.getHeight()-radius));
+        below.setSize(bound.getWidth() - radius * 2, radius);
+        fillRectangle(color, below);
+        Rectangle middle = middleBound;
+        middle = middle.withSizeKeepCenter(middle.getWidth()-2*radius, middle.getHeight());
+        for (int i = 0; i < 4; i++)
+        {
+            double startDegree = 180.0 - i * 90.0;
+            double endDegree =  180.0 - (i + 1) * 90.0;//padding
+            Point center = middle.getCorner(i);
+            drawAnnularArc(color, center, 0.0, radius, startDegree, endDegree, ClockWise);
+        }
+    }
     void Frame::drawCircle(Color color, Rectangle bound, double stroke)
     {
         std::vector<float> vertices;
@@ -270,7 +307,7 @@ namespace MotionByte
     {
         std::vector<float> vertices;
         const int segments = 100;
-        const float lineThickness = stroke;  // Adjust this value for the desired line thickness
+        const float lineThickness = stroke/2.0;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
         double width = bound.getWidth();
         double height = bound.getHeight();
@@ -290,15 +327,16 @@ namespace MotionByte
         }
         double startRadian = -startDegree / 180.0 * 3.14159265;
         double endRadian = -endDegree / 180.0 * 3.14159265;
-
+        double freezeX = mBound->getPosition().getX();
+        double freezeY = mBound->getPosition().getY();
         std::vector<float> colors;  // Add color information
         for (int i = 0; i <= segments; ++i) {
             float ratio = (static_cast<float>(i)) / static_cast<float>(segments);
             float theta = startRadian + ratio * (endRadian-startRadian);
 
             // Outer point
-            float x_outer = mBound->getPosition().getX() + midPoint.getX() + (width / 2 + lineThickness) * glm::cos(theta);
-            float y_outer = mBound->getPosition().getY() + midPoint.getY() + (height / 2 + lineThickness) * glm::sin(theta);
+            float x_outer = freezeX + midPoint.getX() + (width / 2 + lineThickness) * std::cos(theta);
+            float y_outer = freezeY + midPoint.getY() + (height / 2 + lineThickness) * std::sin(theta);
             x_outer = x_outer / (double)windowWidth * 2.0 - 1.0;
             y_outer = y_outer / (double)windowHeight * 2.0 - 1.0;
             y_outer = -y_outer;
@@ -306,8 +344,8 @@ namespace MotionByte
             vertices.push_back(y_outer);
 
             // Inner point
-            float x_inner = mBound->getPosition().getX() + midPoint.getX() + (width / 2 - lineThickness) * glm::cos(theta);
-            float y_inner = mBound->getPosition().getY() + midPoint.getY() + (height / 2 - lineThickness) * glm::sin(theta);
+            float x_inner = freezeX + midPoint.getX() + (width / 2 - lineThickness) * std::cos(theta);
+            float y_inner = freezeY + midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
             x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
             y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
             y_inner = -y_inner;
@@ -338,6 +376,17 @@ namespace MotionByte
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
     }
+    void Frame::drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction)
+    {
+        Rectangle bound;
+        bound.setSize(radius*2.0, radius*2.0);
+        bound = bound.withCenter(center);
+        drawArc(color, bound, stroke, startDegree, endDegree, direction);
+    }
+    void Frame::drawAnnularArc(Color color, Point center, double innerRadius, double outerRadius, double startDegree, double endDegree, Direction direction)
+    {
+        drawArc(color, center, (innerRadius + outerRadius) / 2.0, outerRadius - innerRadius, startDegree, endDegree, direction);
+    }
     void Frame::drawSomething()
     {
         std::vector<float> vertices;
@@ -359,4 +408,5 @@ namespace MotionByte
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glDrawArrays(GL_LINE_LOOP, 0, vertices.size() / 2);
     }
+
 }

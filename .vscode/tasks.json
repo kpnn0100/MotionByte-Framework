@@ -8,7 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
-                "${workspaceFolder}/pertyG-1.0/**/*.cpp",
+                "${workspaceFolder}/MotionByte-1.0/**/*.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lglfw",

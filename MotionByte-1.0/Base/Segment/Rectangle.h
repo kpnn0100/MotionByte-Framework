@@ -26,11 +26,12 @@ namespace MotionByte
         Point& getPosition();
         Point getCorner(int cornerID);
         Point getCenter();
+        Point getLocalCenter();
         Property& getWidth();
         Property& getHeight();
         Rectangle withSizeKeepCenter(double newWidth,double newHeight);
-        Rectangle withPosition(Point position);
-        
+        Rectangle withTopLeft(Point position);
+        Rectangle withCenter(Point position);
         bool isInside(Point point);
         // Setter methods
         void setPosition(const Point& position);

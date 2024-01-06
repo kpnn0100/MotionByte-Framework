@@ -7,6 +7,18 @@ namespace MotionByte
 {
 	class MouseEvenHandler
 	{
+	public:
+		enum MouseButton
+		{
+			Left = 0,
+			Right,
+			Middle
+		};
+		enum MouseAction
+		{
+			Pressed = 0,
+			Released
+		};
 	private:
 		Point pressPoint;
 		bool mIsPress = false;
@@ -17,6 +29,10 @@ namespace MotionByte
 
 
 	protected:
+		virtual void onInput(Point point, MouseButton button, MouseAction mouseEvent)
+		{
+
+		}
 		virtual void onClicked(Point point)
 		{
 			// Your implementation for click event
@@ -43,6 +59,7 @@ namespace MotionByte
 		{
 
 		}
+		virtual void recursiveAction(Point point, bool& handled, MouseButton button, MouseAction mouseEvent) = 0;
 		virtual void recursivePress(Point point, bool& handled) = 0;
 		virtual void recursiveRelease(Point point, bool& handled) = 0;
 		virtual void recursiveMove(Point point) = 0;
@@ -123,6 +140,14 @@ namespace MotionByte
 			}
 			std::cout << "Released at "
 				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+		}
+		void mouseAction(Point point, MouseButton button, MouseAction mouseEvent)
+		{
+
+			bool handled = false;
+			recursiveAction(point, handled, button, mouseEvent);
+			onInput(point, button, mouseEvent);
+			handled = true;
 		}
 		void mouseEnter()
 		{

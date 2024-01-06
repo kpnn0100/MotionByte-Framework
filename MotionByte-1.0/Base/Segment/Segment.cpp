@@ -51,6 +51,18 @@ namespace MotionByte
             }
         }
     }
+    void Segment::recursiveAction(Point point, bool& handled, MouseButton button, MouseAction mouseEvent)
+    {
+        for (auto& segment : mChildrenList)
+        {
+            if (segment->mBound.isInside(point))
+            {
+                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+                Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+                segment->mouseAction(newClickedPoint, button,mouseEvent);
+            }
+        }
+    }
     Segment::Segment() : mainFrame(&mBound), mPropertyManager(PropertyCount)
     {
         mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
