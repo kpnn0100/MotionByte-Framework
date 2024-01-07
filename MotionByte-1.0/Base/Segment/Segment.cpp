@@ -63,7 +63,19 @@ namespace MotionByte
             }
         }
     }
-    Segment::Segment() : mainFrame(&mBound), mPropertyManager(PropertyCount)
+    void Segment::recursiveScroll(Point point, double xValue, double yValue)
+    {
+        for (auto& segment : mChildrenList)
+        {
+            if (segment->mBound.isInside(point))
+            {
+                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+                Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
+                segment->scrollAt(newClickedPoint, xValue, yValue);
+            }
+        }
+    }
+    Segment::Segment() : mainFrame(this), mPropertyManager(PropertyCount)
     {
         mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
         mPropertyManager.setPropertyPointer(Y, &mBound.getPosition().getY());
@@ -112,5 +124,13 @@ namespace MotionByte
         {
             children->triggerPaint();
         }
+    }
+    void Segment::setIsLimited(bool limited)
+    {
+        mIsLimited = limited;
+    }
+    void Segment::setIsChildLimited(bool limited)
+    {
+        mIsChildLimited = limited;
     }
 }

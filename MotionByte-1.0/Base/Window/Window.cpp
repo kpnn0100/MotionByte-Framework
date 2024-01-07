@@ -43,6 +43,7 @@ namespace MotionByte
     Window::Window(int width, int height) : mPropertyManager(PropertyCount)
     {
         mTopParent = this;
+        mParent = nullptr;
         mMainWindow = nullptr;
         create(width, height, "hello");
     }
@@ -187,6 +188,13 @@ namespace MotionByte
                 instance->mouseMove(Point(xpos, ypos));
             }
         );
+        glfwSetScrollCallback(mMainWindow, [](GLFWwindow* window,double xPos, double yPos)
+            {
+                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+                double mouseX, mouseY;
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+                instance->scrollAt(Point(mouseX, mouseY),xPos,yPos);
+            });
         glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
 
         // Enter the rendering loop in a separate thread

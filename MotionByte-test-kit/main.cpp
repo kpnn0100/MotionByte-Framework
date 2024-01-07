@@ -9,13 +9,16 @@ class TempObject : public Segment
     Color myColor;
     double value;
     Property percent;
-    void onMouseDragged(Point point) override
+    void onScroll(Point point, double xValue, double yValue) override
     {
-        value = 1.0 - point.getY() / getLocalBound().getHeight();
-        value /= 2.0;
+        value += yValue*10.0 / getLocalBound().getHeight();
         if (value < 0.0) value = 0.0;
         if (value > 1.0) value = 1.0;
         percent.setValue(value);
+    }
+    void onMouseDragged(Point point) override
+    {
+
     }
 public:
     TempObject()
@@ -25,6 +28,7 @@ public:
         percent.setInterpolator(InterpolatorFactory::createSmooth(4.0, 4.0));
         percent.setValue(value);
         myColor.getAlpha().setPropertyName("alpha");
+        setIsLimited(true);
         //myColor.getAlpha().bind([this]
         //    {
         //        return percent.getValue();
@@ -46,7 +50,7 @@ public:
         frame.fillColor(Color(0, 255, 0, 255));
         double finalDegree = 240 + percent.getValue() * (-60 - 240);
         //frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
-        frame.fillRoundedRectangle(myColor, this->getLocalBound(), percent.getValue()*100.0);
+        frame.fillRoundedRectangle(myColor, this->getLocalBound().withSizeKeepCenter(250.0,250.0), percent.getValue() * 100.0);
         //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
     }
 };

@@ -26,9 +26,13 @@ namespace MotionByte
 		std::function<void(Point)> clickCallback;
 		std::function<void(Point)> pressedCallback;
 		std::function<void(Point)> releasedCallback;
-
+		std::function<void(Point,double,double)> scrollCallback;
 
 	protected:
+		virtual void onScroll(Point point, double xValue, double yValue)
+		{
+
+		}
 		virtual void onInput(Point point, MouseButton button, MouseAction mouseEvent)
 		{
 
@@ -59,6 +63,7 @@ namespace MotionByte
 		{
 
 		}
+		virtual void recursiveScroll(Point point, double xValue, double yValue) = 0;
 		virtual void recursiveAction(Point point, bool& handled, MouseButton button, MouseAction mouseEvent) = 0;
 		virtual void recursivePress(Point point, bool& handled) = 0;
 		virtual void recursiveRelease(Point point, bool& handled) = 0;
@@ -86,6 +91,10 @@ namespace MotionByte
 		void setReleasedCallback(std::function<void(Point)> callback)
 		{
 			releasedCallback = callback;
+		}
+		void setScrollCallback(std::function<void(Point, double, double) > callback)
+		{
+			scrollCallback = callback;
 		}
 		void clickAt(Point point)
 		{
@@ -148,6 +157,19 @@ namespace MotionByte
 			recursiveAction(point, handled, button, mouseEvent);
 			onInput(point, button, mouseEvent);
 			handled = true;
+		}
+		void scrollAt(Point point, double xValue, double yValue)
+		{
+			recursiveScroll(point, xValue, yValue);
+			if (scrollCallback)
+			{
+				scrollCallback(point, xValue, yValue);
+			}
+			onScroll(point, xValue, yValue);
+			std::cout << "Scroll at "
+				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+			std::cout << "With value "
+				<< xValue << " " << yValue << std::endl;
 		}
 		void mouseEnter()
 		{

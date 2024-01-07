@@ -5,10 +5,59 @@ namespace MotionByte
 {
     int Frame::windowWidth = 0;
     int Frame::windowHeight = 0;
-    // Constructor that takes a std::shared_ptr<GLFWwindow>
-    Frame::Frame(Rectangle* bound)
+    void Frame::convertToAbsolute(VertexList& vertexList)
     {
-        mBound = bound;
+        Point topLeftLimit = mSegment->getLocalBound().getCorner(Rectangle::TopLeft);
+        Point bottomRightLimit = mSegment->getLocalBound().getCorner(Rectangle::BottomRight);
+
+        float xMin = topLeftLimit.getX();
+        float xMax = bottomRightLimit.getX();
+        float yMin = topLeftLimit.getY();
+        float yMax = bottomRightLimit.getY();
+        Point parentTopLeftLimit; 
+        Point parentBottomRightLimit;
+        if (mSegment->mParent != nullptr)
+        {
+            parentTopLeftLimit = mSegment->mParent->mBound.getCorner(Rectangle::TopLeft);
+            parentBottomRightLimit = mSegment->mParent->mBound.getCorner(Rectangle::BottomRight);
+        }
+        float parentxMin = parentTopLeftLimit.getX();
+        float parentxMax = parentBottomRightLimit.getX();
+        float parentyMin = parentTopLeftLimit.getY();
+        float parentyMax = parentBottomRightLimit.getY();
+        for (auto& vertex : vertexList.getVertexList())
+        {
+            //limit to local border
+            if (mSegment->mIsLimited)
+            {
+                vertex.x = clamp(vertex.x, xMin, xMax);
+                vertex.y = clamp(vertex.y, yMin , yMax );
+            }
+            //relative to parent
+            vertex.x += mSegment->mBound.getPosition().getX();
+            vertex.y += mSegment->mBound.getPosition().getY();
+            //limit to parent border
+            if (mSegment->mParent != nullptr)
+            {
+                if (mSegment->mParent->mIsChildLimited)
+                {
+
+                    vertex.x = clamp(vertex.x, parentxMin, parentxMax);
+                    vertex.y = clamp(vertex.y, parentyMin, parentyMax);
+                }
+            }
+            //snap to screen coordinate in float
+            vertex.x = vertex.x / (double)windowWidth * 2.0;
+            vertex.x -= 1.0;
+            vertex.y = vertex.y/(double)windowHeight * 2.0;
+            vertex.y -= 1.0;
+            vertex.y = -vertex.y;
+        }
+    }
+    // Constructor that takes a std::shared_ptr<GLFWwindow>
+    Frame::Frame(Segment* segment)
+    {
+        mSegment = segment;
     }
 
     void Frame::setWindow(Window* window)
@@ -26,22 +75,22 @@ namespace MotionByte
     }
     void Frame::fillColor(Color color)
 	{
-        std::vector<float> vertices;
+        VertexList vertices;
+        Rectangle localBound = mSegment->mBound.withTopLeft(Point(0.0, 0.0));
         std::vector<float> colors;  // Add color information
         for (int i = 0; i <= Rectangle::CornerCount; ++i) {
-            Point currentCorner = mBound->getCorner(i % Rectangle::CornerCount);
-            float x_outer = (currentCorner.getX().getValue()) / (double)windowWidth * 2.0 - 1.0;
-            float y_outer = (currentCorner.getY().getValue()) / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
+            Point currentCorner = localBound.getCorner(i % Rectangle::CornerCount);
+            float x_outer = currentCorner.getX().getValue();
+            float y_outer = currentCorner.getY().getValue();
+            vertices.addVertex(x_outer, y_outer);
             colors.push_back((double)color.getRed()); // R
             colors.push_back((double)color.getGreen()); // G
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * 2 * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -54,14 +103,14 @@ namespace MotionByte
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         // Draw
-        glDrawArrays(GL_QUADS, 0, vertices.size() / 2);
+        glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
 
         glBindVertexArray(0);
 	}
 
     void Frame::drawRectangle(Color color, Rectangle bound, double stroke)
     {
-        std::vector<float> vertices;
+        VertexList vertices;
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
         std::vector<float> colors;  // Add color information
         for (int i = 0; i < Rectangle::CornerCount; ++i) 
@@ -82,32 +131,30 @@ namespace MotionByte
             float x[4];
             float y[4];
             double sign = i % 2 == 0 ? 1.0 : -1.0;
-            x[0] = (mBound->getPosition().getX() + currentCorner.getX().getValue() - sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            y[0] = (mBound->getPosition().getY() + currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            x[0] = (currentCorner.getX().getValue() - sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[0] = (currentCorner.getY().getValue() - lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
-            x[1] = (mBound->getPosition().getX() + nextCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            y[1] = (mBound->getPosition().getY() + nextCorner.getY().getValue() - sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            x[1] = (nextCorner.getX().getValue() + lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[1] = ( nextCorner.getY().getValue() - sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
-            x[2] = (mBound->getPosition().getX() + nextCorner.getX().getValue() + sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            y[2] = (mBound->getPosition().getY() + nextCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            x[2] = (nextCorner.getX().getValue() + sign* lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[2] = ( nextCorner.getY().getValue() + lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
-            x[3] = (mBound->getPosition().getX() + currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
-            y[3] = (mBound->getPosition().getY() + currentCorner.getY().getValue() + sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
+            x[3] = (currentCorner.getX().getValue() - lineThickness) / (double)windowWidth * 2.0 - 1.0;
+            y[3] = ( currentCorner.getY().getValue() + sign* lineThickness) / (double)windowHeight * 2.0 - 1.0;
 
            for (int j = 0; j < Rectangle::CornerCount; j++)
             {
-                y[j] = -y[j];
-                vertices.push_back(x[j]);
-                vertices.push_back(y[j]);
+                vertices.addVertex(x[j], y[j]);
                 colors.push_back((double)color.getRed()); // R
                 colors.push_back((double)color.getGreen()); // G
                 colors.push_back((double)color.getBlue()); // B
                 colors.push_back((double)color.getAlpha()); // Alpha
             }
         }
-        
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -120,28 +167,27 @@ namespace MotionByte
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         // Draw
-        glDrawArrays(GL_QUADS, 0, vertices.size() / 2);
+        glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
 
         glBindVertexArray(0);
     }
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
-        std::vector<float> vertices;
+        VertexList vertices;
         std::vector<float> colors;  // Add color information
         for (int i = 0; i <= Rectangle::CornerCount; ++i) {
             Point currentCorner = bound.getCorner(i % Rectangle::CornerCount);
-            float x_outer = (mBound->getPosition().getX() + currentCorner.getX().getValue()) / (double)windowWidth * 2.0 - 1.0;
-            float y_outer = (mBound->getPosition().getY() + currentCorner.getY().getValue()) / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
+            float x_outer = currentCorner.getX().getValue();
+            float y_outer = currentCorner.getY().getValue();
+            vertices.addVertex(x_outer, y_outer);
             colors.push_back((double)color.getRed()); // R
             colors.push_back((double)color.getGreen()); // G
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -154,7 +200,7 @@ namespace MotionByte
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         // Draw
-        glDrawArrays(GL_QUADS, 0, vertices.size() / 2);
+        glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
 
         glBindVertexArray(0);
     }
@@ -178,11 +224,13 @@ namespace MotionByte
         fillRectangle(color, middleBound);
         //upper rec and below rec
         Rectangle upper;
-        upper.setPosition(Point(radius, 0.0));
+        upper.setPosition(Point(radius+ bound.getCorner(bound.TopLeft).getX(),
+            bound.getCorner(bound.TopLeft).getY()));
         upper.setSize(bound.getWidth() - radius * 2, radius);
         fillRectangle(color, upper);
         Rectangle below;
-        below.setPosition(Point(radius, bound.getHeight()-radius));
+        below.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
+            bound.getCorner(bound.TopLeft).getY()+bound.getHeight()-radius));
         below.setSize(bound.getWidth() - radius * 2, radius);
         fillRectangle(color, below);
         Rectangle middle = middleBound;
@@ -197,7 +245,7 @@ namespace MotionByte
     }
     void Frame::drawCircle(Color color, Rectangle bound, double stroke)
     {
-        std::vector<float> vertices;
+        VertexList vertices;
         const int segments = 100;
         const float lineThickness = stroke;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
@@ -208,23 +256,14 @@ namespace MotionByte
             float theta = 2.0f * 3.14159265 * (static_cast<float>(i) + 0.5) / static_cast<float>(segments);
 
             // Outer point
-            float x_outer = mBound->getPosition().getX() + midPoint.getX() + (width / 2 + lineThickness) * glm::cos(theta);
-            float y_outer = mBound->getPosition().getY() + midPoint.getY() + (height / 2 + lineThickness) * glm::sin(theta);
-            x_outer = x_outer / (double)windowWidth * 2.0 - 1.0;
-            y_outer = y_outer / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
+            float x_outer = midPoint.getX() + (width / 2 + lineThickness) * std::cos(theta);
+            float y_outer = midPoint.getY() + (height / 2 + lineThickness) * std::sin(theta);
+            vertices.addVertex(x_outer, y_outer);
 
             // Inner point
-            float x_inner = mBound->getPosition().getX() + midPoint.getX() + (width / 2 - lineThickness) * glm::cos(theta);
-            float y_inner = mBound->getPosition().getY() + midPoint.getY() + (height / 2 - lineThickness) * glm::sin(theta);
-            x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
-            y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
-            y_inner = -y_inner;
-            vertices.push_back(x_inner);
-            vertices.push_back(y_inner);
-
+            float x_inner = midPoint.getX() + (width / 2 - lineThickness) * std::cos(theta);
+            float y_inner = midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
+            vertices.addVertex(x_inner, y_inner);
             colors.push_back((double)color.getRed()); // R
             colors.push_back((double)color.getGreen()); // G
             colors.push_back((double)color.getBlue()); // B
@@ -235,8 +274,9 @@ namespace MotionByte
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -247,12 +287,12 @@ namespace MotionByte
 
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
 
     void Frame::fillCircle(Color color, Rectangle bound)
     {
-        std::vector<float> vertices;
+        VertexList vertices;
         const int segments = 100;
         Point midPoint = bound.getCenter();
         double width = bound.getWidth();
@@ -262,22 +302,14 @@ namespace MotionByte
             float theta = 2.0f * 3.14159265 * (static_cast<float>(i) + 0.5) / static_cast<float>(segments);
 
             // Outer point
-            float x_outer = mBound->getPosition().getX() + midPoint.getX() + (width / 2 ) * glm::cos(theta);
-            float y_outer = mBound->getPosition().getY() + midPoint.getY() + (height / 2 ) * glm::sin(theta);
-            x_outer = x_outer / (double)windowWidth * 2.0 - 1.0;
-            y_outer = y_outer / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
+            float x_outer = midPoint.getX() + (width / 2 ) * glm::cos(theta);
+            float y_outer = midPoint.getY() + (height / 2 ) * glm::sin(theta);
+            vertices.addVertex(x_outer, y_outer);
 
             // Inner point
-            float x_inner = mBound->getPosition().getX() + midPoint.getX();
-            float y_inner = mBound->getPosition().getY() + midPoint.getY();
-            x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
-            y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
-            y_inner = -y_inner;
-            vertices.push_back(x_inner);
-            vertices.push_back(y_inner);
+            float x_inner = midPoint.getX();
+            float y_inner = midPoint.getY();
+            vertices.addVertex(x_inner, y_inner);
 
             colors.push_back((double)color.getRed()); // R
             colors.push_back((double)color.getGreen()); // G
@@ -289,8 +321,9 @@ namespace MotionByte
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -301,11 +334,11 @@ namespace MotionByte
 
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
     void Frame::drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction)
     {
-        std::vector<float> vertices;
+        VertexList vertices;
         const int segments = 100;
         const float lineThickness = stroke/2.0;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
@@ -327,30 +360,20 @@ namespace MotionByte
         }
         double startRadian = -startDegree / 180.0 * 3.14159265;
         double endRadian = -endDegree / 180.0 * 3.14159265;
-        double freezeX = mBound->getPosition().getX();
-        double freezeY = mBound->getPosition().getY();
         std::vector<float> colors;  // Add color information
         for (int i = 0; i <= segments; ++i) {
             float ratio = (static_cast<float>(i)) / static_cast<float>(segments);
             float theta = startRadian + ratio * (endRadian-startRadian);
 
             // Outer point
-            float x_outer = freezeX + midPoint.getX() + (width / 2 + lineThickness) * std::cos(theta);
-            float y_outer = freezeY + midPoint.getY() + (height / 2 + lineThickness) * std::sin(theta);
-            x_outer = x_outer / (double)windowWidth * 2.0 - 1.0;
-            y_outer = y_outer / (double)windowHeight * 2.0 - 1.0;
-            y_outer = -y_outer;
-            vertices.push_back(x_outer);
-            vertices.push_back(y_outer);
+            float x_outer = midPoint.getX() + (width / 2 + lineThickness) * std::cos(theta);
+            float y_outer = midPoint.getY() + (height / 2 + lineThickness) * std::sin(theta);
+            vertices.addVertex(x_outer, y_outer);
 
             // Inner point
-            float x_inner = freezeX + midPoint.getX() + (width / 2 - lineThickness) * std::cos(theta);
-            float y_inner = freezeY + midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
-            x_inner = x_inner / (double)windowWidth * 2.0 - 1.0;
-            y_inner = y_inner / (double)windowHeight * 2.0 - 1.0;
-            y_inner = -y_inner;
-            vertices.push_back(x_inner);
-            vertices.push_back(y_inner);
+            float x_inner = midPoint.getX() + (width / 2 - lineThickness) * std::cos(theta);
+            float y_inner = midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
+            vertices.addVertex(x_inner, y_inner);
 
             colors.push_back((double)color.getRed()); // R
             colors.push_back((double)color.getGreen()); // G
@@ -362,8 +385,9 @@ namespace MotionByte
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
+        convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -374,7 +398,7 @@ namespace MotionByte
 
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size() / 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
     void Frame::drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction)
     {
@@ -386,27 +410,6 @@ namespace MotionByte
     void Frame::drawAnnularArc(Color color, Point center, double innerRadius, double outerRadius, double startDegree, double endDegree, Direction direction)
     {
         drawArc(color, center, (innerRadius + outerRadius) / 2.0, outerRadius - innerRadius, startDegree, endDegree, direction);
-    }
-    void Frame::drawSomething()
-    {
-        std::vector<float> vertices;
-        const float radius = 0.5f;
-        const int segments = 10;
-
-        for (int i = 0; i <= segments; ++i) {
-            float theta = 2.0f * 3.14159265 * static_cast<float>(i) / static_cast<float>(segments);
-            float x = radius * glm::cos(theta);
-            float y = radius * glm::sin(theta);
-            vertices.push_back(x);
-            vertices.push_back(y);
-        }
-
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glDrawArrays(GL_LINE_LOOP, 0, vertices.size() / 2);
     }
 
 }

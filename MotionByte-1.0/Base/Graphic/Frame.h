@@ -4,15 +4,17 @@
 #include "../Window/GlwfManager.h"
 #include "Color.h"
 #include "../Segment/Rectangle.h"
-
+#include "Vertex.h"
 namespace MotionByte
 {
     class Window;
+    class Segment;
     class Frame {
     private:
         static int windowWidth, windowHeight;
         Window* mWindow;
-        Rectangle* mBound;
+        Segment* mSegment;
+        void convertToAbsolute(VertexList& vertexList);
     public:
         enum Direction
         {
@@ -20,7 +22,7 @@ namespace MotionByte
             CounterClockWise
         };
         // Constructor that takes a std::shared_ptr<GLFWwindow>
-        Frame(Rectangle* bound);
+        Frame(Segment* segment);
         void setWindow(Window* window);
         // Method to fill color in the buffer
         static void onWindowSizeChanged(GLFWwindow* window, int width, int height);
@@ -34,7 +36,5 @@ namespace MotionByte
         void drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction);
         void drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction);
         void drawAnnularArc(Color color, Point center, double innerRadius,double outerRadius, double startDegree, double endDegree, Direction direction);
-        void drawSomething();
-
     };
 }
