@@ -34,6 +34,10 @@ namespace MotionByte
             onTargetReached();
         }
     }
+    std::vector<double>& Property::getInterpolatorState()
+    {
+        return mInterpolatorState;
+    }
     bool Property::operator>(Property& other) {
         return getValue() > other.getValue();
     }
@@ -82,7 +86,7 @@ namespace MotionByte
 
             // Assuming Interpolator is copyable
             mInterpolator = other.mInterpolator;
-
+            mInterpolatorState = other.mInterpolatorState;
             // Assuming std::function is copyable
             mSetCallback = other.mSetCallback;
             mPropertyName = other.mPropertyName;
@@ -105,6 +109,7 @@ namespace MotionByte
     void Property::setInterpolator(std::shared_ptr<Interpolator> interpolator)
     {
         mInterpolator = interpolator;
+        mInterpolator->updateStateFor(*this);
     }
     void Property::setCallback(std::function<void()> function)
     {
@@ -130,6 +135,7 @@ namespace MotionByte
         target = value;
         last = (double)current;
         mIsSet = false;
+        mInterpolator->updateStateFor(*this);
         mInterpolatorTimer.restart();
     }
     Property Property::shift(double value)
@@ -139,6 +145,7 @@ namespace MotionByte
         shiftProperty.last.store(shiftProperty.last.load() + value);
         shiftProperty.current.store(shiftProperty.current.load() + value);
         shiftProperty.target.store(shiftProperty.target.load() + value);
+        shiftProperty.mInterpolator->updateStateFor(shiftProperty);
         return shiftProperty;
     }
     void Property::bind(std::function<double()> bindFunction)

@@ -2,215 +2,216 @@
 #include <math.h>
 namespace MotionByte
 {
-	inline bool Smooth::isHavingSustainPhase(double initV2, double expectedV2, double initValue, double finalValue, double acc)
+	inline bool Smooth::isHavingSustainPhase(double initV, double expectedV, double initValue, double finalValue, double acc)
 	{
-		//vf^2 - vi^2 = 2 a s;
-		double expectedDistance = (expectedV2 - initV2)
-			/ (2.0 * acc);
-		double expectedFinalDistance = (0 - expectedV2)
-			/ (2.0 * -acc);
-		return std::abs(expectedDistance + expectedFinalDistance) < std::abs(finalValue - initValue);
+		double t_indepent = std::sqrt((expectedV - initV) / acc);
+		double AcceleratingDistance = initV * t_indepent + 1.0 / 3.0 * acc * std::pow(t_indepent, 3);
+		double t_indepent2 = std::sqrt(expectedV / acc);
+		double finalDistance = 1.0 / 3.0 * acc * std::pow(t_indepent2, 3);
+		return std::abs(AcceleratingDistance + finalDistance) < std::abs(finalValue - initValue);
+
 	}
 	Smooth::Smooth(double accelerator, double expectedVelocity) : Interpolator(ParameterCount)
 	{
 		mPropertyList[ParameterList::Accelerator] = accelerator;
 		mPropertyList[ParameterList::ExpectedVelocity] = expectedVelocity;
 	}
-	bool Smooth::isSet(Property& property)
+	void Smooth::updateStateFor(Property& property)
 	{
-		double time = property.getElapsedTime();
-		double initVelocity = property.getLastVelocity();
-		double initValue = property.getLastValue();
-		double targetValue = property.getTargetValue();
-		double acc = mPropertyList[ParameterList::Accelerator];
-		double expectedV = mPropertyList[ParameterList::ExpectedVelocity];
-		double expectedVPow2 = std::pow(expectedV, 2);
-		double initVelocityPow2 = std::pow(initVelocity, 2);
-		if (targetValue < initValue)
-		{
-			expectedV = -expectedV;
-			acc = -acc;
+		auto& state = property.getInterpolatorState();
+		state.resize(SizeOfState);
+		state[InitVelocity] = property.getLastVelocity();
+		state[InitValue] = property.getLastValue();
+		state[TargetValue] = property.getTargetValue();
+		state[Acceleration] = mPropertyList[ParameterList::Accelerator];
+		state[TargetVelocity] = mPropertyList[ParameterList::ExpectedVelocity];
+		if (state[TargetValue] < state[InitValue]) {
+			state[TargetVelocity] = -state[TargetVelocity];
+			state[Acceleration] = -state[Acceleration];
 		}
-		//normal case
-		if (isHavingSustainPhase(initVelocityPow2, expectedVPow2, initValue, targetValue, acc))
+		state[IsHavingSustainPhase] = 1.0
+			* isHavingSustainPhase(state[InitVelocity], state[TargetVelocity],
+				state[InitValue], state[TargetValue], state[Acceleration]);
+		if (state[IsHavingSustainPhase] == 1.0)
 		{
-			double AcceleratingPhaseDuration = (expectedV - initVelocity) / acc;
-			double AcceleratingDistance = (std::pow(expectedV, 2) - std::pow(initVelocity, 2))
-				/ (2 * acc);
-			double finalDistance = (0 - (expectedV * expectedV))
-				/ (2 * -acc);
-			double EndPhaseDuration = (0 - expectedV) / -acc;
-			double maintainPhaseDistance = targetValue - initValue - AcceleratingDistance - finalDistance;
-			double MaintainPhaseDuration = maintainPhaseDistance / expectedV;
-			if (time < AcceleratingPhaseDuration + MaintainPhaseDuration + EndPhaseDuration)
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
+			state[AcceleratingDuration] = std::sqrt((state[TargetVelocity] - state[InitVelocity]) / state[Acceleration]);
+			double t_indepent = std::sqrt((state[TargetVelocity] - state[InitVelocity]) / state[Acceleration]);
+			state[AcceleratingDistance] = state[InitVelocity] * t_indepent + 1.0 / 3.0 * state[Acceleration] * std::pow(t_indepent, 3);
+			double t_indepent2 = std::sqrt(state[TargetVelocity] / state[Acceleration]);
+			state[DeceleratingDistance] = 1.0 / 3.0 * state[Acceleration] * std::pow(t_indepent2, 3);
+			state[DeceleratingDuration] = t_indepent2;
+			state[MaintainingDistance] = state[TargetValue] - state[InitValue] - state[AcceleratingDistance] - state[DeceleratingDistance];
+			state[MaintainingDuration] = state[MaintainingDistance] / state[TargetVelocity];
 		}
 		else
 		{
-			//vf^2 - vi^2 = (target -init) * 2a - vf^2
-			//vf = peak velocity
-			double vf = (targetValue - initValue) * 2.0 * acc + initVelocity * initVelocity;
-			vf = vf / 2.0;
-			vf = std::sqrt(vf);
-			vf = vf * expectedV / std::abs(expectedV);
-			double AcceleratingPhaseDuration = (vf - initVelocity) / acc;
-			double breakValue = initValue + initVelocity * AcceleratingPhaseDuration
-				+ 1.0 / 2.0 * acc * AcceleratingPhaseDuration * AcceleratingPhaseDuration;
-			double EndPhaseDuration = (0 - vf) / -acc;
-			if (time < AcceleratingPhaseDuration + EndPhaseDuration)
-			{
-				return false;
+			state[OffsetDistance] = 0.0;
+			state[OffsetDuration] = 0.0;
+			if (state[InitVelocity] != 0.0) {
+				state[OffsetDuration] = -std::pow(std::abs(state[InitVelocity] / state[Acceleration]), 1.0 / 3.0) * state[InitVelocity] / std::abs(state[InitVelocity]) * state[Acceleration] / std::abs(state[Acceleration]);
 			}
-			else
+			state[OffsetDistance] = -1.0 / 3.0 * state[Acceleration] * std::pow(state[OffsetDuration], 3);
+			if (state[InitVelocity] != 0.0) {
+				state[OffsetDistance] = state[OffsetDistance] * state[InitVelocity] / std::abs(state[InitVelocity]) * state[Acceleration] / std::abs(state[Acceleration]);
+			}
+			double start_position = state[InitValue] - state[OffsetDistance];
+			state[AcceleratingDistance] = (state[TargetValue] - start_position) / 2.0;
+			state[AcceleratingDuration] = std::pow((state[AcceleratingDistance] * 3.0 / state[Acceleration]), 1.0 / 3.0);
+			if ( std::isinf(state[AcceleratingDuration]))
 			{
+				int breakhere = 1;
+			}
+		}
+	}
+	bool Smooth::isSet(Property& property)
+	{
+		double time = property.getElapsedTime();
+		auto& state = property.getInterpolatorState();
+
+		if (state[IsHavingSustainPhase] == 1.0) {
+			time -= state[AcceleratingDuration];
+			time -= state[MaintainingDuration];
+			time -= state[DeceleratingDuration];
+
+			// Final Phase
+			if (time >= 0.0) {
 				return true;
 			}
+			return false;
+		}
+		else {
+
+			time -= state[OffsetDuration];
+			time -= state[AcceleratingDuration]*2;
+
+			// Final Phase
+			if (time >= 0.0) {
+				return true;
+			}
+			return false;
 		}
 	}
 	double Smooth::getVelocityAtTime(Property& property)
 	{
 		double time = property.getElapsedTime();
-		double initVelocity = property.getLastVelocity();
-		double initValue = property.getLastValue();
-		double targetValue = property.getTargetValue();
-		double acc = mPropertyList[ParameterList::Accelerator];
-		double expectedV = mPropertyList[ParameterList::ExpectedVelocity];
-		double expectedVPow2 = std::pow(expectedV, 2);
-		double initVelocityPow2 = std::pow(initVelocity, 2);
-		if (targetValue == initValue)
-		{
-			return 0.0;
-		}
-		if (targetValue < initValue)
-		{
-			expectedV = -expectedV;
-			acc = -acc;
-		}
-		//normal case
-		if (isHavingSustainPhase(initVelocityPow2, expectedVPow2, initValue, targetValue, acc))
-		{
-			double AcceleratingPhaseDuration = (expectedV - initVelocity) / acc;
-			double AcceleratingDistance = ((expectedV * expectedV) - (initVelocity * initVelocity))
-				/ (2 * acc);
-			double finalDistance = (0 - (expectedV * expectedV))
-				/ (2.0 * -acc);
-			double EndPhaseDuration = (0 - expectedV) / -acc;
-			double maintainPhaseDistance = targetValue - initValue - AcceleratingDistance - finalDistance;
-			double MaintainPhaseDuration = maintainPhaseDistance / expectedV;
-			// Speed
-			//accelerating phase
-			double velocity = (time < AcceleratingPhaseDuration) ?
-				(initVelocity + acc * time) : 0.0;
-			time -= AcceleratingPhaseDuration;
+		auto& state = property.getInterpolatorState();
+
+		if (state[IsHavingSustainPhase] == 1.0) {
+			double velocity = 0.0;
+
+			if (time < state[AcceleratingDuration]) {
+				velocity = state[InitVelocity] +  state[Acceleration] * std::pow(time, 2);
+			}
+			time -= state[AcceleratingDuration];
+
 			// Maintaining Phase
-			velocity += (time >= 0 && time < MaintainPhaseDuration) ?
-				(expectedV) : 0.0;
-			time -= MaintainPhaseDuration;
+			if (0 <= time && time < state[MaintainingDuration]) {
+				velocity = state[TargetVelocity];
+			}
+			time -= state[MaintainingDuration];
+
 			// End Phase
-			velocity += (time >= 0 && time < EndPhaseDuration) ?
-				(expectedV + 2.0 * -acc * time) : 0.0;
+			if (0 <= time && time < state[DeceleratingDuration]) {
+				velocity = state[Acceleration] * std::pow((time - state[DeceleratingDuration]), 2);
+			}
+			time -= state[DeceleratingDuration];
+
+			// Final Phase
+			if (time >= 0.0) {
+				velocity = 0.0;
+			}
+
 			return velocity;
 		}
-		else
-		{
-			//vf^2 - vi^2 = (target -init) * 2a - vf^2
-			//vf = peak velocity
-			double vf = (targetValue - initValue) * 2.0 * acc + initVelocity * initVelocity;
-			vf = vf / 2.0;
-			vf = std::sqrt(vf);
-			vf = vf * expectedV / std::abs(expectedV);
-			double AcceleratingPhaseDuration = (vf - initVelocity) / acc;
-			double breakValue = initValue + initVelocity * AcceleratingPhaseDuration
-				+ 1.0 / 2.0 * acc * AcceleratingPhaseDuration * AcceleratingPhaseDuration;
-			double EndPhaseDuration = (0 - vf) / -acc;
-			if (time < AcceleratingPhaseDuration)	
-			{
-				return initVelocity + acc  * time;
+		else {
+			// Sustain Phase
+
+
+			double velocity = 0.0;
+			if (time < state[OffsetDuration]) {
+				velocity =  state[Acceleration] * std::pow((state[OffsetDuration] - time), 2);
 			}
-			else if (time < AcceleratingPhaseDuration + EndPhaseDuration)
-			{
-				time -= AcceleratingPhaseDuration;
-				return vf - acc * time;
+			time -= state[OffsetDuration];
+
+			if (0 <= time && time < state[AcceleratingDuration]) {
+				velocity = state[Acceleration] * std::pow(time, 2);
 			}
-			else
-			{
-				return 0.0;
+			time -= state[AcceleratingDuration];
+
+			// End Phase
+			if (0 <= time && time < state[AcceleratingDuration]) {
+				velocity = state[Acceleration] * std::pow((time - state[AcceleratingDuration]), 2.0);
 			}
+			time -= state[AcceleratingDuration];
+
+			// Final Phase
+			if (time >= 0.0) {
+				velocity = 0.0;
+			}
+			return velocity;
 		}
 	}
 	double Smooth::getValueAtTime(Property& property)
 	{
 		double time = property.getElapsedTime();
-		double initVelocity = property.getLastVelocity();
-		double initValue = property.getLastValue();
-		double targetValue = property.getTargetValue();
-		double acc = mPropertyList[ParameterList::Accelerator];
-		double expectedV = mPropertyList[ParameterList::ExpectedVelocity];
-		double expectedVPow2 = std::pow(expectedV, 2);
-		double initVelocityPow2 = std::pow(initVelocity, 2);
-		if (targetValue < initValue)
-		{
-			expectedV = -expectedV;
-			acc = -acc;
-		}
-		//normal case
-		if (isHavingSustainPhase(initVelocityPow2, expectedVPow2, initValue, targetValue,acc))
-		{
-			double AcceleratingPhaseDuration = (expectedV - initVelocity) / acc;
-			double AcceleratingDistance = (expectedVPow2 - initVelocityPow2)
-				/ (2.0 * acc);
-			double finalDistance = (0 - expectedVPow2)
-				/ (2.0 * -acc);
-			double EndPhaseDuration = (0 - expectedV) / -acc;
-			double maintainPhaseDistance = targetValue - initValue - AcceleratingDistance - finalDistance;
-			double MaintainPhaseDuration = maintainPhaseDistance / expectedV;
-			// Accelerating Phase
-			double position = (time < AcceleratingPhaseDuration) ?
-				(initValue + initVelocity * time + 0.5 * acc * time * time) : 0.0;
-			time -= AcceleratingPhaseDuration;
+		auto& state = property.getInterpolatorState();
+
+		if (state[IsHavingSustainPhase] == 1.0) {
+			double position = 0.0;
+			debug("state");
+			if (time < state[AcceleratingDuration]) {
+				debug("AcceleratingDuration");
+				position = state[InitValue] + state[InitVelocity] * time + 1.0 / 3.0 * state[Acceleration] * std::pow(time, 3);
+			}
+			time -= state[AcceleratingDuration];
+
 			// Maintaining Phase
-			position += (time >= 0 && time < MaintainPhaseDuration) ?
-				(initValue + AcceleratingDistance + time * expectedV) : 0.0;
-			time -= MaintainPhaseDuration;
+			if (0 <= time && time < state[MaintainingDuration]) {
+				debug("MaintainingDuration");
+				position = state[InitValue] + state[AcceleratingDistance] + state[TargetVelocity]* time;
+			}
+			time -= state[MaintainingDuration];
+
 			// End Phase
-			position += (time >= 0 && time < EndPhaseDuration) ?
-				(initValue + AcceleratingDistance + maintainPhaseDistance +
-					expectedV * time +
-					0.5 * -acc * time * time ) : 0.0;
-			time -= EndPhaseDuration;
+			if (0 <= time && time < state[DeceleratingDuration]) {
+				debug("DeceleratingDuration");
+				position = state[InitValue] + state[AcceleratingDistance] + state[MaintainingDistance] + state[DeceleratingDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow((time - state[DeceleratingDuration]), 3);
+			}
+			time -= state[DeceleratingDuration];
+
 			// Final Phase
-			position += (time >= 0.0) ? targetValue : 0.0;
+			if (time >= 0.0) {
+				debug("Final");
+				position = state[TargetValue];
+			}
+			debug(position);
 			return position;
-
 		}
-		else
-		{
-			//vf^2 - vi^2 = (target -init) * 2a - vf^2
-			//vf = peak velocity
-			double vf = (targetValue - initValue) * 2.0 * acc + initVelocity * initVelocity;
-			vf = vf / 2.0;
-			vf = std::sqrt(vf);
-			vf = vf * expectedV / std::abs(expectedV);
-			double AcceleratingPhaseDuration = (vf - initVelocity) / acc;
-			double breakValue = initValue + initVelocity * AcceleratingPhaseDuration
-				+ 1.0 / 2.0 * acc * AcceleratingPhaseDuration * AcceleratingPhaseDuration;
-			double EndPhaseDuration = (0 - vf) / -acc;
+		else {
+			// Sustain Phase
 
-			double position = (time >= 0 && time < AcceleratingPhaseDuration) ?
-				(initValue + initVelocity * time + 0.5 * acc * time * time) : 0.0;
-			time -= AcceleratingPhaseDuration;
+
+			double position = 0.0;
+			if (time < state[OffsetDuration]) {
+				position = (state[InitValue] - state[OffsetDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow((state[OffsetDuration] - time), 3));
+			}
+			time -= state[OffsetDuration];
+
+			if (0 <= time && time < state[AcceleratingDuration]) {
+				position = state[InitValue] - state[OffsetDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow(time, 3);
+			}
+			time -= state[AcceleratingDuration];
+
 			// End Phase
-			position += (time >= 0 && time < EndPhaseDuration) ?
-				(breakValue + vf * time + 1.0 / 2.0 * -acc * time * time) : 0.0;
-			time -= EndPhaseDuration;
+			if (0 <= time && time < state[AcceleratingDuration]) {
+				position = state[InitValue] - state[OffsetDistance] + state[AcceleratingDistance] * 2.0 + 1.0 / 3.0 * state[Acceleration] * std::pow((time - state[AcceleratingDuration]), 3.0);
+			}
+			time -= state[AcceleratingDuration];
+
 			// Final Phase
-			position += (time >= 0.0) ? targetValue : 0.0;
+			if (time >= 0.0) {
+				position = state[TargetValue];
+			}
 			return position;
 		}
 	}

@@ -11,6 +11,7 @@ class Interpolator;
 class Property
 {
 private:
+    std::vector<double> mInterpolatorState;
     Timer mInterpolatorTimer;
     std::function<double()> mBindFunction;
     std::atomic<double> last;
@@ -24,8 +25,9 @@ private:
     std::string mPropertyName;
     void update();
     friend class Interpolator;
+
 public:
-    
+    std::vector<double>& getInterpolatorState();
     Property();
     Property(double value);
     Property(const Property& other);

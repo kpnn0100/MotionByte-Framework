@@ -15,9 +15,28 @@ namespace MotionByte
 			ExpectedVelocity,
 			ParameterCount
 		};
+		enum StateList
+		{
+			IsHavingSustainPhase,
+			InitVelocity,
+			TargetVelocity,
+			InitValue,
+			TargetValue,
+			Acceleration,
+			AcceleratingDuration,
+			AcceleratingDistance,
+			DeceleratingDuration,
+			DeceleratingDistance,
+			MaintainingDuration,
+			MaintainingDistance,
+			OffsetDuration,
+			OffsetDistance,
+			SizeOfState
+			
+		};
 		Smooth(double accelerator, double expectedVelocity);
-
-		bool isSet(Property& property) override;
+		virtual void updateStateFor(Property& property) override;
+		virtual bool isSet(Property& property) override;
 		virtual double getVelocityAtTime(Property& property) override;
 		virtual double getValueAtTime(Property& property) override;
 	};

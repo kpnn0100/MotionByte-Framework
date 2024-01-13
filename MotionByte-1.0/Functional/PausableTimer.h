@@ -2,7 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <mutex>
-
+#include "../DEBUG.h"
 namespace MotionByte
 {
     class PausableTimer
@@ -18,6 +18,7 @@ namespace MotionByte
         std::chrono::time_point<std::chrono::high_resolution_clock> now()
         {
             std::unique_lock<std::mutex> lock(mutex_);
+            auto current_time = pauseTime;
             if (isPaused)
             {
                 return pauseTime;
@@ -52,7 +53,9 @@ namespace MotionByte
         }
 
     private:
-        PausableTimer() : isPaused(false) {}
+        PausableTimer() : isPaused(false) {
+            pauseTime = std::chrono::high_resolution_clock::now();
+        }
 
         PausableTimer(const PausableTimer&) = delete;
         PausableTimer& operator=(const PausableTimer&) = delete;

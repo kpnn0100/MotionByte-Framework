@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+#include "../../DEBUG.h"
 namespace MotionByte
 {
 	class Property;
@@ -13,6 +14,7 @@ namespace MotionByte
 	public:
 		Interpolator() = delete;
 		Interpolator(int numberOfProperty);
+		virtual void updateStateFor(Property& property);
 		virtual bool isSet(Property& property) = 0;
 		virtual double getValueAtTime(Property & property) = 0;
 		virtual double getVelocityAtTime(Property& property);

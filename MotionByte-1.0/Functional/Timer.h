@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "PausableTimer.h"
+#include "../DEBUG.h"
 namespace MotionByte
 {
     class Timer
@@ -51,7 +52,11 @@ namespace MotionByte
             if (isRunning)
             {
                 auto now = PausableTimer::getInstance().now();
+#ifndef DEBUG
                 return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0;
+#else
+                return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 10000.0;
+#endif
             }
             else
             {
