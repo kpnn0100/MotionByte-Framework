@@ -28,6 +28,7 @@ namespace MotionByte {
      */
     class Window : public IFrameEventListener, public Segment {
     private:
+        std::atomic<bool> mIsFrameProcessed;
         std::atomic<GLFWwindow*> mMainWindow;     ///< Atomic pointer to the GLFW window.
         PropertyManager mPropertyManager;         ///< Manages properties associated with the window.
         std::mutex mTaskListLocker;               ///< Mutex for synchronizing access to the task list.
@@ -141,7 +142,11 @@ namespace MotionByte {
          * @return Reference to the PropertyManager associated with the window.
          */
         PropertyManager& getPropertyManager();
-
+        /**
+         * @brief Call when window size changed
+         *  
+         */
+        void onWindowSizeChanged(int width, int height);
         /**
          * @brief Destructor for the Window class.
          *        Cleans up GLFW resources and destroys the window.

@@ -74,8 +74,6 @@ namespace MotionByte
             // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             glfwWindowHint(GLFW_SAMPLES, 4);
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
-            Frame::onWindowSizeChanged(mMainWindow,width,height);
-            glfwSetWindowSizeCallback(mMainWindow, Frame::onWindowSizeChanged);
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
             if (!mMainWindow)
             {
@@ -141,6 +139,13 @@ namespace MotionByte
         mainFrame.setWindow(this);
         mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
+        Frame::onWindowSizeChanged(mMainWindow, this->mBound.getWidth(), this->mBound.getHeight());
+        glfwSetWindowSizeCallback(mMainWindow, [](GLFWwindow* window, int width, int height)
+            {
+                Frame::onWindowSizeChanged(window, width, height);
+                Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+                instance->onWindowSizeChanged(width, height);
+            });
         GLFWmousebuttonfun callbackFunction = [](GLFWwindow* window, int button, int action, int mods) {
             Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
             Window::MouseButton mouseButton = MouseButton::Left;
@@ -201,15 +206,21 @@ namespace MotionByte
         while (!glfwWindowShouldClose(mMainWindow))
         {
             //temp
-
-            // Your rendering code here
+            if (mIsFrameProcessed == false)
             {
-                std::lock_guard<std::mutex> lock(mTaskListLocker);
-                for (; !mTaskList.empty(); mTaskList.pop())
-                {
-                    mTaskList.front()();
-                }
+                PausableTimer::getInstance().pause();
+                triggerPaint();
+                PausableTimer::getInstance().resume();
+                mIsFrameProcessed = true;
             }
+            // Your rendering code here
+            //{
+            //    std::lock_guard<std::mutex> lock(mTaskListLocker);
+            //    for (; !mTaskList.empty(); mTaskList.pop())
+            //    {
+            //        mTaskList.front()();
+            //    }
+            //}
 
 
             // Swap front and back buffers
@@ -234,13 +245,12 @@ namespace MotionByte
     {
         if (mMainWindow)
         {
-            addTask([this]
-                {
-                    //Free time during render to avoid glitch
-                    PausableTimer::getInstance().pause();
-                    triggerPaint();
-                    PausableTimer::getInstance().resume();
-                });
+            mIsFrameProcessed = false;
+            //addTask([this]
+            //    {
+            //        //Free time during render to avoid glitch
+
+            //    });
             
         }
     }
@@ -273,6 +283,10 @@ namespace MotionByte
     PropertyManager& Window::getPropertyManager()
     {
         return mPropertyManager;
+    }
+    void Window::onWindowSizeChanged(int width, int height)
+    {
+        mBound.setSize(width, height);
     }
     Window::~Window()
     {

@@ -20,12 +20,16 @@ class TempObject : public Segment
     {
 
     }
+    void onClicked(Point point) override
+    {
+        percent = 1.0 - std::abs(percent);
+    }
 public:
     TempObject()
     {
         mSegmentTypeName = "TempObject";
         value = 0.0;
-        percent.setInterpolator(InterpolatorFactory::createSmooth(4.0, 4.0));
+        percent.setInterpolator(InterpolatorFactory::createSmooth(8.0, 8.0));
         percent.setValue(value);
         myColor.getAlpha().setPropertyName("alpha");
         setIsLimited(true);
@@ -48,9 +52,10 @@ public:
     void paint(Frame& frame) override
     {
         frame.fillColor(Color(0, 255, 0, 255));
-        double finalDegree = 240 + percent.getValue() * (-60 - 240);
+        //double finalDegree = 240 + percent.getValue() * (-60 - 240);
         //frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
-        frame.fillRoundedRectangle(myColor, this->getLocalBound().withSizeKeepCenter(250.0,250.0), percent.getValue() * 100.0);
+        //frame.fillRoundedRectangle(myColor, this->getLocalBound().withSizeKeepCenter(250.0,250.0), percent.getValue() * 100.0);
+        frame.fillCircle(myColor, this->getLocalBound().withSizeKeepCenter(this->getLocalBound().getWidth() * percent*2.0, this->getLocalBound().getWidth() * percent * 2.0));
         //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
     }
 };

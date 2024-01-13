@@ -6,6 +6,8 @@ namespace MotionByte
 {
 	class Smooth : public Interpolator
 	{
+	private:
+		inline bool isHavingSustainPhase(double initV2, double expectedV2, double initValue, double finalValue, double acc);
 	public:
 		enum ParameterList
 		{
