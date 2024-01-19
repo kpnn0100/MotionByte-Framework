@@ -28,6 +28,12 @@ namespace MotionByte {
      */
     class Window : public IFrameEventListener, public Segment {
     private:
+        GLuint * currentProgram;
+        GLuint vertexShader;
+        GLuint fragmentShader;
+        GLuint shaderProgram;
+        GLuint textShaderProgram;
+        GLuint projection;
         std::atomic<bool> mIsFrameProcessed;
         std::atomic<GLFWwindow*> mMainWindow;     ///< Atomic pointer to the GLFW window.
         PropertyManager mPropertyManager;         ///< Manages properties associated with the window.
@@ -38,7 +44,7 @@ namespace MotionByte {
         std::thread renderThread;                 ///< Thread for rendering the window.
         GLuint vertexBuffer;                      ///< OpenGL vertex buffer.
         GLuint colorBuffer;                       ///< OpenGL color buffer.
-
+        void updateUniform();
     public:
         /**
          * @brief Enum listing properties associated with the Window class.
@@ -48,7 +54,12 @@ namespace MotionByte {
             WindowHeight,     ///< Height of the window.
             PropertyCount     ///< Number of properties.
         };
-
+        enum Program
+        {
+            Text,
+            Shape,
+            ProgramCount
+        };
         /**
          * @brief Constructor for the Window class.
          * @param width Width of the window.
@@ -142,6 +153,9 @@ namespace MotionByte {
          * @return Reference to the PropertyManager associated with the window.
          */
         PropertyManager& getPropertyManager();
+        GLuint & getMainShaderProgram();
+        GLuint & getTextShaderProgram();
+        void changeProgram(Program program);
         /**
          * @brief Call when window size changed
          *  

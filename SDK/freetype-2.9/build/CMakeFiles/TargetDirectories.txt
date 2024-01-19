@@ -1,0 +1,6 @@
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/freetype.dir
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/dist.dir
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/PACKAGE.dir
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/INSTALL.dir
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/ALL_BUILD.dir
+G:/Dev/MotionByte_framework/SDK/freetype-2.9/build/CMakeFiles/ZERO_CHECK.dir

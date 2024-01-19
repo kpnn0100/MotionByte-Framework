@@ -14,7 +14,7 @@ add_definitions(
 ### GLFW ###
 
 add_subdirectory (glfw-3.1.2)
-
+include_directories("freetype/include")
 include_directories(
 	glfw-3.1.2/include/GLFW/
 	glew-1.13.0/include/

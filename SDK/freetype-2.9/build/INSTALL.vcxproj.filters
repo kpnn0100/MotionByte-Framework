@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="G:\Dev\MotionByte_framework\SDK\freetype-2.9\build\CMakeFiles\abfc761bb5b9c3104941e5f8edaf6a3e\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A96D38EB-792D-3D6F-BA72-9D8F6DF37D51}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -51,12 +51,16 @@ public:
     }
     void paint(Frame& frame) override
     {
-        frame.fillColor(Color(0, 255, 0, 255));
+        //frame.fillColor(Color(0, 255, 0, 255));
         //double finalDegree = 240 + percent.getValue() * (-60 - 240);
         //frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
         //frame.fillRoundedRectangle(myColor, this->getLocalBound().withSizeKeepCenter(250.0,250.0), percent.getValue() * 100.0);
-        frame.fillCircle(myColor, this->getLocalBound().withSizeKeepCenter(this->getLocalBound().getWidth() * percent*2.0, this->getLocalBound().getWidth() * percent * 2.0));
+        //frame.fillCircle(myColor, this->getLocalBound().withSizeKeepCenter(this->getLocalBound().getWidth() * percent*2.0, this->getLocalBound().getWidth() * percent * 2.0));
+        //frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
+        //    Rectangle(Point(20, 60), 200.0, 500.0));
         //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
+        //frame.drawText(myColor, "Hello", Point(100,200), 1.0f);
+        
     }
 };
 std::shared_ptr<TempObject> temp = std::make_shared<TempObject>();

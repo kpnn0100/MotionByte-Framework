@@ -1,19 +1,20 @@
 #include "Window.h"
 const char* vertexShaderSource = R"(
-    #version 330 core
+    #version 460 core
 
     // Input vertex data, different for all executions of this shader.
     layout(location = 0) in vec2 vertexPosition_modelspace;
     layout(location = 1) in vec4 vertexColor;
+	layout (location = 2) uniform mat4 projection;
 
     // Output data ; will be interpolated for each fragment.
     out vec4 fragmentColor;
     // Values that stay constant for the whole mesh.
 
     void main(){	
-
-	     gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
-
+        gl_Position = projection * vec4(vertexPosition_modelspace, 0.0, 1.0);
+        gl_Position.y = -gl_Position.y;
+        //gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
 	    // The color of each vertex will be interpolated
 	    // to produce the color of each fragment
 	    fragmentColor = vertexColor;
@@ -21,7 +22,7 @@ const char* vertexShaderSource = R"(
 )";
 
 const char* fragmentShaderSource = R"(
-    #version 330 core
+    #version 460 core
 
     // Interpolated values from the vertex shaders
     in vec4 fragmentColor;
@@ -37,9 +38,66 @@ const char* fragmentShaderSource = R"(
 
     }
 )";
+const char* textShaderSource = R"(
+	#version 460 core
+	layout (location = 3) in vec4 vertex; // <vec2 pos, vec2 tex>
+	layout (location = 4) uniform mat4 projection;
+
+	out vec2 TexCoords;
+
+	void main()
+	{
+		gl_Position = projection * vec4(vertex.x, vertex.y, 0.0, 1.0);
+		TexCoords = vertex.zw;
+	}  
+)";
+
+const char* textFragmentShaderSource = R"(
+	#version 460 core
+	in vec2 TexCoords;
+	out vec4 color;
+
+	layout (binding = 0) uniform sampler2D text;
+	layout (location = 6) uniform vec4 textColor;
+
+	void main()
+	{    
+		color = textColor * texture(text, TexCoords).r;
+	} 
+)";
+void APIENTRY GLDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
+	printf("%d: %s\n", id, msg);
+}
+GLuint CompileShaders(const char* vertex, const  char* fragment) {
+
+    GLuint shader_programme = glCreateProgram();
+
+    GLuint vs, tcs, tes, gs, fs;
+    vs = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vs, 1, &vertex, NULL);
+    glCompileShader(vs);
+
+    glAttachShader(shader_programme, vs);
+
+    fs = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fs, 1, &fragment, NULL);
+    glCompileShader(fs);
+
+
+    glAttachShader(shader_programme, fs);
+    glLinkProgram(shader_programme);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    return shader_programme;
+}
 namespace MotionByte
 {
-
+    void Window::updateUniform()
+    {
+        GLint projectionLocation = glGetUniformLocation(*currentProgram, "projection");
+        glm::mat4 projection = glm::ortho(0.0f, (float)mBound.getWidth(), 0.0f, (float)mBound.getHeight());
+        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
+    }
     Window::Window(int width, int height) : mPropertyManager(PropertyCount)
     {
         mTopParent = this;
@@ -75,6 +133,7 @@ namespace MotionByte
             glfwWindowHint(GLFW_SAMPLES, 4);
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
+       
             if (!mMainWindow)
             {
                 // Window creation failed
@@ -97,10 +156,6 @@ namespace MotionByte
         // Make the window's context current
         glfwMakeContextCurrent(mMainWindow);
         // Enable anti-aliasing (multisampling)
-        glEnable(GL_MULTISAMPLE);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glewExperimental = true;
         if (glewInit() != GLEW_OK) {
@@ -109,26 +164,21 @@ namespace MotionByte
             glfwTerminate();
             return;
         }
+        glEnable(GL_MULTISAMPLE);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_DEBUG_OUTPUT);
 
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-        glCompileShader(vertexShader);
+        glDebugMessageCallback(GLDebug, NULL);
 
-        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-        glCompileShader(fragmentShader);
+        shaderProgram = CompileShaders(vertexShaderSource, fragmentShaderSource);
 
-        GLuint shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
+        changeProgram(Shape);
 
-        glUseProgram(shaderProgram);
 
-        GLuint vertexArrayID;
-        glGenVertexArrays(1, &vertexArrayID);
-        glBindVertexArray(vertexArrayID);
-
+        textShaderProgram = CompileShaders(textShaderSource, textFragmentShaderSource);
+        FontManager::instance();
 
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -136,13 +186,15 @@ namespace MotionByte
 
         glGenBuffers(1, &colorBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+
+        onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
+
         mainFrame.setWindow(this);
-        mainFrame.fillColor(Color(0, 0, 0, 255));
+        //mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
-        Frame::onWindowSizeChanged(mMainWindow, this->mBound.getWidth(), this->mBound.getHeight());
+        
         glfwSetWindowSizeCallback(mMainWindow, [](GLFWwindow* window, int width, int height)
             {
-                Frame::onWindowSizeChanged(window, width, height);
                 Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
                 instance->onWindowSizeChanged(width, height);
             });
@@ -208,28 +260,20 @@ namespace MotionByte
             //temp
             if (mIsFrameProcessed == false)
             {
+                glClear(GL_COLOR_BUFFER_BIT);
                 PausableTimer::getInstance().pause();
                 triggerPaint();
                 PausableTimer::getInstance().resume();
                 mIsFrameProcessed = true;
+                glfwSwapBuffers(mMainWindow);
             }
-            // Your rendering code here
-            //{
-            //    std::lock_guard<std::mutex> lock(mTaskListLocker);
-            //    for (; !mTaskList.empty(); mTaskList.pop())
-            //    {
-            //        mTaskList.front()();
-            //    }
-            //}
-
 
             // Swap front and back buffers
-            glfwSwapBuffers(mMainWindow);
+            
 
             // Poll for and process events
             glfwPollEvents();
         }
-        glDeleteVertexArrays(1, &vertexArrayID);
         glDeleteBuffers(1, &vertexBuffer);
         glDeleteProgram(shaderProgram);
     }
@@ -277,16 +321,56 @@ namespace MotionByte
     }
     void Window::paint(Frame& frame)
     {
-        frame.fillColor(Color(0, 0, 0,255));
+        //frame.fillColor(Color(0, 0, 0,255));
         //mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
+        frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
+            Rectangle(Point(20, 60), 200.0, 500.0));
+        std::string text("Hello OpenGL");
+        GLfloat x = 50.0f;
+        GLfloat y = 300.0f;
+        GLfloat scale = 1.0f;
+        frame.drawText(MotionByte::Color(100, 200, 125, 255), text, Point(x, y), scale);
     }
     PropertyManager& Window::getPropertyManager()
     {
         return mPropertyManager;
     }
+    GLuint& Window::getMainShaderProgram()
+    {
+        return shaderProgram;
+    }
+    GLuint& Window::getTextShaderProgram()
+    {
+        return textShaderProgram;
+    }
+    void Window::changeProgram(Program program)
+    {
+        switch (program)
+        {
+            case Program::Shape:
+            {
+                currentProgram = &shaderProgram;
+                glUseProgram(shaderProgram);
+                break;
+            }
+            case Program::Text:
+            {
+                currentProgram = &textShaderProgram;
+                glUseProgram(textShaderProgram);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+        updateUniform();
+    }
     void Window::onWindowSizeChanged(int width, int height)
     {
+        Frame::onWindowSizeChanged(mMainWindow, width, height);
         mBound.setSize(width, height);
+        updateUniform();
     }
     Window::~Window()
     {

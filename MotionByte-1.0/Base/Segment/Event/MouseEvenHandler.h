@@ -27,8 +27,12 @@ namespace MotionByte
 		std::function<void(Point)> pressedCallback;
 		std::function<void(Point)> releasedCallback;
 		std::function<void(Point,double,double)> scrollCallback;
-
+		std::function<void(Point)> clickOutsideCallback;
 	protected:
+		virtual void onClickOutside(Point point)
+		{
+
+		}
 		virtual void onScroll(Point point, double xValue, double yValue)
 		{
 
@@ -60,6 +64,10 @@ namespace MotionByte
 		{
 		}
 		virtual void onMouseExited()
+		{
+
+		}
+		virtual void recursiveClickOutside(Point point)
 		{
 
 		}
@@ -95,6 +103,22 @@ namespace MotionByte
 		void setScrollCallback(std::function<void(Point, double, double) > callback)
 		{
 			scrollCallback = callback;
+		}
+		void setClickOutsideCallback(std::function<void(Point)> callback)
+		{
+			clickOutsideCallback = callback;
+		}
+		void clickOutside(Point point)
+		{
+			bool handled = false;
+			onClickOutside(point);
+			if (clickOutsideCallback)
+			{
+				clickOutsideCallback(point);
+			}
+			recursivePress(point, handled);
+			std::cout << "click outside at "
+				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
 		}
 		void clickAt(Point point)
 		{

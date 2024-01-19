@@ -1,0 +1,77 @@
+﻿  Building Custom Rule G:/Dev/MotionByte_framework/SDK/freetype-2.9/CMakeLists.txt
+  autofit.c
+  ftbase.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\base\ftrfork.c(902,14): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\base\ftrfork.c(903,14): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\base\ftrfork.c(890,7): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  ftbbox.c
+  ftbdf.c
+  ftbitmap.c
+  ftcid.c
+  ftfntfmt.c
+  ftfstype.c
+  ftgasp.c
+  ftglyph.c
+  ftgxval.c
+  ftinit.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\base\ftinit.c(249,11): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  ftlcdfil.c
+  ftmm.c
+  ftotval.c
+  ftpatent.c
+  ftpfr.c
+  ftstroke.c
+  ftsynth.c
+  ftsystem.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\base\ftsystem.c(240,12): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Generating Code...
+  Compiling...
+  fttype1.c
+  ftwinfnt.c
+  bdf.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\bdf\bdflib.c(1825,9): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\bdf\bdflib.c(1838,9): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\bdf\bdflib.c(2167,7): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\bdf\bdflib.c(2175,7): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  ftbzip2.c
+  ftcache.c
+  cff.c
+  type1cid.c
+  ftgzip.c
+  ftlzw.c
+  pcf.c
+  pfr.c
+  psaux.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\psaux\psintrp.c(1001,29): warning C4267: '=': conversion from 'size_t' to 'FT_Fast', possible loss of data
+  pshinter.c
+  psnames.c
+  raster.c
+  sfnt.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\sfnt\sfdriver.c(838,32): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\sfnt\sfdriver.c(914,18): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\sfnt\sfdriver.c(946,16): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\sfnt\sfdriver.c(989,44): warning C4244: 'function': conversion from '__int64' to 'const unsigned int', possible loss of data
+  smooth.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\smooth\ftgrays.c(1773,26): warning C4267: '+=': conversion from 'size_t' to 'TCoord', possible loss of data
+  truetype.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\truetype\ttgload.c(1797,42): warning C4312: 'type cast': conversion from 'unsigned long' to 'void *' of greater size
+  type1.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(273,49): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(293,58): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(325,65): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(355,23): warning C4267: '=': conversion from 'size_t' to 'FT_UInt', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(562,57): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(568,56): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(574,59): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(580,61): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1driver.c(586,56): warning C4267: '=': conversion from 'size_t' to 'FT_ULong', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1load.c(1581,68): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type1\t1load.c(1742,40): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
+  type42.c
+G:\Dev\MotionByte_framework\SDK\freetype-2.9\src\type42\t42parse.c(821,66): warning C4244: '=': conversion from '__int64' to 'FT_Int', possible loss of data
+  Generating Code...
+  Compiling...
+  winfnt.c
+  ftdebug.c
+  Generating Code...
+  freetype.vcxproj -> G:\Dev\MotionByte_framework\SDK\freetype-2.9\build\Release\freetype.lib

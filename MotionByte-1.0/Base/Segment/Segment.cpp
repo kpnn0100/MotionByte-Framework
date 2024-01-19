@@ -5,11 +5,15 @@ namespace MotionByte
     {
         for (auto& segment : mChildrenList)
         {
+            Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
+            Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
             if (segment->mBound.isInside(point))
             {
-                Point corner = segment->mBound.getCorner(Rectangle::TopLeft);
-                Point newClickedPoint = point.withOffset(Point(-corner.getX().getValue(), -corner.getY().getValue()));
                 segment->pressAt(newClickedPoint);
+            }
+            else
+            {
+                segment->clickOutside(newClickedPoint);
             }
         }
     }
