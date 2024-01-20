@@ -1,21 +1,28 @@
 #include "Frame.h"
 #include "../Window/Window.h"
 #include <math.h>
+#include <float.h>
 namespace MotionByte
 {
     int Frame::windowWidth = 0;
     int Frame::windowHeight = 0;
-    void Frame::convertToAbsolute(VertexList& vertexList)
+    void Frame::updateUniformForShape()
     {
         mWindow->changeProgram(Window::Program::Shape);
-        Point topLeftLimit = mSegment->getLocalBound().getCorner(Rectangle::TopLeft);
-        Point bottomRightLimit = mSegment->getLocalBound().getCorner(Rectangle::BottomRight);
+        GLint offset = glGetUniformLocation(mWindow->getCurrentProgram(), "offset");
+
+        Point topLeft = mSegment->getBound().getCorner(Rectangle::TopLeft);
+        Point bottomRight = mSegment->getBound().getCorner(Rectangle::BottomRight);
+        glUniform2f(offset, topLeft.getX(), topLeft.getY());
+        //limit to local border
+        Point topLeftLimit = mSegment->getBound().getCorner(Rectangle::TopLeft);
+        Point bottomRightLimit = mSegment->getBound().getCorner(Rectangle::BottomRight);
 
         float xMin = topLeftLimit.getX();
         float xMax = bottomRightLimit.getX();
         float yMin = topLeftLimit.getY();
         float yMax = bottomRightLimit.getY();
-        Point parentTopLeftLimit; 
+        Point parentTopLeftLimit;
         Point parentBottomRightLimit;
         if (mSegment->mParent != nullptr)
         {
@@ -26,34 +33,94 @@ namespace MotionByte
         float parentxMax = parentBottomRightLimit.getX();
         float parentyMin = parentTopLeftLimit.getY();
         float parentyMax = parentBottomRightLimit.getY();
-        for (auto& vertex : vertexList.getVertexList())
-        {
-            //limit to local border
-            if (mSegment->mIsLimited)
-            {
-                vertex.x = clamp(vertex.x, xMin, xMax);
-                vertex.y = clamp(vertex.y, yMin , yMax );
-            }
-            //relative to parent
-            vertex.x += mSegment->mBound.getPosition().getX();
-            vertex.y += mSegment->mBound.getPosition().getY();
-            //limit to parent border
-            if (mSegment->mParent != nullptr)
-            {
-                if (mSegment->mParent->mIsChildLimited)
-                {
 
-                    vertex.x = clamp(vertex.x, parentxMin, parentxMax);
-                    vertex.y = clamp(vertex.y, parentyMin, parentyMax);
+        float renderXMin = 0.0;
+        float renderXMax = FLT_MAX;
+        float renderYMin = 0.0;
+        float renderYMax = FLT_MAX;
+        if (mSegment->mIsLimited)
+        {
+            renderXMin = xMin;
+            renderXMax = xMax;
+            renderYMin = yMin;
+            renderYMax = yMax;
+        }
+        if (mSegment->mParent != nullptr)
+        {
+            if (mSegment->mParent->mIsChildLimited)
+            {
+                if (parentxMin > renderXMin)
+                {
+                    renderXMin = parentxMin;
+                }
+
+                if (parentxMax < renderXMax)
+                {
+                    renderXMax = parentxMax;
+                }
+
+                if (parentyMin > renderYMin)
+                {
+                    renderYMin = parentyMin;
+                }
+
+                if (parentyMax > renderYMax)
+                {
+                    renderYMax = parentyMax;
                 }
             }
-            //snap to screen coordinate in float
-            //vertex.x = vertex.x / (double)windowWidth * 2.0;
-            //vertex.x -= 1.0;
-            //vertex.y = vertex.y/(double)windowHeight * 2.0;
-            //vertex.y -= 1.0;
-            //vertex.y = -vertex.y;
         }
+        GLint boundLocation = glGetUniformLocation(mWindow->getCurrentProgram(), "bound");
+        glUniform4f(boundLocation, renderXMin, renderYMin, renderXMax, renderYMax);
+    }
+    void Frame::convertToAbsolute(VertexList& vertexList)
+    {
+        
+        //Point topLeftLimit = mSegment->getLocalBound().getCorner(Rectangle::TopLeft);
+        //Point bottomRightLimit = mSegment->getLocalBound().getCorner(Rectangle::BottomRight);
+        //float xMin = topLeftLimit.getX();
+        //float xMax = bottomRightLimit.getX();
+        //float yMin = topLeftLimit.getY();
+        //float yMax = bottomRightLimit.getY();
+        //Point parentTopLeftLimit; 
+        //Point parentBottomRightLimit;
+        //if (mSegment->mParent != nullptr)
+        //{
+        //    parentTopLeftLimit = mSegment->mParent->mBound.getCorner(Rectangle::TopLeft);
+        //    parentBottomRightLimit = mSegment->mParent->mBound.getCorner(Rectangle::BottomRight);
+
+        //}
+        //float parentxMin = parentTopLeftLimit.getX();
+        //float parentxMax = parentBottomRightLimit.getX();
+        //float parentyMin = parentTopLeftLimit.getY();
+        //float parentyMax = parentBottomRightLimit.getY();
+        //for (auto& vertex : vertexList.getVertexList())
+        //{
+        //    //limit to local border
+        //    if (mSegment->mIsLimited)
+        //    {
+        //        vertex.x = clamp(vertex.x, xMin, xMax);
+        //        vertex.y = clamp(vertex.y, yMin , yMax );
+        //    }
+        //    //relative to parent
+        //    vertex.x += mSegment->mBound.getPosition().getX();
+        //    vertex.y += mSegment->mBound.getPosition().getY();
+        //    //limit to parent border
+        //    if (mSegment->mParent != nullptr)
+        //    {
+        //        if (mSegment->mParent->mIsChildLimited)
+        //        {
+        //            vertex.x = clamp(vertex.x, parentxMin, parentxMax);
+        //            vertex.y = clamp(vertex.y, parentyMin, parentyMax);
+        //        }
+        //    }
+        //    //snap to screen coordinate in float
+        //    //vertex.x = vertex.x / (double)windowWidth * 2.0;
+        //    //vertex.x -= 1.0;
+        //    //vertex.y = vertex.y/(double)windowHeight * 2.0;
+        //    //vertex.y -= 1.0;
+        //    //vertex.y = -vertex.y;
+        //}
     }
     // Constructor that takes a std::shared_ptr<GLFWwindow>
     Frame::Frame(Segment* segment)
@@ -120,7 +187,7 @@ namespace MotionByte
                 vertices.addVertex(x[j], y[j]);
             }
         }
-        convertToAbsolute(vertices);
+        updateUniformForShape();
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
@@ -149,7 +216,7 @@ namespace MotionByte
             float y_outer = currentCorner.getY().getValue();
             vertices.addVertex(x_outer, y_outer);
         }
-        convertToAbsolute(vertices);
+        updateUniformForShape();
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_DYNAMIC_DRAW);
 
@@ -228,7 +295,7 @@ namespace MotionByte
             float y_inner = midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
             vertices.addVertex(x_inner, y_inner);
         }
-        convertToAbsolute(vertices);
+        updateUniformForShape();
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
@@ -270,7 +337,7 @@ namespace MotionByte
             vertices.addVertex(x_inner, y_inner);
 
         }
-        convertToAbsolute(vertices);
+        updateUniformForShape();
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
@@ -334,7 +401,7 @@ namespace MotionByte
             colors.push_back((double)color.getBlue()); // B
             colors.push_back((double)color.getAlpha()); // Alpha
         }
-        convertToAbsolute(vertices);
+        updateUniformForShape();
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
         glBufferData(GL_ARRAY_BUFFER, vertices.sizeInFloat() * sizeof(float), vertices.toBufferArray(), GL_STATIC_DRAW);
 
@@ -364,6 +431,7 @@ namespace MotionByte
     void Frame::drawText(Color color, std::string text, Point position, double size)
     {
         mWindow->changeProgram(Window::Program::Text);
+
         FontManager::instance().RenderText(text, position.getX(), position.getY(), size,
             color);
     }
@@ -371,6 +439,8 @@ namespace MotionByte
     void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
     {
         mWindow->changeProgram(Window::Program::Text);
+        Point coor = mSegment->getBound().getCorner(Rectangle::TopLeft);
+        bound.moveBy(coor);
         FontManager::instance().RenderText(color, text, size, bound, align);
     }
 

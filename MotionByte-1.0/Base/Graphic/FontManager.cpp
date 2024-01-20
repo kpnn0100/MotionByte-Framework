@@ -88,6 +88,7 @@ namespace MotionByte
 
 	void FontManager::RenderText(Color color, std::string text, float scale, Rectangle bound, Align align)
 	{
+
 		double width_of_text = 0;
 		double height_of_text = 0;
 		double newScale = scale / FONT_RENDER_SIZE;

@@ -37,7 +37,7 @@ namespace MotionByte
 	void Point::move(Point vector)
 	{
 		for (int i = 0 ; i <2;i++)
-			mPosition[i] = mPosition[i].shift(vector.mPosition[i].getTargetValue());
+			mPosition[i] = mPosition[i].shift(vector.mPosition[i].getValue());
 	}
 
 	Point Point::withOffset(Point offset)

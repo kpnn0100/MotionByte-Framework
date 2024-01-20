@@ -6,13 +6,18 @@ const char* vertexShaderSource = R"(
     layout(location = 0) in vec2 vertexPosition_modelspace;
 	layout (location = 1) uniform vec4 vertexColor;
 	layout (location = 2) uniform mat4 projection;
-
+    layout (location = 3) uniform vec4 bound;
+    layout (location = 4) uniform vec2 offset;
     // Output data ; will be interpolated for each fragment.
     out vec4 fragmentColor;
     // Values that stay constant for the whole mesh.
 
     void main(){	
-        gl_Position = projection * vec4(vertexPosition_modelspace, 0.0, 1.0);
+        float clampedX = clamp(vertexPosition_modelspace.x + offset.x, bound.x, bound.z);
+        float clampedY = clamp(vertexPosition_modelspace.y + offset.y, bound.y, bound.w);
+        gl_Position = vec4(clampedX,clampedY,0.0,1.0);
+        // bound.x <  gl_Position.x <bound.z
+        gl_Position = projection * gl_Position;
         gl_Position.y = -gl_Position.y;
         //gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
 	    // The color of each vertex will be interpolated
@@ -90,6 +95,13 @@ GLuint CompileShaders(const char* vertex, const  char* fragment) {
     glLinkProgram(shader_programme);
     glDeleteShader(vs);
     glDeleteShader(fs);
+    GLint success;
+    glGetShaderiv(shader_programme, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        GLchar infoLog[512];
+        glGetShaderInfoLog(shader_programme, 512, NULL, infoLog);
+        std::cerr << "Shader compilation error: " << infoLog << std::endl;
+    }
     return shader_programme;
 }
 namespace MotionByte
@@ -170,7 +182,7 @@ namespace MotionByte
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_DEBUG_OUTPUT);
+        //glEnable(GL_DEBUG_OUTPUT);
 
         glDebugMessageCallback(GLDebug, NULL);
 
@@ -360,6 +372,10 @@ namespace MotionByte
             }
         }
         updateUniform();
+    }
+    GLuint& Window::getCurrentProgram()
+    {
+        return *currentProgram;
     }
     void Window::onWindowSizeChanged(int width, int height)
     {

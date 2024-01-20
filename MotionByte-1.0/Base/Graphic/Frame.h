@@ -15,6 +15,7 @@ namespace MotionByte
         static int windowWidth, windowHeight;
         Window* mWindow;
         Segment* mSegment;
+        void updateUniformForShape();
         void convertToAbsolute(VertexList& vertexList);
     public:
         enum Direction

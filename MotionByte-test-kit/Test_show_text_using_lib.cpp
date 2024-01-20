@@ -34,13 +34,15 @@ const char* vertexShaderSource2 = R"(
     layout(location = 0) in vec2 vertexPosition_modelspace;
     layout(location = 1) in vec4 vertexColor;
 	layout (location = 2) uniform mat4 projection;
-
+    layout (location = 3) uniform vec4 bound;
+    layout (location = 4) uniform vec2 offset;
     // Output data ; will be interpolated for each fragment.
     out vec4 fragmentColor;
     // Values that stay constant for the whole mesh.
 
     void main(){	
-         gl_Position = projection * vec4(vertexPosition_modelspace, 0.0, 1.0);
+		gl_Position = vec4(vertexPosition_modelspace+offset, 0.0, 1.0);
+         gl_Position = projection * gl_Position;
         gl_Position.y = -gl_Position.y;
         //gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
 	    // The color of each vertex will be interpolated
@@ -138,7 +140,7 @@ int main(int argc, char* argv[]) {
 	shader = Compile_Shaders(textVertexSource1, textFragmentSource);
 	glUseProgram(shader);
 	shader2 = Compile_Shaders(vertexShaderSource2, fragmentShaderSource2);
-
+	glUseProgram(shader2);
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -147,7 +149,9 @@ int main(int argc, char* argv[]) {
 	glGenBuffers(1, &colorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 
-
+	GLint projectionLocation = glGetUniformLocation(shader2, "projection");
+	GLint offsetLocation = glGetUniformLocation(shader2, "offset");
+	glUniform2f(4, 1,2);
 	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
 	glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(projection));
 

@@ -23,12 +23,18 @@ namespace MotionByte {
          * @brief Constructor for GlwfManager.
          *        Initializes the GLFW library.
          */
-        GlwfManager();
+        GlwfManager()
+        {
+
+        }
 
         /**
          * @brief Destructor for GlwfManager.
          *        Cleans up GLFW resources and terminates the GLFW library.
          */
-        ~GlwfManager();
+        ~GlwfManager()
+        {
+
+        }
     };
 }

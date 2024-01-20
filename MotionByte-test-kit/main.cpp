@@ -59,7 +59,7 @@ public:
         frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
             getLocalBound());
         //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
-        frame.drawText(myColor, "Hello", 20.0, getBound(), Align::BottomMiddle);
+        frame.drawText(myColor, "Hello", 20.0, getLocalBound(), Align::BottomMiddle);
         
     }
 };

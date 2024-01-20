@@ -156,6 +156,7 @@ namespace MotionByte {
         GLuint & getMainShaderProgram();
         GLuint & getTextShaderProgram();
         void changeProgram(Program program);
+        GLuint& getCurrentProgram();
         /**
          * @brief Call when window size changed
          *  
