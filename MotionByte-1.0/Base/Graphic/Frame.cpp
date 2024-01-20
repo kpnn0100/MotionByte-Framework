@@ -82,6 +82,7 @@ namespace MotionByte
     void Frame::drawRectangle(Color color, Rectangle bound, double stroke)
     {
         VertexList vertices;
+        glUniform4f(1, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
         std::vector<float> colors;  // Add color information
         for (int i = 0; i < Rectangle::CornerCount; ++i) 
@@ -117,10 +118,6 @@ namespace MotionByte
            for (int j = 0; j < Rectangle::CornerCount; j++)
             {
                 vertices.addVertex(x[j], y[j]);
-                colors.push_back((double)color.getRed()); // R
-                colors.push_back((double)color.getGreen()); // G
-                colors.push_back((double)color.getBlue()); // B
-                colors.push_back((double)color.getAlpha()); // Alpha
             }
         }
         convertToAbsolute(vertices);
@@ -143,6 +140,7 @@ namespace MotionByte
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
         mWindow->changeProgram(Window::Program::Shape);
+        glUniform4f(1, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         VertexList vertices;
         std::vector<float> colors;  // Add color information
         for (int i = 0; i <= Rectangle::CornerCount; ++i) {
@@ -150,10 +148,6 @@ namespace MotionByte
             float x_outer = currentCorner.getX().getValue();
             float y_outer = currentCorner.getY().getValue();
             vertices.addVertex(x_outer, y_outer);
-            colors.push_back((double)color.getRed()); // R
-            colors.push_back((double)color.getGreen()); // G
-            colors.push_back((double)color.getBlue()); // B
-            colors.push_back((double)color.getAlpha()); // Alpha
         }
         convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
@@ -214,6 +208,7 @@ namespace MotionByte
     void Frame::drawCircle(Color color, Rectangle bound, double stroke)
     {
         VertexList vertices;
+        glUniform4f(1, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         const int segments = 100;
         const float lineThickness = stroke;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
@@ -232,15 +227,6 @@ namespace MotionByte
             float x_inner = midPoint.getX() + (width / 2 - lineThickness) * std::cos(theta);
             float y_inner = midPoint.getY() + (height / 2 - lineThickness) * std::sin(theta);
             vertices.addVertex(x_inner, y_inner);
-            colors.push_back((double)color.getRed()); // R
-            colors.push_back((double)color.getGreen()); // G
-            colors.push_back((double)color.getBlue()); // B
-            colors.push_back((double)color.getAlpha()); // Alpha
-
-            colors.push_back((double)color.getRed()); // R
-            colors.push_back((double)color.getGreen()); // G
-            colors.push_back((double)color.getBlue()); // B
-            colors.push_back((double)color.getAlpha()); // Alpha
         }
         convertToAbsolute(vertices);
         glBindBuffer(GL_ARRAY_BUFFER, mWindow->getVertexBuffer());
@@ -261,6 +247,7 @@ namespace MotionByte
     void Frame::fillCircle(Color color, Rectangle bound)
     {
         mWindow->changeProgram(Window::Program::Shape);
+        glUniform4f(1, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         VertexList vertices;
         const int segments = 100;
         Point midPoint = bound.getCenter();
@@ -281,15 +268,6 @@ namespace MotionByte
             float x_inner = midPoint.getX();
             float y_inner = midPoint.getY();
             vertices.addVertex(x_inner, y_inner);
-            colors.push_back((double)color.getRed()); // R
-            colors.push_back((double)color.getGreen()); // G
-            colors.push_back((double)color.getBlue()); // B
-            colors.push_back((double)color.getAlpha()); // Alpha
-
-            colors.push_back((double)color.getRed()); // R
-            colors.push_back((double)color.getGreen()); // G
-            colors.push_back((double)color.getBlue()); // B
-            colors.push_back((double)color.getAlpha()); // Alpha
 
         }
         convertToAbsolute(vertices);
@@ -388,6 +366,12 @@ namespace MotionByte
         mWindow->changeProgram(Window::Program::Text);
         FontManager::instance().RenderText(text, position.getX(), position.getY(), size,
             color);
+    }
+
+    void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
+    {
+        mWindow->changeProgram(Window::Program::Text);
+        FontManager::instance().RenderText(color, text, size, bound, align);
     }
 
 }

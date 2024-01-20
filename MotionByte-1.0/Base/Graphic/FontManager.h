@@ -8,11 +8,16 @@
 #include FT_FREETYPE_H
 #include <map>
 #include "Color.h"
+#include "../Segment/Rectangle.h"
+#include "Align.h"
 namespace MotionByte
 {
+	
 	class FontManager
 	{
 	private:
+		float mWidth, mHeight;
+		const float FONT_RENDER_SIZE = 96.0;
 		struct Character {
 			GLuint     TextureID;  // ID handle of the glyph texture
 			glm::ivec2 Size;       // Size of glyph
@@ -26,11 +31,16 @@ namespace MotionByte
 		FT_Face face;
 		FontManager();
 	public:
+
+
 		static FontManager& instance();
+
+		void onWindowSizeChanged(int width, int height);
 		FT_Library& getFreeTypeLibrary();
 		void loadFont(std::string fontPath);
 		void update();
-		void RenderText(std::string text, float x, float y, float scale,
+		void RenderText(Color color, std::string text, float size, Rectangle bound, Align align);
+		void RenderText(std::string text, float x, float y, float size,
 			Color color);
 	};
 }

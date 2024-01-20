@@ -1,11 +1,16 @@
 #include "FontManager.h"
-
+#include <cstdlib>
+#include <windows.h> 
 namespace MotionByte
 {
 	FontManager::FontManager()
 	{
 		FT_Init_FreeType(&ft);
-		loadFont("G:/Dev/MotionByte_framework/Resource/Roboto-Regular.ttf");
+		char buffer2[MAX_PATH];
+		GetModuleFileName(NULL, buffer2, MAX_PATH);
+
+		std::cout << "Executable path: " << buffer2 << std::endl;
+		loadFont("../../../Resource/Roboto-Regular.ttf");
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -27,6 +32,12 @@ namespace MotionByte
 		return instance;
 	}
 
+	void FontManager::onWindowSizeChanged(int width, int height)
+	{
+		mWidth = width;
+		mHeight = height;
+	}
+
 	FT_Library& MotionByte::FontManager::getFreeTypeLibrary()
 	{
 		return ft;
@@ -40,7 +51,7 @@ namespace MotionByte
 			FT_Done_FreeType(ft);  // Cleanup FreeType library
 			return;
 		}
-		FT_Set_Pixel_Sizes(face, 0, 96.0);
+		FT_Set_Pixel_Sizes(face, 0, FONT_RENDER_SIZE);
 		update();
 	}
 
@@ -75,12 +86,76 @@ namespace MotionByte
 		FT_Done_FreeType(ft);*/
 	}
 
+	void FontManager::RenderText(Color color, std::string text, float scale, Rectangle bound, Align align)
+	{
+		double width_of_text = 0;
+		double height_of_text = 0;
+		double newScale = scale / FONT_RENDER_SIZE;
+		std::string::const_iterator c;
+		for (c = text.begin(); c != text.end(); c++) {
+			Character ch = Characters[*c];
+			if (ch.Bearing.y* newScale > height_of_text)
+			{
+				height_of_text = ch.Bearing.y * newScale;
+			}
+			if (c != text.end() - 1)
+			{
+				width_of_text += (ch.Advance>>6) * newScale;
+			}
+			else
+			{
+				width_of_text += (ch.Bearing.x + ch.Size.x) * newScale;
+			}
+		}
+		float x = 0;
+		float y = 0;
+		switch (align.getHorizontal())
+		{
+			case Align::Horizontal::Left:
+			{
+				x = bound.getCorner(bound.TopLeft).getX();
+				break;
+			}
+			case Align::Horizontal::Middle:
+			{
+				x = bound.getCenter().getX() - width_of_text / 2.0;
+				break;
+			}
+			case Align::Horizontal::Right:
+			{
+				x = bound.getCorner(bound.TopRight).getX() - width_of_text;
+				break;
+			}
+		}
+		switch (align.getVertical())
+		{
+			case Align::Vertical::Top:
+			{
+				y = bound.getCorner(bound.TopLeft).getY() + height_of_text;
+				break;
+			}
+			case Align::Vertical::Center:
+			{
+				y = bound.getCenter().getY() + height_of_text / 2.0;
+				break;
+			}
+			case Align::Vertical::Bottom:
+			{
+				y = bound.getCorner(bound.BottomLeft).getY();
+				break;
+			}
+		}
+
+		RenderText(text, x,y, scale, color);
+	}
+
 	void MotionByte::FontManager::RenderText(std::string text, float x, float y, float scale, Color color)
 	{
 		glEnableVertexArrayAttrib(vao, 3);
 		glEnableVertexAttribArray(3);
 		glUniform4f(6, color.getRed(), color.getGreen(), color.getBlue(),color.getAlpha());
-
+		y = mHeight - y;
+		scale /= FONT_RENDER_SIZE;
 		std::string::const_iterator c;
 		for (c = text.begin(); c != text.end(); c++) {
 			Character ch = Characters[*c];

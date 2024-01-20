@@ -27,6 +27,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	    ${OPENGL_LIBRARY}
 	    glfw
         GLEW_1130
+        "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib"
     )
 # Default case for unsupported operating systems
 else()
@@ -44,27 +45,30 @@ include_directories(
 )
 
 #this is working
-file(GLOB_RECURSE PERTYG_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/MotionByte-1.0/**/*.cpp")
-list(APPEND PERTYG_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c")
-add_library(MotionByte SHARED ${PERTYG_SOURCE_FILES})
+file(GLOB_RECURSE MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/MotionByte-1.0/**/*.cpp")
+list(APPEND MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c")
+add_library(MotionByte SHARED ${MOTION_BYTE_SOURCE})
 target_link_libraries(MotionByte PUBLIC ${ALL_LIBS})
-message("Source files: ${PERTYG_SOURCE_FILES}")
-add_executable(windows_test ${PERTYG_SOURCE_FILES} "MotionByte-test-kit/main.cpp")
-add_executable(antiAliasing ${PERTYG_SOURCE_FILES} "MotionByte-test-kit/antiAliasingTest.cpp")
-add_executable(text_show "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/TextShowTest.cpp")
-add_executable(test_shader "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/TestShader.cpp")
-add_executable(test_text_lib ${PERTYG_SOURCE_FILES} "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/Test_show_text_using_lib.cpp")
-
-target_link_libraries(antiAliasing PUBLIC ${ALL_LIBS})
+#list(APPEND ALL_LIBS MotionByte)
+message("Source files: ${ALL_LIBS}")
+add_executable(windows_test ${MOTION_BYTE_SOURCE} "MotionByte-test-kit/main.cpp")
 
 target_link_libraries(windows_test PUBLIC ${ALL_LIBS})
-target_link_libraries(windows_test PUBLIC "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib")
 
-target_link_libraries(test_text_lib PUBLIC ${ALL_LIBS})
-target_link_libraries(test_text_lib "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib" )
 
-target_link_libraries(text_show PUBLIC ${ALL_LIBS})
-target_link_libraries(text_show "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib")
 
-target_link_libraries(test_shader PUBLIC ${ALL_LIBS})
-target_link_libraries(test_shader "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib")
+
+#add_executable(antiAliasing ${MOTION_BYTE_SOURCE} "MotionByte-test-kit/antiAliasingTest.cpp")
+#target_link_libraries(antiAliasing PUBLIC ${ALL_LIBS})
+#add_executable(text_show "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/TextShowTest.cpp")
+#add_executable(test_shader "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/TestShader.cpp")
+#add_executable(test_text_lib ${MOTION_BYTE_SOURCE} "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c" "MotionByte-test-kit/Test_show_text_using_lib.cpp")
+
+#target_link_libraries(test_text_lib PUBLIC ${ALL_LIBS})
+#target_link_libraries(test_text_lib "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib" )
+
+#target_link_libraries(text_show PUBLIC ${ALL_LIBS})
+#target_link_libraries(text_show "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib")
+
+#target_link_libraries(test_shader PUBLIC ${ALL_LIBS})
+#target_link_libraries(test_shader "${CMAKE_SOURCE_DIR}/SDK/freetype-2.9/build/Release/freetype.lib")

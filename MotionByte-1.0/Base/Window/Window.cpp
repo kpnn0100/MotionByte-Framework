@@ -4,7 +4,7 @@ const char* vertexShaderSource = R"(
 
     // Input vertex data, different for all executions of this shader.
     layout(location = 0) in vec2 vertexPosition_modelspace;
-    layout(location = 1) in vec4 vertexColor;
+	layout (location = 1) uniform vec4 vertexColor;
 	layout (location = 2) uniform mat4 projection;
 
     // Output data ; will be interpolated for each fragment.
@@ -25,6 +25,7 @@ const char* fragmentShaderSource = R"(
     #version 460 core
 
     // Interpolated values from the vertex shaders
+
     in vec4 fragmentColor;
 
     // Ouput data
@@ -62,7 +63,8 @@ const char* textFragmentShaderSource = R"(
 
 	void main()
 	{    
-		color = textColor * texture(text, TexCoords).r;
+		color = vec4(textColor.rgb,textColor.a * texture(text, TexCoords).r);
+        
 	} 
 )";
 void APIENTRY GLDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
@@ -321,15 +323,8 @@ namespace MotionByte
     }
     void Window::paint(Frame& frame)
     {
-        //frame.fillColor(Color(0, 0, 0,255));
+        frame.fillColor(Color(0, 0, 0,255));
         //mainFrame.drawCircle(Color(50, 50, 50), mBound.withSizeKeepCenter(200,300), 0.01);
-        frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
-            Rectangle(Point(20, 60), 200.0, 500.0));
-        std::string text("Hello OpenGL");
-        GLfloat x = 50.0f;
-        GLfloat y = 300.0f;
-        GLfloat scale = 1.0f;
-        frame.drawText(MotionByte::Color(100, 200, 125, 255), text, Point(x, y), scale);
     }
     PropertyManager& Window::getPropertyManager()
     {
@@ -368,6 +363,7 @@ namespace MotionByte
     }
     void Window::onWindowSizeChanged(int width, int height)
     {
+        FontManager::instance().onWindowSizeChanged(width, height);
         Frame::onWindowSizeChanged(mMainWindow, width, height);
         mBound.setSize(width, height);
         updateUniform();
