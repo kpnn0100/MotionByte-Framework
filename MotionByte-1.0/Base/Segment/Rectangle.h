@@ -33,6 +33,7 @@ namespace MotionByte {
          */
         Rectangle();
 
+        Rectangle(double x1, double y1, double x2, double y2);
         /**
          * @brief Parameterized constructor for Rectangle.
          * @param position Point specifying the top-left corner of the rectangle.

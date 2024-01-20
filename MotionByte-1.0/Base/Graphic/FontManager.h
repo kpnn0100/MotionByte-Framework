@@ -10,12 +10,14 @@
 #include "Color.h"
 #include "../Segment/Rectangle.h"
 #include "Align.h"
+#include "ProgramManager.h"
 namespace MotionByte
 {
 	
 	class FontManager
 	{
 	private:
+		GLuint mProgram;
 		float mWidth, mHeight;
 		const float FONT_RENDER_SIZE = 96.0;
 		struct Character {
@@ -30,6 +32,7 @@ namespace MotionByte
 		FT_Library ft;
 		FT_Face face;
 		FontManager();
+		void useThisProgram();
 	public:
 
 

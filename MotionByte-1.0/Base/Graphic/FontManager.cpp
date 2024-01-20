@@ -1,6 +1,34 @@
 #include "FontManager.h"
 #include <cstdlib>
 #include <windows.h> 
+const char* textShaderSource = R"(
+	#version 460 core
+	layout (location = 3) in vec4 vertex; // <vec2 pos, vec2 tex>
+	layout (location = 4) uniform mat4 projection;
+
+	out vec2 TexCoords;
+
+	void main()
+	{
+		gl_Position = projection * vec4(vertex.x, vertex.y, 0.0, 1.0);
+		TexCoords = vertex.zw;
+	}  
+)";
+
+const char* textFragmentShaderSource = R"(
+	#version 460 core
+	in vec2 TexCoords;
+	out vec4 color;
+
+	layout (binding = 0) uniform sampler2D text;
+	layout (location = 6) uniform vec4 textColor;
+
+	void main()
+	{    
+		color = vec4(textColor.rgb,textColor.a * texture(text, TexCoords).r);
+        
+	} 
+)";
 namespace MotionByte
 {
 	FontManager::FontManager()
@@ -11,6 +39,7 @@ namespace MotionByte
 
 		std::cout << "Executable path: " << buffer2 << std::endl;
 		loadFont("../../../Resource/Roboto-Regular.ttf");
+		mProgram = ProgramManager::createCompiledProgram(textShaderSource, textFragmentShaderSource);
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -24,6 +53,14 @@ namespace MotionByte
 		glVertexArrayAttribBinding(vao, 3, 3);
 		glEnableVertexArrayAttrib(vao, 3);
 		glEnableVertexAttribArray(3);
+	}
+
+	void FontManager::useThisProgram()
+	{
+		glUseProgram(mProgram);
+		glm::mat4 projection = glm::ortho(0.0f, mWidth, 0.0f, mHeight);
+		GLint projectionLocation = glGetUniformLocation(mProgram, "projection");
+		glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 	}
 
 	FontManager& MotionByte::FontManager::instance()
@@ -88,7 +125,7 @@ namespace MotionByte
 
 	void FontManager::RenderText(Color color, std::string text, float scale, Rectangle bound, Align align)
 	{
-
+		useThisProgram();
 		double width_of_text = 0;
 		double height_of_text = 0;
 		double newScale = scale / FONT_RENDER_SIZE;

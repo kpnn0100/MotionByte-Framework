@@ -5,6 +5,11 @@ namespace MotionByte
     {
 
     }
+    Rectangle::Rectangle(double x1, double y1, double x2, double y2) :
+        Rectangle(Point(x1, y1), x2 - x1, y2 - y1)
+    {
+
+    }
     Rectangle::Rectangle(Point position, double width, double height)
         : mPosition(position)
     {

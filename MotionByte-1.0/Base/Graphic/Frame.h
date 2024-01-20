@@ -6,6 +6,7 @@
 #include "../Segment/Rectangle.h"
 #include "Vertex.h"
 #include "FontManager.h"
+#include "ShapeManager.h"
 namespace MotionByte
 {
     class Window;
@@ -16,7 +17,6 @@ namespace MotionByte
         Window* mWindow;
         Segment* mSegment;
         void updateUniformForShape();
-        void convertToAbsolute(VertexList& vertexList);
     public:
         enum Direction
         {

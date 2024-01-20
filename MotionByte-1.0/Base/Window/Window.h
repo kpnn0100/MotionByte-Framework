@@ -28,12 +28,6 @@ namespace MotionByte {
      */
     class Window : public IFrameEventListener, public Segment {
     private:
-        GLuint * currentProgram;
-        GLuint vertexShader;
-        GLuint fragmentShader;
-        GLuint shaderProgram;
-        GLuint textShaderProgram;
-        GLuint projection;
         std::atomic<bool> mIsFrameProcessed;
         std::atomic<GLFWwindow*> mMainWindow;     ///< Atomic pointer to the GLFW window.
         PropertyManager mPropertyManager;         ///< Manages properties associated with the window.
@@ -42,9 +36,6 @@ namespace MotionByte {
         Property size[2];                         ///< Width and height properties of the window.
         bool mNeedUpdate = true;                  ///< Flag indicating whether the window needs an update.
         std::thread renderThread;                 ///< Thread for rendering the window.
-        GLuint vertexBuffer;                      ///< OpenGL vertex buffer.
-        GLuint colorBuffer;                       ///< OpenGL color buffer.
-        void updateUniform();
     public:
         /**
          * @brief Enum listing properties associated with the Window class.
@@ -66,18 +57,6 @@ namespace MotionByte {
          * @param height Height of the window.
          */
         Window(int width, int height);
-
-        /**
-         * @brief Getter for the vertex buffer.
-         * @return Reference to the OpenGL vertex buffer.
-         */
-        GLuint& getVertexBuffer();
-
-        /**
-         * @brief Getter for the color buffer.
-         * @return Reference to the OpenGL color buffer.
-         */
-        GLuint& getColorBuffer();
 
         /**
          * @brief Adds a task to the task list.
@@ -153,10 +132,6 @@ namespace MotionByte {
          * @return Reference to the PropertyManager associated with the window.
          */
         PropertyManager& getPropertyManager();
-        GLuint & getMainShaderProgram();
-        GLuint & getTextShaderProgram();
-        void changeProgram(Program program);
-        GLuint& getCurrentProgram();
         /**
          * @brief Call when window size changed
          *  

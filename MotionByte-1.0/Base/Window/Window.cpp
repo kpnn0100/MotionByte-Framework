@@ -1,131 +1,15 @@
 #include "Window.h"
-const char* vertexShaderSource = R"(
-    #version 460 core
-
-    // Input vertex data, different for all executions of this shader.
-    layout(location = 0) in vec2 vertexPosition_modelspace;
-	layout (location = 1) uniform vec4 vertexColor;
-	layout (location = 2) uniform mat4 projection;
-    layout (location = 3) uniform vec4 bound;
-    layout (location = 4) uniform vec2 offset;
-    // Output data ; will be interpolated for each fragment.
-    out vec4 fragmentColor;
-    // Values that stay constant for the whole mesh.
-
-    void main(){	
-        float clampedX = clamp(vertexPosition_modelspace.x + offset.x, bound.x, bound.z);
-        float clampedY = clamp(vertexPosition_modelspace.y + offset.y, bound.y, bound.w);
-        gl_Position = vec4(clampedX,clampedY,0.0,1.0);
-        // bound.x <  gl_Position.x <bound.z
-        gl_Position = projection * gl_Position;
-        gl_Position.y = -gl_Position.y;
-        //gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
-	    // The color of each vertex will be interpolated
-	    // to produce the color of each fragment
-	    fragmentColor = vertexColor;
-    }
-)";
-
-const char* fragmentShaderSource = R"(
-    #version 460 core
-
-    // Interpolated values from the vertex shaders
-
-    in vec4 fragmentColor;
-
-    // Ouput data
-    out vec4 color;
-
-    void main(){
-
-    // Output color = color specified in the vertex shader, 
-    // interpolated between all 3 surrounding vertices
-    color = fragmentColor;
-
-    }
-)";
-const char* textShaderSource = R"(
-	#version 460 core
-	layout (location = 3) in vec4 vertex; // <vec2 pos, vec2 tex>
-	layout (location = 4) uniform mat4 projection;
-
-	out vec2 TexCoords;
-
-	void main()
-	{
-		gl_Position = projection * vec4(vertex.x, vertex.y, 0.0, 1.0);
-		TexCoords = vertex.zw;
-	}  
-)";
-
-const char* textFragmentShaderSource = R"(
-	#version 460 core
-	in vec2 TexCoords;
-	out vec4 color;
-
-	layout (binding = 0) uniform sampler2D text;
-	layout (location = 6) uniform vec4 textColor;
-
-	void main()
-	{    
-		color = vec4(textColor.rgb,textColor.a * texture(text, TexCoords).r);
-        
-	} 
-)";
 void APIENTRY GLDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
 	printf("%d: %s\n", id, msg);
 }
-GLuint CompileShaders(const char* vertex, const  char* fragment) {
-
-    GLuint shader_programme = glCreateProgram();
-
-    GLuint vs, tcs, tes, gs, fs;
-    vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vertex, NULL);
-    glCompileShader(vs);
-
-    glAttachShader(shader_programme, vs);
-
-    fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fragment, NULL);
-    glCompileShader(fs);
-
-
-    glAttachShader(shader_programme, fs);
-    glLinkProgram(shader_programme);
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-    GLint success;
-    glGetShaderiv(shader_programme, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        GLchar infoLog[512];
-        glGetShaderInfoLog(shader_programme, 512, NULL, infoLog);
-        std::cerr << "Shader compilation error: " << infoLog << std::endl;
-    }
-    return shader_programme;
-}
 namespace MotionByte
 {
-    void Window::updateUniform()
-    {
-        GLint projectionLocation = glGetUniformLocation(*currentProgram, "projection");
-        glm::mat4 projection = glm::ortho(0.0f, (float)mBound.getWidth(), 0.0f, (float)mBound.getHeight());
-        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
-    }
     Window::Window(int width, int height) : mPropertyManager(PropertyCount)
     {
         mTopParent = this;
         mParent = nullptr;
         mMainWindow = nullptr;
         create(width, height, "hello");
-    }
-    GLuint& Window::getVertexBuffer()
-    {
-        return vertexBuffer;
-    }
-    GLuint& Window::getColorBuffer()
-    {
-        return colorBuffer;
     }
     void Window::addTask(std::function<void()> task)
     {
@@ -186,20 +70,11 @@ namespace MotionByte
 
         glDebugMessageCallback(GLDebug, NULL);
 
-        shaderProgram = CompileShaders(vertexShaderSource, fragmentShaderSource);
 
-        changeProgram(Shape);
-
-
-        textShaderProgram = CompileShaders(textShaderSource, textFragmentShaderSource);
+        
         FontManager::instance();
 
-        glGenBuffers(1, &vertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
-
-        glGenBuffers(1, &colorBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 
         onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
 
@@ -288,8 +163,6 @@ namespace MotionByte
             // Poll for and process events
             glfwPollEvents();
         }
-        glDeleteBuffers(1, &vertexBuffer);
-        glDeleteProgram(shaderProgram);
     }
     void Window::setSize(int width, int height)
     {
@@ -303,13 +176,7 @@ namespace MotionByte
     {
         if (mMainWindow)
         {
-            mIsFrameProcessed = false;
-            //addTask([this]
-            //    {
-            //        //Free time during render to avoid glitch
-
-            //    });
-            
+            mIsFrameProcessed = false;  
         }
     }
     void Window::onFrameRendered()
@@ -342,47 +209,12 @@ namespace MotionByte
     {
         return mPropertyManager;
     }
-    GLuint& Window::getMainShaderProgram()
-    {
-        return shaderProgram;
-    }
-    GLuint& Window::getTextShaderProgram()
-    {
-        return textShaderProgram;
-    }
-    void Window::changeProgram(Program program)
-    {
-        switch (program)
-        {
-            case Program::Shape:
-            {
-                currentProgram = &shaderProgram;
-                glUseProgram(shaderProgram);
-                break;
-            }
-            case Program::Text:
-            {
-                currentProgram = &textShaderProgram;
-                glUseProgram(textShaderProgram);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-        updateUniform();
-    }
-    GLuint& Window::getCurrentProgram()
-    {
-        return *currentProgram;
-    }
     void Window::onWindowSizeChanged(int width, int height)
     {
+        ShapeManager::instance().onWindowSizeChanged(width, height);
         FontManager::instance().onWindowSizeChanged(width, height);
         Frame::onWindowSizeChanged(mMainWindow, width, height);
         mBound.setSize(width, height);
-        updateUniform();
     }
     Window::~Window()
     {
