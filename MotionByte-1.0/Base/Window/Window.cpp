@@ -11,77 +11,52 @@ namespace MotionByte
         mMainWindow = nullptr;
         create(width, height, "hello");
     }
+    void Window::create(int width, int height, const char* title)
+    {
+        if (mMainWindow == nullptr)
+        {
+            glfwInit();
+            glfwWindowHint(GLFW_SAMPLES, 128);
+            mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+            mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
+        }
+    }
     void Window::addTask(std::function<void()> task)
     {
         std::lock_guard<std::mutex> lock(mTaskListLocker);
         mTaskList.push(task);
     }
-    void Window::create(int width, int height, const char* title)
-    {
-        if (mMainWindow == nullptr)
-        {
-            if (!glfwInit())
-            {
-                return;
-            }
-
-            // Set GLFW window hints (optional)
-            // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            glfwWindowHint(GLFW_SAMPLES, 4);
-            mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
-            mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
-       
-            if (!mMainWindow)
-            {
-                // Window creation failed
-                // You can add error handling or logging here
-                return;
-            }
-
-
-        }
-    }
+    
     void Window::show()
     {
-        if (mMainWindow)
+        if (!mMainWindow)
         {
-            handleWindow();
+            debug("Nothing to show");
+            return;
         }
+        handleWindow();
     }
     void Window::handleWindow()
     {
+
         // Make the window's context current
         glfwMakeContextCurrent(mMainWindow);
         // Enable anti-aliasing (multisampling)
 
         glewExperimental = true;
-        if (glewInit() != GLEW_OK) {
-            fprintf(stderr, "Failed to initialize GLEW\n");
-            getchar();
-            glfwTerminate();
-            return;
-        }
+        glewInit();
         glEnable(GL_MULTISAMPLE);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         //glEnable(GL_DEBUG_OUTPUT);
-
         glDebugMessageCallback(GLDebug, NULL);
-
-
-        
         FontManager::instance();
 
-
-
         onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
-
         mainFrame.setWindow(this);
         //mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
-        
         glfwSetWindowSizeCallback(mMainWindow, [](GLFWwindow* window, int width, int height)
             {
                 Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));

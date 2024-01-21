@@ -1,7 +1,7 @@
 #include "FrameRenderer.h"
 #include <thread>
 #include <iostream>
-
+#include "../../DEBUG.h"
 namespace MotionByte
 {
     std::unique_ptr<FrameRenderer> FrameRenderer::mInstance = nullptr;
@@ -10,7 +10,12 @@ namespace MotionByte
 
     FrameRenderer::FrameRenderer(double fps)
     {
+#ifndef DEBUG
         setFps(fps);
+#else
+        setFps(fps/6.0);
+#endif
+
         startTimer();
     }
 

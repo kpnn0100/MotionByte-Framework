@@ -61,7 +61,7 @@ namespace MotionByte
                     renderYMin = parentyMin;
                 }
 
-                if (parentyMax > renderYMax)
+                if (parentyMax < renderYMax)
                 {
                     renderYMax = parentyMax;
                 }

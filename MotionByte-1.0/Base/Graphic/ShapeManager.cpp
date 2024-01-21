@@ -15,10 +15,10 @@ namespace MotionByte
         // Values that stay constant for the whole mesh.
 
         void main(){	
+            // bound.x <  gl_Position.x <bound.z
             float clampedX = clamp(vertexPosition_modelspace.x + offset.x, bound.x, bound.z);
             float clampedY = clamp(vertexPosition_modelspace.y + offset.y, bound.y, bound.w);
             gl_Position = vec4(clampedX,clampedY,0.0,1.0);
-            // bound.x <  gl_Position.x <bound.z
             gl_Position = projection * gl_Position;
             gl_Position.y = -gl_Position.y;
             //gl_Position = vec4(vertexPosition_modelspace, 0.0, 1.0);
@@ -69,6 +69,7 @@ namespace MotionByte
 
         void ShapeManager::setBoundAndOffset(Rectangle bound, Point offset)
         {
+            glUseProgram(mProgram);
             GLint boundLocation = glGetUniformLocation(mProgram, "bound");
             Point topLeft = bound.getCorner(bound.TopLeft);
             Point bottomRight = bound.getCorner(bound.BottomRight);
@@ -76,7 +77,7 @@ namespace MotionByte
                 , bottomRight.getX(), bottomRight.getY());
             GLint offsetLocation = glGetUniformLocation(mProgram, "offset");
             glUniform2f(offsetLocation, offset.getX(), offset.getY());
-            glUseProgram(mProgram);
+
             glm::mat4 projection = glm::ortho(0.0f, mWidth, 0.0f, mHeight);
             GLint projectionLocation = glGetUniformLocation(mProgram, "projection");
             glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));

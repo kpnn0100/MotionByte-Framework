@@ -55,11 +55,11 @@ public:
         //double finalDegree = 240 + percent.getValue() * (-60 - 240);
         //frame.drawArc(myColor, this->getLocalBound(),4.0, 240, finalDegree, Frame::ClockWise);
         //frame.fillRoundedRectangle(myColor, this->getLocalBound().withSizeKeepCenter(250.0,250.0), percent.getValue() * 100.0);
-        //frame.fillCircle(myColor, this->getLocalBound().withSizeKeepCenter(this->getLocalBound().getWidth() * percent*2.0, this->getLocalBound().getWidth() * percent * 2.0));
-        frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
-            getLocalBound());
+        frame.fillCircle(myColor, this->getLocalBound().withSizeKeepCenter(this->getLocalBound().getWidth() * percent*4.0, this->getLocalBound().getWidth() * percent * 4.0));
+        //frame.fillRectangle(MotionByte::Color(100, 200, 125, 255),
+        //    getLocalBound());
         //frame.drawAnnularArc(myColor, this->getLocalBound().getLocalCenter(), 4.0,20.0, 240, finalDegree, Frame::ClockWise);
-        frame.drawText(myColor, "Hello", 20.0, getLocalBound(), Align::BottomMiddle);
+        frame.drawText(myColor, "Hello", 20.0, getLocalBound(), Align::CenterMiddle);
         
     }
 };

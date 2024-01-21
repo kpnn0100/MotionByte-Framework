@@ -38,8 +38,9 @@ namespace MotionByte
 		GetModuleFileName(NULL, buffer2, MAX_PATH);
 
 		std::cout << "Executable path: " << buffer2 << std::endl;
-		loadFont("../../../Resource/Roboto-Regular.ttf");
+		
 		mProgram = ProgramManager::createCompiledProgram(textShaderSource, textFragmentShaderSource);
+		glEnable(GL_MULTISAMPLE);
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
@@ -53,6 +54,7 @@ namespace MotionByte
 		glVertexArrayAttribBinding(vao, 3, 3);
 		glEnableVertexArrayAttrib(vao, 3);
 		glEnableVertexAttribArray(3);
+		loadFont("../../../Resource/Roboto-Regular.ttf");
 	}
 
 	void FontManager::useThisProgram()
@@ -105,8 +107,8 @@ namespace MotionByte
 			glTextureSubImage2D(texture, 0, 0, 0, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
 			glBindTexture(GL_TEXTURE_2D, texture);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glBindTexture(GL_TEXTURE_2D, 0);

@@ -19,7 +19,7 @@ namespace MotionByte
 	private:
 		GLuint mProgram;
 		float mWidth, mHeight;
-		const float FONT_RENDER_SIZE = 96.0;
+		const float FONT_RENDER_SIZE = 500.0;
 		struct Character {
 			GLuint     TextureID;  // ID handle of the glyph texture
 			glm::ivec2 Size;       // Size of glyph

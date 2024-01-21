@@ -79,7 +79,12 @@ namespace MotionByte
             }
         }
     }
-    Segment::Segment() : mainFrame(this), mPropertyManager(PropertyCount)
+    Segment::Segment() : mainFrame(this),
+        mPropertyManager(PropertyCount),
+        mIsChildLimited(false),
+        mIsLimited(false),
+        mParent(nullptr),
+        mTopParent(nullptr)
     {
         mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
         mPropertyManager.setPropertyPointer(Y, &mBound.getPosition().getY());
@@ -124,7 +129,7 @@ namespace MotionByte
     void Segment::triggerPaint()
     {
         paint(mainFrame);
-        for (auto children : mChildrenList)
+        for (auto &children : mChildrenList)
         {
             children->triggerPaint();
         }

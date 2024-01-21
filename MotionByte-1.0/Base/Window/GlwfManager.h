@@ -9,6 +9,8 @@ namespace MotionByte
 {
 class GlwfManager
 {
+private:
+    static GlwfManager instance;
 public:
     GlwfManager();
     ~GlwfManager();
