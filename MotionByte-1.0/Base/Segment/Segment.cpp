@@ -80,20 +80,16 @@ namespace MotionByte
         }
     }
     Segment::Segment() : mainFrame(this),
-        mPropertyManager(PropertyCount),
         mIsChildLimited(false),
         mIsLimited(false),
         mParent(nullptr),
         mTopParent(nullptr)
     {
-        mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
-        mPropertyManager.setPropertyPointer(Y, &mBound.getPosition().getY());
-        mPropertyManager.setPropertyPointer(Width, &mBound.getWidth());
-        mPropertyManager.setPropertyPointer(Height, &mBound.getWidth());
+
     }
-    PropertyManager& Segment::getSegmentPropertyManager()
+    Segment::~Segment()
     {
-        return mPropertyManager;
+        detachFromParent();
     }
     void Segment::setTopLeftPosition(Point point)
     {
@@ -121,7 +117,12 @@ namespace MotionByte
     }
     void Segment::addSegment(std::shared_ptr<Segment> segment)
     {
-        segment->mParent = this;
+        if (segment->mParent)
+        {
+            //remove that segment from another parent first
+            return;
+        }
+        segment->setParent(this);
         segment->mTopParent = mTopParent;
         segment->mainFrame.setWindow(mTopParent);
         mChildrenList.push_back(segment);
@@ -133,6 +134,110 @@ namespace MotionByte
         {
             children->triggerPaint();
         }
+    }
+    void Segment::onParentChanged()
+    {
+    }
+    void Segment::detachFromParent()
+    {
+        if (mParent == nullptr)
+        {
+            //No parent available
+            return;
+        }
+
+        auto it = std::find(mParent->mChildrenList.begin(),
+            mParent->mChildrenList.end(), this);
+        if (it != mParent->mChildrenList.end()) {
+            mParent->mChildrenList.erase(it);
+        }
+        else {
+            std::cerr << "Element not found in the vector." << std::endl;
+        }
+        mTopParent = nullptr;
+        mainFrame.setWindow(nullptr);
+        setParent(nullptr);
+
+
+    }
+    void Segment::bindBoundTo(std::weak_ptr<Segment> target)
+    {
+        mBound.getPosition().getX().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getX().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getPosition().getY().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getY().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getWidth().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getWidth().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getHeight().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getHeight().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+    }
+    void Segment::bindBoundToParent()
+    {
+        if (mParent == nullptr)
+        {
+            return;
+        }
+        mBound.getPosition().getX().bind([this]
+            {
+                return this->mParent->mBound.getPosition().getX().getValue();
+            });
+        mBound.getPosition().getY().bind([this]
+            {
+                return this->mParent->mBound.getPosition().getY().getValue();
+            });
+        mBound.getWidth().bind([this]
+            {
+                return this->mParent->mBound.getWidth().getValue();
+            });
+        mBound.getHeight().bind([this]
+            {
+                return this->mParent->mBound.getHeight().getValue();
+            });
+    }
+    void Segment::setParent(Segment* parent)
+    {
+        mParent = parent;
+        onParentChanged();
     }
     void Segment::setIsLimited(bool limited)
     {

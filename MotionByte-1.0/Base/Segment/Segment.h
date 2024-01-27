@@ -12,6 +12,7 @@
 #include "Event/MouseEvenHandler.h"
 #include "../Property/PropertyHeader.h"
 #include "TransformerMachine.h"
+#include "../Property/ColorManager.h"
 #include <string>
 
 namespace MotionByte {
@@ -25,7 +26,6 @@ namespace MotionByte {
     private:
         friend class Frame;
     protected:
-        PropertyManager mPropertyManager;                     ///< Manages properties associated with the segment.
         Segment* mParent;                                     ///< Pointer to the parent segment.
         std::vector<std::shared_ptr<Segment>> mChildrenList;   ///< List of child segments.
         Rectangle mBound;                                     ///< Rectangle defining the bounds of the segment.
@@ -42,13 +42,6 @@ namespace MotionByte {
         virtual void recursiveAction(Point point, bool& handled, MouseButton button, MouseAction mouseEvent) override;
         virtual void recursiveScroll(Point point, double xValue, double yValue);
     public:
-        enum PropertyID {
-            X,               ///< X-coordinate of the top-left corner of the segment.
-            Y,               ///< Y-coordinate of the top-left corner of the segment.
-            Width,           ///< Width of the segment.
-            Height,          ///< Height of the segment.
-            PropertyCount    ///< Number of properties.
-        };
 
         /**
          * @brief Constructor for Segment.
@@ -56,12 +49,7 @@ namespace MotionByte {
          */
         Segment();
 
-        /**
-         * @brief Getter for the property manager associated with the segment.
-         * @return Reference to the PropertyManager.
-         */
-        PropertyManager& getSegmentPropertyManager();
-
+        virtual ~Segment();
         /**
          * @brief Sets the top-left position of the segment.
          * @param point Point specifying the top-left position.
@@ -109,7 +97,11 @@ namespace MotionByte {
          * @param frame Frame used for rendering graphics within the segment.
          */
         virtual void paint(Frame& frame) = 0;
-
+        virtual void onParentChanged();
+        void detachFromParent();
+        void bindBoundTo(std::weak_ptr<Segment> target);
+        void bindBoundToParent();
+        void setParent(Segment* parent);
         void setIsLimited(bool limited);
         void setIsChildLimited(bool limited);
     };

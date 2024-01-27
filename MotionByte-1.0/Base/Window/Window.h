@@ -19,7 +19,7 @@
 #include "../Property/PropertyManager.h"
 #include "../Graphic/Frame.h"
 #include "../Segment/Segment.h"
-
+#include "../Segment/VisualObject.h"
 namespace MotionByte {
     /**
      * @brief The Window class represents a graphical window using GLFW for rendering.
