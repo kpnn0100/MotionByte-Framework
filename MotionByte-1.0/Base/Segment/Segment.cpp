@@ -80,20 +80,16 @@ namespace MotionByte
         }
     }
     Segment::Segment() : mainFrame(this),
-        mPropertyManager(PropertyCount),
         mIsChildLimited(false),
         mIsLimited(false),
         mParent(nullptr),
         mTopParent(nullptr)
     {
-        mPropertyManager.setPropertyPointer(X, &mBound.getPosition().getX());
-        mPropertyManager.setPropertyPointer(Y, &mBound.getPosition().getY());
-        mPropertyManager.setPropertyPointer(Width, &mBound.getWidth());
-        mPropertyManager.setPropertyPointer(Height, &mBound.getWidth());
+
     }
-    PropertyManager& Segment::getSegmentPropertyManager()
+    Segment::~Segment()
     {
-        return mPropertyManager;
+        detachFromParent();
     }
     void Segment::setTopLeftPosition(Point point)
     {
@@ -121,7 +117,12 @@ namespace MotionByte
     }
     void Segment::addSegment(std::shared_ptr<Segment> segment)
     {
-        segment->mParent = this;
+        if (segment->mParent)
+        {
+            //remove that segment from another parent first
+            return;
+        }
+        segment->setParent(this);
         segment->mTopParent = mTopParent;
         segment->mainFrame.setWindow(mTopParent);
         mChildrenList.push_back(segment);

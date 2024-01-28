@@ -6,17 +6,60 @@ namespace MotionByte
     {
     }
     // Constructors
-    Color::Color(Property r, Property g, Property b, Property a)
-        : red((double)r < 0.0 ? Property(0.0) : ((double)r > 1.0 ? Property(1.0) : r)),
-        green((double)g < 0.0 ? Property(0.0) : ((double)g > 1.0 ? Property(1.0) : g)),
-        blue((double)b < 0.0 ? Property(0.0) : ((double)b > 1.0 ? Property(1.0) : b)),
-        alpha((double)a < 0.0 ? Property(0.0) : ((double)a > 1.0 ? Property(1.0) : a)) {}
+    Color::Color(Property r, Property g, Property b, Property a) :
+        Color((double)r, (double)g, (double)b, (double)a)
+    {}
+
+    Color::Color(double r, double g, double b, double a)
+        : red(r < 0.0 ? Property(0.0) : (r > 1.0 ? Property(1.0) : r)),
+        green(g < 0.0 ? Property(0.0) : (g > 1.0 ? Property(1.0) : g)),
+        blue(b < 0.0 ? Property(0.0) : (b > 1.0 ? Property(1.0) : b)),
+        alpha(a < 0.0 ? Property(0.0) : (a > 1.0 ? Property(1.0) : a))
+    {
+    }
 
     Color::Color(int r, int g, int b, int a)
         : red((r < 0 ? 0.0 : (r > 255 ? 1.0 : static_cast<double>(r) / 255.0))),
         green((g < 0 ? 0.0 : (g > 255 ? 1.0 : static_cast<double>(g) / 255.0))),
         blue((b < 0 ? 0.0 : (b > 255 ? 1.0 : static_cast<double>(b) / 255.0))),
         alpha((a < 0 ? 0.0 : (a > 255 ? 1.0 : static_cast<double>(a) / 255.0))) {}
+
+    void Color::setColor(Color color)
+    {
+        red = color.red;
+        green = color.green;
+        blue = color.blue;
+        alpha = color.alpha;
+    }
+
+    void Color::setInterpolator(std::shared_ptr<Interpolator> interpolator)
+    {
+        red.setInterpolator(interpolator);
+        green.setInterpolator(interpolator);
+        blue.setInterpolator(interpolator);
+        alpha.setInterpolator(interpolator);
+    }
+
+    void Color::initColor(Color color)
+    {
+        red.initValue(color.red);
+        green.initValue(color.green);
+        blue.initValue(color.blue);
+        alpha.initValue(color.alpha);
+    }
+
+    Color Color::getColor()
+    {
+        return Color(red,green,blue,alpha);
+    }
+
+    Color Color::getTargetColor()
+    {
+        return Color(red.getTargetValue(),
+            green.getTargetValue(),
+            blue.getTargetValue(),
+            alpha.getTargetValue());
+    }
 
     // Getter methods
     Property & Color::getRed()  { return red; }

@@ -19,6 +19,11 @@ namespace MotionByte
         Color(double r, double g , double b , double a = 1.0f);
         Color(int r, int g, int b, int a = 255);
 
+        void setColor(Color color);
+        void setInterpolator(std::shared_ptr<Interpolator> interpolator);
+        void initColor(Color color);
+        Color getColor();
+        Color getTargetColor();
         // Getter methods
         Property & getRed() ;
         Property & getGreen() ;
@@ -45,5 +50,7 @@ namespace MotionByte
 
         // Method to get a darker version of the color
         Color darker(double factor = 0.7) ;
+
+
     };
 }
