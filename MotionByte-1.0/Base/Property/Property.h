@@ -5,6 +5,7 @@
 
 #include "../FrameRenderer/FrameRenderer.h"
 #include "../../Functional/Timer.h"
+#include "../../Functional/GraphicMath.h"
 namespace MotionByte
 {
 class Interpolator;
@@ -25,7 +26,8 @@ private:
     std::string mPropertyName;
     void update();
     friend class Interpolator;
-
+    double mMin;
+    double mMax;
 public:
     std::vector<double>& getInterpolatorState();
     Property();
@@ -54,6 +56,10 @@ public:
     double getValue();
     double getTargetValue();
     double getElapsedTime();
+    void setMin(double min);
+    void setMax(double max);
+    void unsetMin();
+    void unsetMax();
     bool isSet();
 };
 }

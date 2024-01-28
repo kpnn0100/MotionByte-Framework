@@ -2,6 +2,9 @@
 
 namespace MotionByte
 {
+    Color::Color():Color(0.0,0.0,0.0,0.0)
+    {
+    }
     // Constructors
     Color::Color(Property r, Property g, Property b, Property a)
         : red((double)r < 0.0 ? Property(0.0) : ((double)r > 1.0 ? Property(1.0) : r)),

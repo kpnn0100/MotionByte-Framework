@@ -134,6 +134,102 @@ namespace MotionByte
             children->triggerPaint();
         }
     }
+    void Segment::onParentChanged()
+    {
+    }
+    void Segment::detachFromParent()
+    {
+        if (mParent == nullptr)
+        {
+            //No parent available
+            return;
+        }
+
+        mTopParent = nullptr;
+        mainFrame.setWindow(nullptr);
+        setParent(nullptr);
+
+
+    }
+    void Segment::bindBoundTo(std::weak_ptr<Segment> target)
+    {
+        mBound.getPosition().getX().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getX().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getPosition().getY().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getY().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getWidth().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getWidth().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getHeight().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getHeight().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+    }
+    void Segment::bindBoundToParent()
+    {
+        if (mParent == nullptr)
+        {
+            return;
+        }
+        mBound.getPosition().getX().bind([this]
+            {
+                return this->mParent->mBound.getPosition().getX().getValue();
+            });
+        mBound.getPosition().getY().bind([this]
+            {
+                return this->mParent->mBound.getPosition().getY().getValue();
+            });
+        mBound.getWidth().bind([this]
+            {
+                return this->mParent->mBound.getWidth().getValue();
+            });
+        mBound.getHeight().bind([this]
+            {
+                return this->mParent->mBound.getHeight().getValue();
+            });
+    }
+    void Segment::setParent(Segment* parent)
+    {
+        mParent = parent;
+        onParentChanged();
+    }
     void Segment::setIsLimited(bool limited)
     {
         mIsLimited = limited;
