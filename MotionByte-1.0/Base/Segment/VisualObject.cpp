@@ -18,11 +18,17 @@ namespace MotionByte
     {
         bindBoundToParent();
     }
+    VisualObject::InsiderObject::InsiderObject()
+    {
+        mRadius.setMin(0.0);
+        mBorderThickness.setMin(0.0);
+    }
     void VisualObject::InsiderObject::paint(Frame& frame)
     {
         frame.fillRoundedRectangle(mBackgroundColor, getLocalBound(), mRadius);
-        frame.drawRoundedRectangle(mBackgroundColor, getLocalBound(), mRadius, mBorderThickness);
+        frame.drawRoundedRectangle(mBorderColor, getLocalBound(), mRadius, mBorderThickness);
     }
+
     PropertyManager& VisualObject::getObjectProperties()
     {
         return mObjectPropertyList;
@@ -30,6 +36,31 @@ namespace MotionByte
     ColorManager& VisualObject::getObjectColors()
     {
         return mObjectColorList;
+    }
+
+    void VisualObject::paint(Frame& frame)
+    {
+
+    }
+
+    void VisualObject::setBorderThickness(double thickness)
+    {
+        mInsiderObject->mBorderThickness = thickness;
+    }
+
+    void VisualObject::setBorderColor(Color color)
+    {
+        mInsiderObject->mBorderColor.setColor(color);
+    }
+
+    void VisualObject::setRadius(double radius)
+    {
+        mInsiderObject->mRadius = radius;
+    }
+
+    void VisualObject::setBackgroundColor(Color color)
+    {
+        mInsiderObject->mBackgroundColor.setColor(color);
     }
 
 }

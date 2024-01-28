@@ -14,8 +14,9 @@ namespace MotionByte
 
     public:
         // Constructors
-        Color(Property r = 0.0f, Property g = 0.0f, Property b = 0.0f, Property a = 1.0f);
-        Color(double r = 0.0f, double g = 0.0f, double b = 0.0f, double a = 1.0f);
+        Color();
+        Color(Property r, Property g, Property b, Property a = 1.0f);
+        Color(double r, double g , double b , double a = 1.0f);
         Color(int r, int g, int b, int a = 255);
 
         void setColor(Color color);

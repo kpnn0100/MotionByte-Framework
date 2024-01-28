@@ -146,14 +146,6 @@ namespace MotionByte
             return;
         }
 
-        auto it = std::find(mParent->mChildrenList.begin(),
-            mParent->mChildrenList.end(), this);
-        if (it != mParent->mChildrenList.end()) {
-            mParent->mChildrenList.erase(it);
-        }
-        else {
-            std::cerr << "Element not found in the vector." << std::endl;
-        }
         mTopParent = nullptr;
         mainFrame.setWindow(nullptr);
         setParent(nullptr);

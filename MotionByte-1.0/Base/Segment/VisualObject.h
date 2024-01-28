@@ -22,14 +22,21 @@ namespace MotionByte
             Property mRadius, mBorderThickness;
             void onParentChanged() override;
             void paint(Frame& frame) override;
+        public:
+            InsiderObject();
         };
         PropertyManager mObjectPropertyList;
         ColorManager mObjectColorList;
-        std::shared_ptr<InsiderObject> mInsiderObject = std::make_shared<InsiderObject>(this);
+        std::shared_ptr<InsiderObject> mInsiderObject = std::make_shared<InsiderObject>();
     public:
         VisualObject();
         PropertyManager& getObjectProperties();
         ColorManager& getObjectColors();
+        void paint(Frame& frame) override;
+        void setBorderThickness(double thickness);
+        void setBorderColor(Color color);
+        void setRadius(double radius);
+        void setBackgroundColor(Color color);
         enum ObjectPropertyID {
             X,               
             Y,               

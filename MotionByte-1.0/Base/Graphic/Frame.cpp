@@ -156,10 +156,56 @@ namespace MotionByte
     }
     void Frame::drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke)
     {
-
+        if (radius > bound.getWidth() / 2.0)
+        {
+            radius = bound.getWidth() / 2.0;
+        }
+        if (radius > bound.getHeight() / 2.0)
+        {
+            radius = bound.getHeight() / 2.0;
+        }
+        //upper
+        Rectangle upper;
+        upper.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
+            bound.getCorner(bound.TopLeft).getY()));
+        upper.setSize(bound.getWidth() - radius * 2, stroke);
+        fillRectangle(color, upper);
+        //below
+        Rectangle below;
+        below.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
+            bound.getCorner(bound.TopLeft).getY() + bound.getHeight() - stroke));
+        below.setSize(bound.getWidth() - radius * 2, stroke);
+        fillRectangle(color, below);
+        //left
+        Rectangle left;
+        left.setPosition(Point(bound.getCorner(bound.TopLeft).getX(),
+            bound.getCorner(bound.TopLeft).getY()+radius));
+        left.setSize( stroke, bound.getHeight() - radius * 2 );
+        fillRectangle(color, left);
+        //right
+        Rectangle right;
+        right.setPosition(Point(bound.getCorner(bound.TopRight).getX()-stroke,
+            bound.getCorner(bound.TopRight).getY() + radius));
+        right.setSize(stroke, bound.getHeight() - radius * 2);
+        fillRectangle(color, right);
+        //round corner
+        Rectangle middleBound = bound;
+        middleBound = middleBound.withSizeKeepCenter(middleBound.getWidth(), middleBound.getHeight() - radius * 2);
+        Rectangle middle = middleBound;
+        middle = middle.withSizeKeepCenter(middle.getWidth() - 2 * radius, middle.getHeight());
+        for (int i = 0; i < 4; i++)
+        {
+            double startDegree = 180.0 - i * 90.0;
+            double endDegree = 180.0 - (i + 1) * 90.0;//padding
+            Point center = middle.getCorner(i);
+            drawAnnularArc(color, center, radius-stroke, radius, startDegree, endDegree, ClockWise);
+        }
     }
     void Frame::fillRoundedRectangle(Color color, Rectangle bound, double radius)
     {
+        //Rectangle bound(ubound.getPosition(),
+        //    ubound.getWidth().getValue(),
+        //    ubound.getHeight().getValue());
         if (radius > bound.getWidth() / 2.0)
         {
             radius = bound.getWidth() / 2.0;
@@ -178,11 +224,13 @@ namespace MotionByte
             bound.getCorner(bound.TopLeft).getY()));
         upper.setSize(bound.getWidth() - radius * 2, radius);
         fillRectangle(color, upper);
+        //below
         Rectangle below;
         below.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
             bound.getCorner(bound.TopLeft).getY()+bound.getHeight()-radius));
         below.setSize(bound.getWidth() - radius * 2, radius);
         fillRectangle(color, below);
+        //round corner
         Rectangle middle = middleBound;
         middle = middle.withSizeKeepCenter(middle.getWidth()-2*radius, middle.getHeight());
         for (int i = 0; i < 4; i++)

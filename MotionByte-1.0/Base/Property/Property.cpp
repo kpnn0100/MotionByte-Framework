@@ -1,4 +1,5 @@
 #include "PropertyHeader.h"
+#include <limits>
 namespace MotionByte
 {
 
@@ -13,8 +14,10 @@ namespace MotionByte
         current =value;
         target = value;
         mInterpolator = InterpolatorFactory::createStep();
+        unsetMin();
+        unsetMax();
     }
-    Property::Property(const Property& other)
+    Property::Property(const Property& other):Property()
     {
         *this = other;
     }
@@ -67,30 +70,32 @@ namespace MotionByte
     Property& Property::operator=(const Property& other)
     {
         if (this != &other) {
-            
-            // Copy non-atomic members
-            mInterpolatorTimer = other.mInterpolatorTimer;
-            lastSetTime = other.lastSetTime;
-            mIsSet = other.mIsSet;
-            mInterpolator = other.mInterpolator;
-            mSetCallback = other.mSetCallback;
-            
-            // Note: If your class contains dynamic memory or other resources,
-            // you might need to perform deep copying or resource management here.
+            {
+                //// Copy non-atomic members
+                //mInterpolatorTimer = other.mInterpolatorTimer;
+                //lastSetTime = other.lastSetTime;
+                //mIsSet = other.mIsSet;
+                //mInterpolator = other.mInterpolator;
+                //mSetCallback = other.mSetCallback;
+                //    
+                //// Note: If your class contains dynamic memory or other resources,
+                //// you might need to perform deep copying or resource management here.
 
-            // For atomic types, you can use the atomic store member function
-            lastVelocity.store(other.lastVelocity.load());
-            last.store(other.last.load());
-            current.store(other.current.load());
-            target.store(other.target.load());
-
-            // Assuming Interpolator is copyable
-            mInterpolator = other.mInterpolator;
-            mInterpolatorState = other.mInterpolatorState;
-            // Assuming std::function is copyable
-            mSetCallback = other.mSetCallback;
-            mPropertyName = other.mPropertyName;
-            mBindFunction = other.mBindFunction;
+                //// For atomic types, you can use the atomic store member function
+                //lastVelocity.store(other.lastVelocity.load());
+                //last.store(other.last.load());
+                //current.store(other.current.load());
+                //target.store(other.target.load());
+                //// Assuming Interpolator is copyable
+                //mInterpolator = other.mInterpolator;
+                //mInterpolatorState = other.mInterpolatorState;
+                //// Assuming std::function is copyable
+                //mSetCallback = other.mSetCallback;
+                //mPropertyName = other.mPropertyName;
+                //mBindFunction = other.mBindFunction;
+            }
+            //I mean get value should be const right?
+            setValue(((Property*)(&other))->getValue());
             update();
         }
         return *this;
@@ -131,6 +136,7 @@ namespace MotionByte
             //nothing change
             return;
         }
+        value = clamp(value, mMin, mMax);
         lastVelocity = mInterpolator->getVelocityAtTime(*this);
         target = value;
         last = (double)current;
@@ -168,10 +174,10 @@ namespace MotionByte
     {
         if (mBindFunction)
         {
-            return mBindFunction();
+            return clamp(mBindFunction(),mMin,mMax);
         }
         update();
-        return current;
+        return clamp(current, mMin, mMax);
     }
     double Property::getTargetValue()
     {
@@ -180,6 +186,22 @@ namespace MotionByte
     double Property::getElapsedTime()
     {
         return mInterpolatorTimer.getDuration();
+    }
+    void Property::setMin(double min)
+    {
+        mMin = min;
+    }
+    void Property::setMax(double max)
+    {
+        mMax = max;
+    }
+    void Property::unsetMin()
+    {
+        mMin = std::numeric_limits<double>::lowest();
+    }
+    void Property::unsetMax()
+    {
+        mMax = std::numeric_limits<double>::max();
     }
     bool Property::isSet()
     {
