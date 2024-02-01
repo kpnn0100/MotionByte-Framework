@@ -135,6 +135,10 @@ namespace MotionByte
             children->triggerPaint();
         }
     }
+    Point Segment::getOffsetFromOrigin()
+    {
+        return mParent ? mBound.getPosition() + mParent->getOffsetFromOrigin() : mBound.getPosition();
+    }
     void Segment::onParentChanged()
     {
     }
@@ -154,30 +158,7 @@ namespace MotionByte
     }
     void Segment::bindBoundTo(std::weak_ptr<Segment> target)
     {
-        mBound.getPosition().getX().bind([target]
-            {
-                if (auto targetSharedPtr = target.lock())
-                {
-                    return targetSharedPtr->mBound.getPosition().getX().getValue();
-                }
-                else
-                {
-                    return 0.0;
-                }
-
-            });
-        mBound.getPosition().getY().bind([target]
-            {
-                if (auto targetSharedPtr = target.lock())
-                {
-                    return targetSharedPtr->mBound.getPosition().getY().getValue();
-                }
-                else
-                {
-                    return 0.0;
-                }
-
-            });
+        auto targetSharedPtr = target.lock();
         mBound.getWidth().bind([target]
             {
                 if (auto targetSharedPtr = target.lock())
@@ -202,6 +183,35 @@ namespace MotionByte
                 }
 
             });
+        if (targetSharedPtr->mParent != mParent)
+        {
+            debug("Cannot bind to non sibling");
+            return;
+        }
+        mBound.getPosition().getX().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getX().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
+        mBound.getPosition().getY().bind([target]
+            {
+                if (auto targetSharedPtr = target.lock())
+                {
+                    return targetSharedPtr->mBound.getPosition().getY().getValue();
+                }
+                else
+                {
+                    return 0.0;
+                }
+
+            });
     }
     void Segment::bindBoundToParent()
     {
@@ -209,14 +219,6 @@ namespace MotionByte
         {
             return;
         }
-        mBound.getPosition().getX().bind([this]
-            {
-                return this->mParent->mBound.getPosition().getX().getValue();
-            });
-        mBound.getPosition().getY().bind([this]
-            {
-                return this->mParent->mBound.getPosition().getY().getValue();
-            });
         mBound.getWidth().bind([this]
             {
                 return this->mParent->mBound.getWidth().getValue();
@@ -224,6 +226,14 @@ namespace MotionByte
         mBound.getHeight().bind([this]
             {
                 return this->mParent->mBound.getHeight().getValue();
+            });
+        mBound.getPosition().getX().bind([this]
+            {
+                return 0.0;
+            });
+        mBound.getPosition().getY().bind([this]
+            {
+                return 0.0;
             });
     }
     void Segment::setParent(Segment* parent)

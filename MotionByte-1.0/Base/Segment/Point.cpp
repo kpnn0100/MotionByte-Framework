@@ -18,6 +18,13 @@ namespace MotionByte
 		mPosition[1] = other.mPosition[1];
 		return *this;
 	}
+	Point Point::operator+(const Point& other)
+	{
+		Point p;
+		p.getX().setValue(mPosition[0].getValue() +  ((Point*)&other)->mPosition[0].getValue());
+		p.getY().setValue(mPosition[1].getValue() + ((Point*)&other)->mPosition[1].getValue());
+		return p;
+	}
 	Property &Point::getX() { 
 		return mPosition[X]; 
 	}

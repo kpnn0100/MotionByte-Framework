@@ -8,12 +8,17 @@ namespace MotionByte
     int Frame::windowHeight = 0;
     void Frame::updateUniformForShape()
     {
-        Point topLeft = mSegment->getBound().getCorner(Rectangle::TopLeft);
-        Point bottomRight = mSegment->getBound().getCorner(Rectangle::BottomRight);
+        Point offset;
+        if (mSegment->mParent != nullptr)
+        {
+            offset = mSegment->mParent->getOffsetFromOrigin();
+        }
+        Point topLeft = offset+ mSegment->getBound().getCorner(Rectangle::TopLeft);
+        Point bottomRight = offset+ mSegment->getBound().getCorner(Rectangle::BottomRight);
 
         //limit to local border
-        Point topLeftLimit = mSegment->getBound().getCorner(Rectangle::TopLeft);
-        Point bottomRightLimit = mSegment->getBound().getCorner(Rectangle::BottomRight);
+        Point topLeftLimit = offset + mSegment->getBound().getCorner(Rectangle::TopLeft);
+        Point bottomRightLimit = offset + mSegment->getBound().getCorner(Rectangle::BottomRight);
 
         float xMin = topLeftLimit.getX();
         float xMax = bottomRightLimit.getX();
@@ -23,8 +28,9 @@ namespace MotionByte
         Point parentBottomRightLimit;
         if (mSegment->mParent != nullptr)
         {
-            parentTopLeftLimit = mSegment->mParent->mBound.getCorner(Rectangle::TopLeft);
-            parentBottomRightLimit = mSegment->mParent->mBound.getCorner(Rectangle::BottomRight);
+            parentTopLeftLimit = offset;
+            parentBottomRightLimit = offset + Point(mSegment->mParent->getBound().getWidth(),
+                mSegment->mParent->getBound().getHeight());
         }
         float parentxMin = parentTopLeftLimit.getX();
         float parentxMax = parentBottomRightLimit.getX();

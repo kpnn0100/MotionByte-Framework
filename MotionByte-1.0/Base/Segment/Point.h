@@ -11,6 +11,7 @@ namespace MotionByte
         Point(double x, double y);
         Point(const Point& other);
         Point operator=(const Point& other);
+        Point operator+(const Point& other);
         Property &getX();
         Property &getY();
         Property &getPosition(int dimension);

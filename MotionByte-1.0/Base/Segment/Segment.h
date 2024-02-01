@@ -91,6 +91,7 @@ namespace MotionByte {
          */
         void triggerPaint();
 
+        Point getOffsetFromOrigin();
         /**
          * @brief Pure virtual function for painting the segment.
          *        This function must be implemented by derived classes.
