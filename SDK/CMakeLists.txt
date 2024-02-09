@@ -12,7 +12,7 @@ add_definitions(
 )
 
 ### GLFW ###
-
+add_subdirectory(freetype-2.9)
 add_subdirectory (glfw-3.1.2)
 include_directories("freetype/include")
 include_directories(

@@ -1,6 +1,5 @@
 #include "FontManager.h"
 #include <cstdlib>
-#include <windows.h> 
 const char* textShaderSource = R"(
 	#version 460 core
 	layout (location = 3) in vec4 vertex; // <vec2 pos, vec2 tex>
@@ -34,11 +33,6 @@ namespace MotionByte
 	FontManager::FontManager()
 	{
 		FT_Init_FreeType(&ft);
-		char buffer2[MAX_PATH];
-		GetModuleFileName(NULL, buffer2, MAX_PATH);
-
-		std::cout << "Executable path: " << buffer2 << std::endl;
-		
 		mProgram = ProgramManager::createCompiledProgram(textShaderSource, textFragmentShaderSource);
 		glEnable(GL_MULTISAMPLE);
 		glCreateVertexArrays(1, &vao);

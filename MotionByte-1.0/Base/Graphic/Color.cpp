@@ -11,10 +11,10 @@ namespace MotionByte
     {}
 
     Color::Color(double r, double g, double b, double a)
-        : red(r < 0.0 ? Property(0.0) : (r > 1.0 ? Property(1.0) : r)),
-        green(g < 0.0 ? Property(0.0) : (g > 1.0 ? Property(1.0) : g)),
-        blue(b < 0.0 ? Property(0.0) : (b > 1.0 ? Property(1.0) : b)),
-        alpha(a < 0.0 ? Property(0.0) : (a > 1.0 ? Property(1.0) : a))
+        : red(r < 0.0 ? Property(0.0) : (r > 1.0 ? Property(1.0) : Property(r))),
+        green(g < 0.0 ? Property(0.0) : (g > 1.0 ? Property(1.0) : Property(g))),
+        blue(b < 0.0 ? Property(0.0) : (b > 1.0 ? Property(1.0) : Property(b))),
+        alpha(a < 0.0 ? Property(0.0) : (a > 1.0 ? Property(1.0) : Property(a)))
     {
     }
 
