@@ -46,11 +46,10 @@ include_directories(
 
 #this is working
 file(GLOB_RECURSE MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/MotionByte-1.0/**/*.cpp")
-list(APPEND MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c")
+list(APPEND MOTION_BYTE_SOURCE )
 add_library(MotionByte ${MOTION_BYTE_SOURCE})
 target_link_libraries(MotionByte PRIVATE ${ALL_LIBS})
-#list(APPEND ALL_LIBS MotionByte)
 message("Source files: ${ALL_LIBS}")
-add_executable(windows_test "MotionByte-test-kit/main.cpp")
+add_executable(windows_test "MotionByte-test-kit/main.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/SDK/glew-1.13.0/src/glew.c")
 
 target_link_libraries(windows_test PRIVATE MotionByte)
