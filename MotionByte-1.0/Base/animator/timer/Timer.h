@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "PausableTimer.h"
-#include "../DEBUG.h"
+#include "../../DEBUG.h"
 namespace MotionByte
 {
     class Timer
