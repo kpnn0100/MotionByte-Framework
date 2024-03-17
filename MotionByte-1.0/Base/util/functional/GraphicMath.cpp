@@ -1,5 +1,5 @@
 #include "GraphicMath.h"
-#include "../Base/Segment/Point.h"
+#include "util/geometry/Point.h"
 namespace MotionByte
 {
     double toRadians(double degrees) {

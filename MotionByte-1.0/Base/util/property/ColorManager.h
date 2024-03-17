@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../Graphic/Color.h"
+#include "util/geometry/Color.h"
 namespace MotionByte
 {
     class ColorManager

@@ -7,9 +7,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
-#include "Color.h"
-#include "../Segment/Rectangle.h"
-#include "Align.h"
+#include "util/geometry/Color.h"
+#include "util/geometry/Rectangle.h"
+#include "util/geometry/Align.h"
 #include "ProgramManager.h"
 namespace MotionByte
 {

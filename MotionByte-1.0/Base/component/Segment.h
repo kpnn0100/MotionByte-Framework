@@ -7,12 +7,12 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "Rectangle.h"
-#include "../Graphic/Frame.h"
+#include "util/geometry/Rectangle.h"
+#include "graphic/drawer/Frame.h"
 #include "Event/MouseEvenHandler.h"
-#include "../Property/PropertyHeader.h"
+#include "util/property/PropertyHeader.h"
 #include "TransformerMachine.h"
-#include "../Property/ColorManager.h"
+#include "util/property/ColorManager.h"
 #include <string>
 
 namespace MotionByte {
@@ -35,6 +35,7 @@ namespace MotionByte {
         int mSegmentTypeID;                                    ///< Unique identifier for the segment type.
         bool mIsLimited;
         bool mIsChildLimited;
+        Property mOpacity;
         // Mouse event handling functions
         virtual void recursivePress(Point point, bool& handled) override;
         virtual void recursiveRelease(Point point, bool& handled) override;
@@ -91,6 +92,9 @@ namespace MotionByte {
          */
         void triggerPaint();
 
+        double getOpacityFromOrigin();
+        Property & getOpacity();
+        void setOpacity(double opacity);
         Point getOffsetFromOrigin();
         /**
          * @brief Pure virtual function for painting the segment.

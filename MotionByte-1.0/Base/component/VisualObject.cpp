@@ -10,6 +10,7 @@ namespace MotionByte
         mObjectPropertyList.setPropertyPointer(Radius, &mInsiderObject->mRadius);
         mObjectPropertyList.setPropertyPointer(BorderThickness, &mInsiderObject->mBorderThickness);
         mObjectPropertyList.setPropertyPointer(Radius, &mInsiderObject->mRadius);
+        mObjectPropertyList.setPropertyPointer(Opacity, &mOpacity);
         mObjectColorList.setColorPointer(ObjectColorID::Background, &mInsiderObject->mBackgroundColor);
         mObjectColorList.setColorPointer(ObjectColorID::Border, &mInsiderObject->mBorderColor);
         addSegment(mInsiderObject);

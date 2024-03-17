@@ -1,5 +1,5 @@
 #pragma once
-#include "../Window/GlwfManager.h"
+#include "graphic/window/GlwfManager.h"
 namespace MotionByte
 {
 	class ProgramManager

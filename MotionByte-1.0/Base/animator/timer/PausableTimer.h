@@ -2,7 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include <mutex>
-#include "../DEBUG.h"
+#include "debugging_tool/DEBUG.h"
 namespace MotionByte
 {
     class PausableTimer

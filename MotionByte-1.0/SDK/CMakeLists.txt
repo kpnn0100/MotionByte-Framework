@@ -53,5 +53,7 @@ target_link_libraries(GLEW_1130
 	${OPENGL_LIBRARY}
 	${EXTRA_LIBS}
 )
+target_include_directories(GLEW_1130 PUBLIC
+glew-1.13.0/include)
 
 

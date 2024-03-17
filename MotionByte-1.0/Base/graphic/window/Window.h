@@ -14,12 +14,11 @@
 #include <thread>
 #include <vector>
 
-#include "../FrameRenderer/FrameRenderer.h"
-#include "../Property/PropertyHeader.h"
-#include "../Property/PropertyManager.h"
-#include "../Graphic/Frame.h"
-#include "../Segment/Segment.h"
-#include "../Segment/VisualObject.h"
+#include "animator/FrameRenderer.h"
+#include "util/property/PropertyHeader.h"
+#include "graphic/drawer/Frame.h"
+#include "component/Segment.h"
+#include "component/VisualObject.h"
 namespace MotionByte {
     /**
      * @brief The Window class represents a graphical window using GLFW for rendering.

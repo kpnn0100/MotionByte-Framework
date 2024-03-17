@@ -83,13 +83,22 @@ namespace MotionByte
         mIsChildLimited(false),
         mIsLimited(false),
         mParent(nullptr),
-        mTopParent(nullptr)
+        mTopParent(nullptr),
+        mOpacity(1.0)
     {
 
     }
     Segment::~Segment()
     {
         detachFromParent();
+    }
+    Property& Segment::getOpacity()
+    {
+        return mOpacity;
+    }
+    void Segment::setOpacity(double opacity)
+    {
+         mOpacity = clamp(opacity, 0.0, 1.0);
     }
     void Segment::setTopLeftPosition(Point point)
     {
@@ -134,6 +143,10 @@ namespace MotionByte
         {
             children->triggerPaint();
         }
+    }
+    double Segment::getOpacityFromOrigin()
+    {
+        return mParent ? mOpacity.getValue()*mParent->getOpacityFromOrigin() : mOpacity.getValue();
     }
     Point Segment::getOffsetFromOrigin()
     {

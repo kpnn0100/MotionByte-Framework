@@ -44,6 +44,7 @@ namespace MotionByte
             Height,
             Radius,
             BorderThickness,
+            Opacity,
             PropertyCount
         };
         enum ObjectColorID {

@@ -2,7 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
-#include "../../DEBUG.h"
+#include "debugging_tool/DEBUG.h"
 namespace MotionByte
 {
 	class Property;

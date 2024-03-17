@@ -1,12 +1,12 @@
 #pragma once
 #include <memory>
 
-#include "../Window/GlwfManager.h"
-#include "Color.h"
-#include "../Segment/Rectangle.h"
-#include "Vertex.h"
-#include "FontManager.h"
-#include "ShapeManager.h"
+#include "graphic/window/GlwfManager.h"
+#include "util/geometry/Color.h"
+#include "util/geometry/Rectangle.h"
+#include "util/geometry/Vertex.h"
+#include "graphic/program/FontManager.h"
+#include "graphic/program/ShapeManager.h"
 namespace MotionByte
 {
     class Window;
@@ -17,6 +17,7 @@ namespace MotionByte
         Window* mWindow;
         Segment* mSegment;
         void updateUniformForShape();
+        Color withEffect(Color color);
     public:
         enum Direction
         {
@@ -33,6 +34,8 @@ namespace MotionByte
         void fillRectangle(Color color, Rectangle bound);
         void drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke);
         void fillRoundedRectangle(Color color, Rectangle bound, double radius);
+        void fillPolygon(Color color, std::vector<Point> pointList);
+        void fillPolygon(Color color, Point origin, std::vector<Point> pointList);
         void drawCircle(Color color, Rectangle bound, double stroke);
         void fillCircle(Color color, Rectangle bound);
         void drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction);
@@ -40,5 +43,6 @@ namespace MotionByte
         void drawAnnularArc(Color color, Point center, double innerRadius,double outerRadius, double startDegree, double endDegree, Direction direction);
         void drawText(Color color, std::string text, Point position, double size);
         void drawText(Color color, std::string text, double size, Rectangle bound, Align align);
+
     };
 }

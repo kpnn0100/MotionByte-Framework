@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include <iostream>
-#include "../Point.h"
+#include "util/geometry/Point.h"
 
 namespace MotionByte
 {

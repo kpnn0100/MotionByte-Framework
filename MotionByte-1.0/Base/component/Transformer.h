@@ -1,6 +1,6 @@
 #pragma once
-#include "../Graphic/Vertex.h"  // Include the VertexList class
-#include "../../Functional/GraphicMath.h"
+#include "util/geometry/Vertex.h"  // Include the VertexList class
+#include "util/functional/GraphicMath.h"
 namespace MotionByte
 {
     class Transformer {

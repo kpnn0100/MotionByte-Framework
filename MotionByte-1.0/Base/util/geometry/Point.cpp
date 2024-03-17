@@ -1,4 +1,4 @@
-#include "Point.h"
+#include "util/geometry/Point.h"
 namespace MotionByte
 {
 	Point::Point() : mPosition{ 0.0, 0.0 }

@@ -1,7 +1,7 @@
 #include "FrameRenderer.h"
 #include <thread>
 #include <iostream>
-#include "../../DEBUG.h"
+#include "debugging_tool/DEBUG.h"
 namespace MotionByte
 {
     std::unique_ptr<FrameRenderer> FrameRenderer::mInstance = nullptr;

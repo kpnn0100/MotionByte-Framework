@@ -6,6 +6,12 @@ namespace MotionByte
 {
     int Frame::windowWidth = 0;
     int Frame::windowHeight = 0;
+    Color Frame::withEffect(Color color)
+    {
+        Color newColor = color;
+        newColor.setAlpha(newColor.getAlpha().getValue() * mSegment->getOpacityFromOrigin());
+        return newColor;
+    }
     void Frame::updateUniformForShape()
     {
         Point offset;
@@ -141,7 +147,7 @@ namespace MotionByte
             }
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, color);
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
         // Draw
         glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
     }
@@ -155,13 +161,43 @@ namespace MotionByte
             vertices.addVertex(x_outer, y_outer);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices,color);
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
 
         // Draw
         glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
     }
+    void Frame::fillPolygon(Color color, std::vector<Point> pointList)
+    {
+        VertexList vertices;
+        std::vector<float> colors;  // Add color information
+        int s = pointList.size();
+        for (int i = 0; i <= s; ++i) {
+            vertices.addVertex(pointList[i%s].getX(),
+                pointList[i % s].getY());
+
+        }
+        updateUniformForShape();
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
+    }
+    void Frame::fillPolygon(Color color, Point origin, std::vector<Point> pointList)
+    {
+        VertexList vertices;
+        std::vector<float> colors;  // Add color information
+        int s = pointList.size();
+        vertices.addVertex(origin.getX(), origin.getY());
+        for (int i = 0; i < s; ++i) {
+            vertices.addVertex(pointList[i%s].getX(),
+                pointList[i % s].getY());
+        }
+        updateUniformForShape();
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
+        glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.sizeInFloat() / 2);
+    }
     void Frame::drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke)
     {
+        //special case when only outside edge got bended
+
         if (radius > bound.getWidth() / 2.0)
         {
             radius = bound.getWidth() / 2.0;
@@ -172,39 +208,64 @@ namespace MotionByte
         }
         //upper
         Rectangle upper;
-        upper.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
+        upper.setPosition(Point(std::max(radius,stroke) + bound.getCorner(bound.TopLeft).getX(),
             bound.getCorner(bound.TopLeft).getY()));
-        upper.setSize(bound.getWidth() - radius * 2, stroke);
+        upper.setSize(bound.getWidth() - std::max(radius, stroke) * 2, stroke);
         fillRectangle(color, upper);
         //below
         Rectangle below;
-        below.setPosition(Point(radius + bound.getCorner(bound.TopLeft).getX(),
+        below.setPosition(Point(std::max(radius, stroke) + bound.getCorner(bound.TopLeft).getX(),
             bound.getCorner(bound.TopLeft).getY() + bound.getHeight() - stroke));
-        below.setSize(bound.getWidth() - radius * 2, stroke);
+        below.setSize(bound.getWidth() - std::max(radius, stroke) * 2, stroke);
         fillRectangle(color, below);
         //left
         Rectangle left;
         left.setPosition(Point(bound.getCorner(bound.TopLeft).getX(),
-            bound.getCorner(bound.TopLeft).getY()+radius));
-        left.setSize( stroke, bound.getHeight() - radius * 2 );
+            bound.getCorner(bound.TopLeft).getY()+ std::max(radius, stroke)));
+        left.setSize( stroke, bound.getHeight() - std::max(radius, stroke) * 2 );
         fillRectangle(color, left);
         //right
         Rectangle right;
         right.setPosition(Point(bound.getCorner(bound.TopRight).getX()-stroke,
-            bound.getCorner(bound.TopRight).getY() + radius));
-        right.setSize(stroke, bound.getHeight() - radius * 2);
+            bound.getCorner(bound.TopRight).getY() + std::max(radius, stroke)));
+        right.setSize(stroke, bound.getHeight() - std::max(radius, stroke) * 2);
         fillRectangle(color, right);
         //round corner
         Rectangle middleBound = bound;
         middleBound = middleBound.withSizeKeepCenter(middleBound.getWidth(), middleBound.getHeight() - radius * 2);
         Rectangle middle = middleBound;
+        Rectangle rec[6];
+        rec[0] = bound.withSizeKeepCenter
+            (bound.getWidth(), bound.getHeight() - stroke * 2);
+        rec[1] = bound.withSizeKeepCenter
+            (bound.getWidth(), bound.getHeight() - radius * 2);
+        rec[2] = bound.withSizeKeepCenter
+            (bound.getWidth() - radius * 2, bound.getHeight() - radius * 2);
+        rec[3] = bound.withSizeKeepCenter
+            (bound.getWidth() - radius * 2, bound.getHeight());
+        rec[4] = bound.withSizeKeepCenter
+            (bound.getWidth() - stroke * 2, bound.getHeight());
+        rec[5] = bound.withSizeKeepCenter
+            (bound.getWidth() - stroke * 2, bound.getHeight() - stroke * 2);
         middle = middle.withSizeKeepCenter(middle.getWidth() - 2 * radius, middle.getHeight());
         for (int i = 0; i < 4; i++)
         {
             double startDegree = 180.0 - i * 90.0;
             double endDegree = 180.0 - (i + 1) * 90.0;//padding
+            
             Point center = middle.getCorner(i);
-            drawAnnularArc(color, center, radius-stroke, radius, startDegree, endDegree, ClockWise);
+            if (radius > stroke)
+            {
+                drawAnnularArc(color, center, radius - stroke, radius, startDegree, endDegree, ClockWise);
+                continue;
+            }
+            std::vector<Point> pointList;
+            for (int j = 0; j < 5; j++)
+            {
+                pointList.push_back(rec[j].getCorner(i));
+            }
+            fillPolygon(color,rec[5].getCorner(i), pointList);
+            drawAnnularArc(color, center, 0, radius, startDegree, endDegree, ClockWise);
         }
     }
     void Frame::fillRoundedRectangle(Color color, Rectangle bound, double radius)
@@ -269,7 +330,7 @@ namespace MotionByte
             vertices.addVertex(x_inner, y_inner);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, color);
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
 
@@ -298,7 +359,7 @@ namespace MotionByte
 
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, color);;
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
     void Frame::drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction)
@@ -340,7 +401,7 @@ namespace MotionByte
             vertices.addVertex(x_inner, y_inner);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, color);
+        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
     void Frame::drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction)
@@ -358,14 +419,14 @@ namespace MotionByte
     void Frame::drawText(Color color, std::string text, Point position, double size)
     {
         FontManager::instance().RenderText(text, position.getX(), position.getY(), size,
-            color);
+            withEffect(color));
     }
 
     void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
     {
         Point coor = mSegment->getBound().getCorner(Rectangle::TopLeft);
         bound.moveBy(coor);
-        FontManager::instance().RenderText(color, text, size, bound, align);
+        FontManager::instance().RenderText(withEffect(color), text, size, bound, align);
     }
 
 }

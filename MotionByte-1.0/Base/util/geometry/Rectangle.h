@@ -5,7 +5,7 @@
 */
 
 #pragma once
-#include "Point.h"
+#include "util/geometry/Point.h"
 #include "../Property/Property.h"
 
 namespace MotionByte {

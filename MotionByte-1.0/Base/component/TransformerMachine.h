@@ -1,7 +1,7 @@
 #pragma once
 #include "Transformer.h"
-#include "Point.h"
-#include "../Property/PropertyHeader.h"
+#include "util/geometry/Point.h"
+#include "util/property/PropertyHeader.h"
 namespace MotionByte
 {
     class Rotation : public Transformer

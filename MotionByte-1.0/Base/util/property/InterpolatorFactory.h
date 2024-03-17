@@ -1,8 +1,8 @@
 #pragma once
-#include "Interpolator/Step.h"
-#include "Interpolator/Linear.h"
-#include "Interpolator/EaseInOut.h"
-#include "Interpolator/Smooth.h"
+#include "interpolators/Step.h"
+#include "interpolators/Linear.h"
+#include "interpolators/EaseInOut.h"
+#include "interpolators/Smooth.h"
 #include <memory>
 namespace MotionByte
 {

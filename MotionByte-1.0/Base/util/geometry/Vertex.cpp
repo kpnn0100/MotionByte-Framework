@@ -1,4 +1,4 @@
-#include "Vertex.h"
+#include "util/geometry/Vertex.h"
 
 namespace MotionByte
 {

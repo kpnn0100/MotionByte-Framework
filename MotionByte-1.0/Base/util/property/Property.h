@@ -3,9 +3,9 @@
 #include <memory>
 #include <atomic>
 
-#include "../FrameRenderer/FrameRenderer.h"
-#include "../../Functional/Timer.h"
-#include "../../Functional/GraphicMath.h"
+#include "animator/FrameRenderer.h"
+#include "animator/timer/Timer.h"
+#include "util/functional/GraphicMath.h"
 namespace MotionByte
 {
 class Interpolator;

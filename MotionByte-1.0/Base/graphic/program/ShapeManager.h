@@ -1,9 +1,9 @@
 #pragma once
-#include "../Window/GlwfManager.h"
+#include "graphic/window/GlwfManager.h"
 #include "ProgramManager.h"
-#include "Vertex.h"
-#include "../Segment/Rectangle.h"
-#include "Color.h"
+#include "util/geometry/Vertex.h"
+#include "util/geometry/Rectangle.h"
+#include "util/geometry/Color.h"
 namespace MotionByte
 {
 
