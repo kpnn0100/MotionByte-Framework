@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
 #include <iomanip>
-#include "../Property/Property.h"
+#include "../property/Property.h"
 namespace MotionByte
 {
     class Color

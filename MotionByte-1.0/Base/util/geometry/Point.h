@@ -1,5 +1,5 @@
 #pragma once
-#include "../Property/Property.h"
+#include "../property/Property.h"
 namespace MotionByte
 {
     class Point {
