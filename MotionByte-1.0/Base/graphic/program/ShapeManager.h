@@ -1,5 +1,5 @@
 #pragma once
-#include "graphic/window/GlwfManager.h"
+#include "graphic/window/GraphicManager.h"
 #include "ProgramManager.h"
 #include "util/geometry/Vertex.h"
 #include "util/geometry/Rectangle.h"

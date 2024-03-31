@@ -51,6 +51,7 @@ namespace MotionByte
         // Method to get a darker version of the color
         Color darker(double factor = 0.7) ;
 
-
+        static const Color White;
+        static const Color Black;
     };
 }

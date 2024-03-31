@@ -424,7 +424,7 @@ namespace MotionByte
 
     void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
     {
-        Point coor = mSegment->getBound().getCorner(Rectangle::TopLeft);
+        Point coor = mSegment->getOffsetFromOrigin() + mSegment->getBound().getCorner(Rectangle::TopLeft);
         bound.moveBy(coor);
         FontManager::instance().RenderText(withEffect(color), text, size, bound, align);
     }

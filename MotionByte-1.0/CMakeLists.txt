@@ -43,6 +43,7 @@ include_directories(
     Base
     SDK/freetype-2.9/include
 	.
+    Resource
 )
 
 file(GLOB_RECURSE MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Base/**/*.cpp")
@@ -56,4 +57,5 @@ target_include_directories(MotionByte PUBLIC SDK/glfw-3.1.2/include/
 	SDK/glew-1.13.0/include/
     Base
     SDK/freetype-2.9/include
+    Resource
 	.)

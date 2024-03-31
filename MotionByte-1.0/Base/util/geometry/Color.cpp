@@ -2,6 +2,8 @@
 
 namespace MotionByte
 {
+    const Color Color::Black(0.0, 0.0, 0.0, 1.0);
+    const Color Color::White(1.0, 1.0, 1.0, 1.0);
     Color::Color():Color(0.0,0.0,0.0,0.0)
     {
     }

@@ -10,4 +10,14 @@ namespace MotionByte
 	const Align Align::BottomLeft(Align::Left, Align::Bottom);
 	const Align Align::BottomMiddle(Align::Middle, Align::Bottom);
 	const Align Align::BottomRight(Align::Right, Align::Bottom);
+	Align::Align()
+	{
+		mHorizontal = Align::Middle;
+		mVertical = Align::Center;
+	}
+    Align::Align(Align const & align)
+    {
+		mHorizontal = align.mHorizontal;
+		mVertical = align.mVertical;
+    }
 }

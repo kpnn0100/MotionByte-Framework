@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "graphic/window/GlwfManager.h"
+#include "graphic/window/GraphicManager.h"
 #include "util/geometry/Color.h"
 #include "util/geometry/Rectangle.h"
 #include "util/geometry/Vertex.h"

@@ -1,5 +1,6 @@
 #include "FontManager.h"
 #include <cstdlib>
+#include "Roboto-Regular.h"
 const char* textShaderSource = R"(
 	#version 460 core
 	layout (location = 3) in vec4 vertex; // <vec2 pos, vec2 tex>
@@ -48,7 +49,7 @@ namespace MotionByte
 		glVertexArrayAttribBinding(vao, 3, 3);
 		glEnableVertexArrayAttrib(vao, 3);
 		glEnableVertexAttribArray(3);
-		loadFont("../../../Resource/Roboto-Regular.ttf");
+		loadFont(_Roboto_Regular_ttf,sizeof(_Roboto_Regular_ttf));
 	}
 
 	void FontManager::useThisProgram()
@@ -88,7 +89,19 @@ namespace MotionByte
 		update();
 	}
 
-	void MotionByte::FontManager::update()
+    void FontManager::loadFont(unsigned char data[], unsigned int size)
+    {
+		if (FT_New_Memory_Face(ft, data, size, 0, &face))
+		{
+			fprintf(stderr, "Error opening font file\n");
+			FT_Done_FreeType(ft);  // Cleanup FreeType library
+			return;
+		}
+		FT_Set_Pixel_Sizes(face, 0, FONT_RENDER_SIZE);
+		update();
+    }
+
+    void MotionByte::FontManager::update()
 	{
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
 

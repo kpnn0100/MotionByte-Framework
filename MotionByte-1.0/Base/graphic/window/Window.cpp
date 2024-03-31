@@ -15,8 +15,6 @@ namespace MotionByte
     {
         if (mMainWindow == nullptr)
         {
-            glfwInit();
-            glfwWindowHint(GLFW_SAMPLES, 128);
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
         }
@@ -41,6 +39,7 @@ namespace MotionByte
 
         // Make the window's context current
         glfwMakeContextCurrent(mMainWindow);
+
         // Enable anti-aliasing (multisampling)
 
         glewExperimental = true;
@@ -117,11 +116,13 @@ namespace MotionByte
                 instance->scrollAt(Point(mouseX, mouseY),xPos,yPos);
             });
         glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
-
+        GraphicManager::getInstance();
+        
         // Enter the rendering loop in a separate thread
         while (!glfwWindowShouldClose(mMainWindow))
         {
             //temp
+            
             if (mIsFrameProcessed == false)
             {
                 glClear(GL_COLOR_BUFFER_BIT);

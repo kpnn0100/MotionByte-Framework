@@ -13,6 +13,7 @@ namespace MotionByte
         mObjectPropertyList.setPropertyPointer(Opacity, &mOpacity);
         mObjectColorList.setColorPointer(ObjectColorID::Background, &mInsiderObject->mBackgroundColor);
         mObjectColorList.setColorPointer(ObjectColorID::Border, &mInsiderObject->mBorderColor);
+        mSegmentTypeName = "VisualObject";
         addSegment(mInsiderObject);
     }
     void VisualObject::InsiderObject::onParentChanged()

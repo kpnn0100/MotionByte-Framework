@@ -6,7 +6,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include "GlwfManager.h"
+#include "GraphicManager.h"
 
 #include <atomic>
 #include <queue>
@@ -17,8 +17,7 @@
 #include "animator/FrameRenderer.h"
 #include "util/property/PropertyHeader.h"
 #include "graphic/drawer/Frame.h"
-#include "component/Segment.h"
-#include "component/VisualObject.h"
+#include "component/base-component/VisualObject.h"
 namespace MotionByte {
     /**
      * @brief The Window class represents a graphical window using GLFW for rendering.

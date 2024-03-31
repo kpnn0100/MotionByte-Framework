@@ -5,12 +5,16 @@
 
 using namespace MotionByte;
 std::shared_ptr<VisualObject> temp = std::make_shared<VisualObject>();
+std::shared_ptr<Label> label = std::make_shared<Label>("Hello World");
 bool running = true;
-
 int main() {
+    GraphicManager::setAntiAliasing(GraphicManager::Level::High);
     Window window(500, 600);
-
+    
     window.addSegment(temp);
+    label->setBound(Rectangle(Point(0, 0), 200, 200));
+    label->setTextSize(200);
+    // temp->addSegment(label);
     temp->setBound(Rectangle(Point(50.5, 60.5), 200, 200));
     temp->setBorderThickness(50.0);
     temp->setRadius(10.0f);

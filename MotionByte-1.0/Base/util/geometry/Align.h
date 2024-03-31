@@ -16,6 +16,8 @@ namespace MotionByte
 		};
 		Horizontal mHorizontal;
 		Vertical mVertical;
+		Align();
+		Align(Align const&);
 		Align(Horizontal h, Vertical v) : mHorizontal(h), mVertical(v)
 		{
 

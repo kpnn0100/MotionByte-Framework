@@ -41,6 +41,7 @@ namespace MotionByte
 		void onWindowSizeChanged(int width, int height);
 		FT_Library& getFreeTypeLibrary();
 		void loadFont(std::string fontPath);
+		void loadFont(unsigned char data[], unsigned int size);
 		void update();
 		void RenderText(Color color, std::string text, float size, Rectangle bound, Align align);
 		void RenderText(std::string text, float x, float y, float size,
