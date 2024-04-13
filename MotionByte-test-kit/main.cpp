@@ -14,7 +14,8 @@ int main() {
     window.addSegment(temp);
     label->setBound(Rectangle(Point(0, 0), 200, 200));
     label->setTextSize(200);
-    // temp->addSegment(label);
+    label->getTextSize().setInterpolator(InterpolatorFactory::createSmooth(1000, 1000));
+    temp->addSegment(label);
     temp->setBound(Rectangle(Point(50.5, 60.5), 200, 200));
     temp->setBorderThickness(50.0);
     temp->setRadius(10.0f);
@@ -26,6 +27,8 @@ int main() {
         {
             double currentRadius = temp->getObjectProperties().getValue(temp->Radius);
             temp->setRadius(currentRadius + y*5);
+            double currentTextSize = label->getTextSize();
+            label->setTextSize(currentTextSize + y*5);
         });
     window.setClickCallback([](Point point)
         {
