@@ -1,3 +1,4 @@
+#pragma once
 #include <component/base-component/VisualObject.h>
 
 namespace MotionByte

@@ -103,7 +103,10 @@ namespace MotionByte
 
     // Setter methods
 
-    void Rectangle::setPosition(const Point& position) { mPosition = position; }
+    void Rectangle::setPosition(const Point& position) 
+    { 
+        mPosition = position; 
+    }
     void Rectangle::setSize(double width, double height)
     {
         mSize[0].setValue(width);

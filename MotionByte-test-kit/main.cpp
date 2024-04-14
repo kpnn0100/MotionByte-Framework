@@ -1,4 +1,5 @@
 #include "MotionByteHeader.h"
+#include "Floater.h"
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -6,12 +7,14 @@
 using namespace MotionByte;
 std::shared_ptr<VisualObject> temp = std::make_shared<VisualObject>();
 std::shared_ptr<Label> label = std::make_shared<Label>("Hello World");
+std::shared_ptr<CheckBox> checkBox = std::make_shared<CheckBox>();
 bool running = true;
 int main() {
     GraphicManager::setAntiAliasing(GraphicManager::Level::High);
     Window window(500, 600);
-    
-    window.addSegment(temp);
+    checkBox->getBound().setPosition(Point(200, 100));
+    window.addSegment(checkBox);
+    // window.addSegment(temp);
     label->setBound(Rectangle(Point(0, 0), 200, 200));
     label->setTextSize(200);
     label->getTextSize().setInterpolator(InterpolatorFactory::createSmooth(1000, 1000));

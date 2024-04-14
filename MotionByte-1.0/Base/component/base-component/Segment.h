@@ -73,7 +73,7 @@ namespace MotionByte {
          * @brief Gets the bounding rectangle of the segment.
          * @return Rectangle defining the bounds of the segment.
          */
-        Rectangle getBound() const;
+        Rectangle & getBound();
 
         /**
          * @brief Gets the local bounding rectangle of the segment.

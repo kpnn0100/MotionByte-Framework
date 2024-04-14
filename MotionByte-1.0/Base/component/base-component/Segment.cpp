@@ -114,7 +114,7 @@ namespace MotionByte
     {
         mBound = bound;
     }
-    Rectangle Segment::getBound() const
+    Rectangle & Segment::getBound()
     {
         return mBound;
     }
