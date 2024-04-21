@@ -1,5 +1,5 @@
 #include "Frame.h"
-#include "../Window/Window.h"
+#include "../window/Window.h"
 #include <math.h>
 #include <float.h>
 namespace MotionByte
