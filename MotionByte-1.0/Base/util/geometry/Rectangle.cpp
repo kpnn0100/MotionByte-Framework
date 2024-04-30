@@ -127,4 +127,20 @@ namespace MotionByte
         mSize[0].setValue(mSize[0] * widthFactor);
         mSize[1].setValue(mSize[1] * heightFactor);
     }
+    double Rectangle::getLeft()
+    {
+        return mPosition.getX();
+    }
+    double Rectangle::getTop()
+    {
+        return mPosition.getY();
+    }
+    double Rectangle::getRight()
+    {
+        return mPosition.getX() + mSize[0];
+    }
+    double Rectangle::getBottom()
+    {
+        return mPosition.getY() + mSize[1];
+    }
 }

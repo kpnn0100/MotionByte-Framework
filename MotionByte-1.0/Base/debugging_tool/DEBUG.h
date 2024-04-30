@@ -15,3 +15,8 @@ inline void debug(double number)
 	std::cout << number << std::endl;
 #endif
 }
+
+inline void test_debug(std::string logstring)
+{
+	std::cout << logstring << std::endl;
+}

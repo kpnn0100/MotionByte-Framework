@@ -362,6 +362,13 @@ namespace MotionByte
         ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
         glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
     }
+    void Frame::fillCircle(Color color, Point center, double radius)
+    {
+        Rectangle bound;
+        bound.setSize(radius*2.0, radius*2.0);
+        bound = bound.withCenter(center);
+        fillCircle(color, bound);
+    }
     void Frame::drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction)
     {
         VertexList vertices;

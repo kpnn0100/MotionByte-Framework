@@ -8,12 +8,16 @@ using namespace MotionByte;
 std::shared_ptr<VisualObject> temp = std::make_shared<VisualObject>();
 std::shared_ptr<Label> label = std::make_shared<Label>("Hello World");
 std::shared_ptr<CheckBox> checkBox = std::make_shared<CheckBox>();
+std::shared_ptr<Slider> slider = std::make_shared<Slider>(0,100,50);
 bool running = true;
 int main() {
     GraphicManager::setAntiAliasing(GraphicManager::Level::High);
     Window window(500, 600);
     checkBox->getBound().setPosition(Point(200, 100));
     window.addSegment(checkBox);
+    slider->setBound(Rectangle(Point(200, 200), 600, 50));
+    slider->setStep(10);
+    window.addSegment(slider);
     // window.addSegment(temp);
     label->setBound(Rectangle(Point(0, 0), 200, 200));
     label->setTextSize(200);

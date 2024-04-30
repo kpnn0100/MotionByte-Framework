@@ -56,7 +56,7 @@ namespace MotionByte
 		{
 			// Your implementation for release event
 		}
-		virtual void onMouseDragged(Point point)
+		virtual void onMouseDragged(Point point, Point origin)
 		{
 
 		}
@@ -153,7 +153,7 @@ namespace MotionByte
 			recursiveMove(point);
 			if (isPressing())
 			{
-				onMouseDragged(point);
+				onMouseDragged(point,pressPoint);
 			}
 		}
 		void releaseAt(Point point)

@@ -38,6 +38,7 @@ namespace MotionByte
         void fillPolygon(Color color, Point origin, std::vector<Point> pointList);
         void drawCircle(Color color, Rectangle bound, double stroke);
         void fillCircle(Color color, Rectangle bound);
+        void fillCircle(Color color, Point center, double radius);
         void drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction);
         void drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction);
         void drawAnnularArc(Color color, Point center, double innerRadius,double outerRadius, double startDegree, double endDegree, Direction direction);

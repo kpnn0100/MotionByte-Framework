@@ -154,5 +154,12 @@ namespace MotionByte {
          * @param heightFactor Factor to resize the height by.
          */
         void resizeBy(double widthFactor, double heightFactor);
+        /**
+         * @brief Resizes the rectangle by a specified factor.
+         */
+        double getLeft();
+        double getRight();
+        double getTop();
+        double getBottom();
     };
 }
