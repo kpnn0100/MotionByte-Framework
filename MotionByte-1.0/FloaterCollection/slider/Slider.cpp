@@ -26,14 +26,14 @@ namespace MotionByte
         frame.fillCircle(mThumbColor.withAlpha(0.5), thumbPosition, mThumbShadowSize);
         frame.fillCircle(mThumbColor, thumbPosition, mThumbRadius );
     }
-    void Slider::onMouseEntered()
+    void Slider::onMouseFocused()
     {
-        AbstractSlider::onMouseEntered();
+        AbstractSlider::onMouseFocused();
         mThumbShadowSize = mThumbRadius.getValue()*2;
     }
-    void Slider::onMouseExited()
+    void Slider::onMouseUnfocused()
     {
-        AbstractSlider::onMouseExited();
+        AbstractSlider::onMouseUnfocused();
         mThumbShadowSize = 0;
     }
     void Slider::updateVisualWithPercent(float value)

@@ -29,7 +29,7 @@ namespace MotionByte
 		std::function<void(Point,double,double)> scrollCallback;
 		std::function<void(Point)> clickOutsideCallback;
 	protected:
-		virtual void onClickOutside(Point point)
+		virtual void onClickedOutside(Point point)
 		{
 
 		}
@@ -68,6 +68,22 @@ namespace MotionByte
 
 		}
 		virtual void recursiveClickOutside(Point point)
+		{
+
+		}
+		virtual void onMouseFocused()
+		{
+
+		}
+		virtual void onMouseUnfocused()
+		{
+
+		}
+		virtual void onFocused()
+		{
+
+		}
+		virtual void onUnfocused()
 		{
 
 		}
@@ -111,7 +127,8 @@ namespace MotionByte
 		void clickOutside(Point point)
 		{
 			bool handled = false;
-			onClickOutside(point);
+			onClickedOutside(point);
+			onUnfocused();
 			if (clickOutsideCallback)
 			{
 				clickOutsideCallback(point);
@@ -124,12 +141,12 @@ namespace MotionByte
 		{
 			bool handled = false;
 			onClicked(point);
-
+			onFocused();
 			if (clickCallback)
 			{
 				clickCallback(point);
 			}
-
+			
 			std::cout << "Clicked at "
 				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
 		}
@@ -161,6 +178,10 @@ namespace MotionByte
 			if (isPressing())
 			{
 				clickAt(point);
+				if (isHoverOn() == false)
+				{
+					onMouseUnfocused();
+				}
 			}
 			mIsPress = false;
 			pressPoint = Point();
@@ -201,6 +222,8 @@ namespace MotionByte
 			{
 				mIsInside = true;
 				onMouseEntered();
+				if (isPressing()==false)
+					onMouseFocused();
 				test_debug("Mouse enter");
 			}
 		}
@@ -209,6 +232,8 @@ namespace MotionByte
 			if (isHoverOn())
 			{
 				onMouseExited();
+				if (isPressing()==false)
+					onMouseUnfocused();
 				test_debug("Mouse exit");
 			}
 			mIsInside = false;

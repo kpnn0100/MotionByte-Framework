@@ -21,8 +21,8 @@ namespace MotionByte
         Property mThumbShadowSize;
         void paint(Frame &frame) override;
     public:
-        void onMouseEntered() override;
-        void onMouseExited() override;
+        void onMouseFocused() override;
+        void onMouseUnfocused() override;
         Slider(float minValue, float maxValue, float value);
         void updateVisualWithPercent(float value) override;
 
