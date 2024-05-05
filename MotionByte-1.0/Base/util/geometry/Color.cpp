@@ -1,4 +1,4 @@
-#include "util/geometry/Color.h"
+#include "Color.h"
 
 namespace MotionByte
 {
@@ -34,12 +34,12 @@ namespace MotionByte
         alpha = color.alpha;
     }
 
-    void Color::setInterpolator(std::shared_ptr<Interpolator> interpolator)
+    void Color::setInterpolator(InterpolatorModule InterpolatorModule)
     {
-        red.setInterpolator(interpolator);
-        green.setInterpolator(interpolator);
-        blue.setInterpolator(interpolator);
-        alpha.setInterpolator(interpolator);
+        red.setInterpolator(InterpolatorModule);
+        green.setInterpolator(InterpolatorModule);
+        blue.setInterpolator(InterpolatorModule);
+        alpha.setInterpolator(InterpolatorModule);
     }
 
     void Color::initColor(Color color)
@@ -145,4 +145,9 @@ namespace MotionByte
         }
         return newColor;
     }
+    Color Color::withAlpha(double a)
+{
+    return Color(red.getValue(), green.getValue(), blue.getValue(), a);
 }
+}
+

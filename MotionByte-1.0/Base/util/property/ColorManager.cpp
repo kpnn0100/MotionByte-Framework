@@ -4,16 +4,16 @@ namespace MotionByte
     ColorManager::ColorManager(int colorCount) : mColorList(colorCount)
     {
     }
-    void ColorManager::setInterpolatorForAll(std::shared_ptr<Interpolator> interpolator)
+    void ColorManager::setInterpolatorForAll(InterpolatorModule InterpolatorModule)
     {
         for (auto& color : mColorList)
         {
-            color->setInterpolator(interpolator);
+            color->setInterpolator(InterpolatorModule);
         }
     }
-    void ColorManager::setInterpolator(int id, std::shared_ptr<Interpolator> interpolator)
+    void ColorManager::setInterpolator(int id, InterpolatorModule InterpolatorModule)
     {
-        mColorList[id]->setInterpolator(interpolator);
+        mColorList[id]->setInterpolator(InterpolatorModule);
     }
     void ColorManager::initColor(int id, Color value)
     {

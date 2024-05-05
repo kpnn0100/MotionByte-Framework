@@ -117,21 +117,31 @@ namespace MotionByte
             });
         glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
         GraphicManager::getInstance();
-        
+        //show fps
+#ifdef FPS_SHOW==true
+        mFps->setTextSize(15);
+        mFps->setBound(Rectangle(Point(10, 10), 100, 100));
+        mFps->setAlignment(MotionByte::Align::TopLeft);
+        FpsCounter fpsCounter;
+        addSegment(mFps);
+        Timer timer;
+        timer.start();
+#endif
         // Enter the rendering loop in a separate thread
         while (!glfwWindowShouldClose(mMainWindow))
         {
             //temp
             
-            if (mIsFrameProcessed == false)
-            {
-                glClear(GL_COLOR_BUFFER_BIT);
-                PausableTimer::getInstance().pause();
-                triggerPaint();
-                PausableTimer::getInstance().resume();
-                mIsFrameProcessed = true;
-                glfwSwapBuffers(mMainWindow);
-            }
+#ifdef FPS_SHOW==true
+            fpsCounter.tick();
+            mFps->setText(fpsCounter.getFpsString() + " fps");
+#endif
+            glClear(GL_COLOR_BUFFER_BIT);
+            PausableTimer::getInstance().pause();
+            triggerPaint();
+            PausableTimer::getInstance().resume();
+            mIsFrameProcessed = true;
+            glfwSwapBuffers(mMainWindow);
 
             // Swap front and back buffers
             

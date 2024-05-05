@@ -1,13 +1,13 @@
 #pragma once
 #include <cmath>
-#include "../Interpolator.h"
+#include "../InterpolatorModule.h"
 
 namespace MotionByte
 {
-	class Smooth : public Interpolator
+	class Smooth : public InterpolatorBase
 	{
 	private:
-		inline bool isHavingSustainPhase(double initV2, double expectedV2, double initValue, double finalValue, double acc);
+		static inline bool isHavingSustainPhase( double initV2, double expectedV2, double initValue, double finalValue, double acc);
 	public:
 		enum ParameterList
 		{
@@ -34,10 +34,10 @@ namespace MotionByte
 			SizeOfState
 			
 		};
-		Smooth(double accelerator, double expectedVelocity);
-		virtual void updateStateFor(Property& property) override;
-		virtual bool isSet(Property& property) override;
-		virtual double getVelocityAtTime(Property& property) override;
-		virtual double getValueAtTime(Property& property) override;
+		static InterpolatorModule create(double accelerator, double expectedVelocity);
+		static void updateStateFor(Property& property);
+		static bool isSet(Property& property);
+		static double getVelocityAtTime(Property& property);
+		static double getValueAtTime(Property& property);
 	};
 }

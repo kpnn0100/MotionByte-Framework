@@ -14,12 +14,18 @@ namespace MotionByte
 
     }
 
+    void AbstractButton::setStateCallback(std::function<void(ButtonState)> stateCallback)
+    {
+        mStateCallback = stateCallback;
+    }
+
     void AbstractButton::setButtonState(ButtonState state)
     {
         if (state != this->state)
         {
             this->state = state;
             onButtonStateChanged(state);
+            mStateCallback(state);
         }
     }
     AbstractButton::ButtonState AbstractButton::getButtonState()

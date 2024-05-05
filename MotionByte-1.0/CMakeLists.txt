@@ -51,6 +51,7 @@ file(GLOB_RECURSE MOTION_BYTE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/Base/**/*.cpp"
 file(GLOB_RECURSE FLOATER_COLLECTION "${CMAKE_CURRENT_SOURCE_DIR}/FloaterCollection/**/*.cpp")
 list(APPEND MOTION_BYTE_SOURCE)
 add_library(MotionByte ${MOTION_BYTE_SOURCE} ${FLOATER_COLLECTION})
+
 message("Source files: ${ALL_LIBS}")
 message("Header: ${DIRS}")
 target_link_libraries(MotionByte PRIVATE ${ALL_LIBS})

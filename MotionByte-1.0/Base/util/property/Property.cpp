@@ -13,7 +13,6 @@ namespace MotionByte
         lastSetTime = value;
         current =value;
         target = value;
-        mInterpolator = InterpolatorFactory::createStep();
         unsetMin();
         unsetMax();
     }
@@ -31,15 +30,24 @@ namespace MotionByte
         {
             return;
         }
-        current = mInterpolator->getValueAtTime(*this);
-        if (mInterpolator->isSet(*this))
+        current = mInterpolator.getValueAtTime(*this);
+        if (mInterpolator.isSet(*this))
         {
             onTargetReached();
         }
+
     }
     std::vector<double>& Property::getInterpolatorState()
     {
-        return mInterpolatorState;
+        return mInterpolator.getInterpolatorState();
+    }
+    InterpolatorModule Property::getInterpolator()
+    {
+        return mInterpolator;
+    }
+    InterpolatorType Property::getInterpolatorType()
+    {
+        return mInterpolator.getInterpolatorType();
     }
     bool Property::operator>(Property& other) {
         return getValue() > other.getValue();
@@ -86,7 +94,7 @@ namespace MotionByte
                 //last.store(other.last.load());
                 //current.store(other.current.load());
                 //target.store(other.target.load());
-                //// Assuming Interpolator is copyable
+                //// Assuming InterpolatorModule is copyable
                 //mInterpolator = other.mInterpolator;
                 //mInterpolatorState = other.mInterpolatorState;
                 //// Assuming std::function is copyable
@@ -111,10 +119,10 @@ namespace MotionByte
         target = value;
         mIsSet = true;
     }
-    void Property::setInterpolator(std::shared_ptr<Interpolator> interpolator)
+    void Property::setInterpolator(InterpolatorModule InterpolatorModule)
     {
-        mInterpolator = interpolator;
-        mInterpolator->updateStateFor(*this);
+        mInterpolator = InterpolatorModule;
+        mInterpolator.updateStateFor(*this);
     }
     void Property::setCallback(std::function<void()> function)
     {
@@ -137,11 +145,11 @@ namespace MotionByte
             return;
         }
         value = clamp(value, mMin, mMax);
-        lastVelocity = mInterpolator->getVelocityAtTime(*this);
+        lastVelocity = mInterpolator.getVelocityAtTime(*this);
         target = value;
         last = (double)current;
         mIsSet = false;
-        mInterpolator->updateStateFor(*this);
+        mInterpolator.updateStateFor(*this);
         mInterpolatorTimer.restart();
     }
     Property Property::shift(double value)
@@ -151,7 +159,7 @@ namespace MotionByte
         shiftProperty.last.store(shiftProperty.last.load() + value);
         shiftProperty.current.store(shiftProperty.current.load() + value);
         shiftProperty.target.store(shiftProperty.target.load() + value);
-        shiftProperty.mInterpolator->updateStateFor(shiftProperty);
+        shiftProperty.mInterpolator.updateStateFor(shiftProperty);
         return shiftProperty;
     }
     void Property::bind(std::function<double()> bindFunction)

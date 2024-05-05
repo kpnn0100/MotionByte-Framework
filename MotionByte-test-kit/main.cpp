@@ -14,9 +14,20 @@ int main() {
     GraphicManager::setAntiAliasing(GraphicManager::Level::High);
     Window window(500, 600);
     checkBox->getBound().setPosition(Point(200, 100));
+    checkBox->setStateCallback([](CheckBox::ButtonState state)
+        {
+            if (state == CheckBox::ButtonState::Pressed)
+            {
+                slider->setDragType(Slider::DragType::Drag);
+            }
+            else
+            {
+                slider->setDragType(Slider::DragType::Click);
+            }
+        });
     window.addSegment(checkBox);
-    slider->setBound(Rectangle(Point(200, 200), 600, 50));
-    slider->setStep(10);
+    slider->setBound(Rectangle(Point(200, 200), 600, 20));
+    // slider->setStep(10);
     window.addSegment(slider);
     // window.addSegment(temp);
     label->setBound(Rectangle(Point(0, 0), 200, 200));

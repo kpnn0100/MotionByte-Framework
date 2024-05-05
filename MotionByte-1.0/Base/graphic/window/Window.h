@@ -14,10 +14,12 @@
 #include <thread>
 #include <vector>
 
+#include "util/functional/FpsCounter.h"
 #include "animator/FrameRenderer.h"
 #include "util/property/PropertyHeader.h"
 #include "graphic/drawer/Frame.h"
 #include "component/base-component/VisualObject.h"
+#include "component/display-Component/Label.h"
 namespace MotionByte {
     /**
      * @brief The Window class represents a graphical window using GLFW for rendering.
@@ -26,6 +28,7 @@ namespace MotionByte {
      */
     class Window : public IFrameEventListener, public Segment {
     private:
+        std::shared_ptr<Label> mFps = std::make_shared<Label>("FPS: 0");
         std::atomic<bool> mIsFrameProcessed;
         std::atomic<GLFWwindow*> mMainWindow;     ///< Atomic pointer to the GLFW window.
         PropertyManager mPropertyManager;         ///< Manages properties associated with the window.

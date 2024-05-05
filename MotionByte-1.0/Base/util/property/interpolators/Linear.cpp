@@ -1,14 +1,16 @@
 #include "../PropertyHeader.h"
 namespace MotionByte
 {
-	Linear::Linear(double duration) : Interpolator(1)
+	InterpolatorModule Linear::create(double duration)
 	{
-		mPropertyList[ParameterList::Duration] = duration;
+		InterpolatorModule linear(InterpolatorType::LINEAR, ParameterList::ParameterCount);
+		linear.getPropertyList()[ParameterList::Duration] = duration;
+		return linear;
 	}
 	bool Linear::isSet(Property& property)
 	{
 		double time = property.getElapsedTime();
-		if (time > mPropertyList[ParameterList::Duration])
+		if (time > property.getInterpolator().getPropertyList()[ParameterList::Duration])
 		{
 			return true;
 		}
@@ -19,16 +21,19 @@ namespace MotionByte
 		double time = property.getElapsedTime();
 		double initValue = property.getLastValue();
 		double targetValue = property.getTargetValue();
-		if (time > mPropertyList[ParameterList::Duration])
+		if (time > property.getInterpolator().getPropertyList()[ParameterList::Duration])
 		{
 			return targetValue;
 		}
-		return initValue + time/ mPropertyList[ParameterList::Duration] * (targetValue- initValue);
+		return initValue + time/ property.getInterpolator().getPropertyList()[ParameterList::Duration] * (targetValue- initValue);
 	}
 	double Linear::getVelocityAtTime(Property& property)
 	{
 		double initValue = property.getLastValue();
 		double targetValue = property.getTargetValue();
-		return (targetValue- initValue)/ mPropertyList[ParameterList::Duration];
+		return (targetValue- initValue)/ property.getInterpolator().getPropertyList()[ParameterList::Duration];
+	}
+	void Linear::updateStateFor(Property& property)
+	{
 	}
 }

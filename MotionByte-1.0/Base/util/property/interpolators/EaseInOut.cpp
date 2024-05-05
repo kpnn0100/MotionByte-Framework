@@ -1,22 +1,24 @@
 #include "../PropertyHeader.h"
 namespace MotionByte
 {
-	EaseInOut::EaseInOut(double duration) : Interpolator(ParameterCount)
+	InterpolatorModule EaseInOut::create(double duration)
 	{
-		mPropertyList[ParameterList::Duration] = duration;
+		InterpolatorModule easeInOut(InterpolatorType::EASE_IN_OUT, ParameterList::ParameterCount);
+		easeInOut.getPropertyList()[ParameterList::Duration] = duration;
+		return easeInOut;
 	}
 
 	bool EaseInOut::isSet(Property& property)
 	{
 		double time = property.getElapsedTime();
-		return time > mPropertyList[ParameterList::Duration];
+		return time > property.getInterpolator().getPropertyList()[ParameterList::Duration];
 	}
 	double EaseInOut::getVelocityAtTime(Property& property)
 	{
 		double time = property.getElapsedTime();
 		double initValue = property.getLastValue();
 		double targetValue = property.getTargetValue();
-		double duration = mPropertyList[ParameterList::Duration];
+		double duration = property.getInterpolator().getPropertyList()[ParameterList::Duration];
 
 		if (time >= duration)
 		{
@@ -41,17 +43,20 @@ namespace MotionByte
 		double time = property.getElapsedTime();
 		double initValue = property.getLastValue();
 		double targetValue = property.getTargetValue();
-		if (time > mPropertyList[ParameterList::Duration])
+		if (time > property.getInterpolator().getPropertyList()[ParameterList::Duration])
 		{
 			return targetValue;
 		}
 
-		double t = time / mPropertyList[ParameterList::Duration];
+		double t = time / property.getInterpolator().getPropertyList()[ParameterList::Duration];
 		t /= 0.5;
 		if (t < 1.0) {
 			return initValue + (targetValue - initValue) * 0.5 * t * t * t;
 		}
 		t -= 2.0;
 		return initValue + (targetValue - initValue) * 0.5 * (t * t * t + 2.0);
+	}
+	void EaseInOut::updateStateFor(Property& property)
+	{
 	}
 }

@@ -6,13 +6,13 @@
 #include "animator/FrameRenderer.h"
 #include "animator/timer/Timer.h"
 #include "util/functional/GraphicMath.h"
+#include "InterpolatorModule.h"
 namespace MotionByte
 {
-class Interpolator;
+class InterpolatorModule;
 class Property
 {
 private:
-    std::vector<double> mInterpolatorState;
     Timer mInterpolatorTimer;
     std::function<double()> mBindFunction;
     std::atomic<double> last;
@@ -21,15 +21,18 @@ private:
     std::atomic<double> target;
     std::atomic<double> lastVelocity;
     bool mIsSet = true;
-    std::shared_ptr<Interpolator> mInterpolator;
+    InterpolatorModule mInterpolator;
     std::function<void()> mSetCallback;
     std::string mPropertyName;
     void update();
-    friend class Interpolator;
+    friend class InterpolatorModule;
+    friend class InterpolatorBase;
     double mMin;
     double mMax;
 public:
     std::vector<double>& getInterpolatorState();
+    InterpolatorModule getInterpolator();
+    InterpolatorType getInterpolatorType();
     Property();
     Property(double value);
     Property(const Property& other);
@@ -44,7 +47,7 @@ public:
     Property& operator=(const Property & other);
     void setPropertyName(std::string propertyName);
     void initValue(double value);
-    void setInterpolator(std::shared_ptr<Interpolator> interpolator);
+    void setInterpolator(InterpolatorModule InterpolatorModule);
     void setCallback(std::function<void()> function);
     void onTargetReached();
     void setValue(double value);

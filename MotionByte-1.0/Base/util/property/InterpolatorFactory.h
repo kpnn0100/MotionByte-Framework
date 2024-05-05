@@ -9,9 +9,14 @@ namespace MotionByte
 	class InterpolatorFactory
 	{
 	public:
-		static std::shared_ptr<Interpolator> createStep();
-		static std::shared_ptr<Interpolator> createLinear(double duration);
-		static std::shared_ptr<Interpolator> createEaseInOut(double duration);
-		static std::shared_ptr<Interpolator> createSmooth(double acceleration, double expectedVelocity);
+		static InterpolatorModule createStep();
+		static InterpolatorModule createLinear(double duration);
+		static InterpolatorModule createEaseInOut(double duration);
+		static InterpolatorModule createSmooth(double acceleration, double expectedVelocity);
+
+		static void updateStateFor(Property& property);
+		static bool isSet(Property& property);
+		static double getVelocityAtTime(Property& property);
+		static double getValueAtTime(Property& property);
 	};
 }

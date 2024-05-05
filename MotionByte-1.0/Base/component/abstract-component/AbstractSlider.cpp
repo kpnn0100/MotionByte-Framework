@@ -6,7 +6,7 @@ namespace MotionByte
     mDragType(DragType::Drag), mDragOrientation(DragOrientation::Horizontal)
     {
         setValue(value);
-        mPercent.setInterpolator(InterpolatorFactory::createSmooth(160, 80));
+        mPercent.setInterpolator(InterpolatorFactory::createSmooth(50.0, 1.2));
     }
     void AbstractSlider::setValue(float value)
     {
@@ -85,7 +85,7 @@ namespace MotionByte
     }
     void AbstractSlider::setDragType(DragType type)
     {
-        this->mDragType = mDragType;
+        this->mDragType = type;
     }
     AbstractSlider::DragType AbstractSlider::getDragType()
     {
@@ -97,11 +97,12 @@ namespace MotionByte
         {
             if (mDragOrientation == DragOrientation::Horizontal)
             {
-                setValue((point.getX() - getBound().getLeft()) / getBound().getWidth() * (mMaxValue - mMinValue) + mMinValue);
+                double percent = (point.getX() - getLocalBound().getLeft()) / getBound().getWidth();
+                setValue( percent* (mMaxValue - mMinValue) + mMinValue);
             }
             else if (mDragOrientation == DragOrientation::Vertical)
             {
-                setValue((point.getY() - getBound().getTop()) / getBound().getHeight() * (mMaxValue - mMinValue) + mMinValue);
+                setValue((point.getY() - getLocalBound().getTop()) / getBound().getHeight() * (mMaxValue - mMinValue) + mMinValue);
             }
         }
         if (mDragType == DragType::Drag)
@@ -121,6 +122,18 @@ namespace MotionByte
             else if (mDragOrientation == DragOrientation::Vertical)
             {
                 setValue(mValueAtPress + (point.getY() - origin.getY()) / getBound().getHeight() * (mMaxValue - mMinValue));
+            }
+        }
+        if (mDragType == DragType::Click)
+        {
+            if (mDragOrientation == DragOrientation::Horizontal)
+            {
+                double percent = (point.getX() - getLocalBound().getLeft()) / getBound().getWidth();
+                setValue(percent * (mMaxValue - mMinValue) + mMinValue);
+            }
+            if (mDragOrientation == DragOrientation::Vertical)
+            {
+                setValue((point.getY() - getLocalBound().getTop()) / getBound().getHeight() * (mMaxValue - mMinValue) + mMinValue);
             }
         }
     }

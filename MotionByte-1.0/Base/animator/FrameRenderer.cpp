@@ -6,7 +6,7 @@ namespace MotionByte
 {
     std::unique_ptr<FrameRenderer> FrameRenderer::mInstance = nullptr;
 
-    FrameRenderer::FrameRenderer() : FrameRenderer(200.0) {}
+    FrameRenderer::FrameRenderer() : FrameRenderer(60.0) {}
 
     FrameRenderer::FrameRenderer(double fps)
     {

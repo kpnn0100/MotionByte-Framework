@@ -4,16 +4,16 @@ namespace MotionByte
     PropertyManager::PropertyManager(int propertyCount) : mPropertyList(propertyCount)
     {
     }
-    void PropertyManager::setInterpolatorForAll(std::shared_ptr<Interpolator> interpolator)
+    void PropertyManager::setInterpolatorForAll(InterpolatorModule InterpolatorModule)
     {
         for (auto& property : mPropertyList)
         {
-            property->setInterpolator(interpolator);
+            property->setInterpolator(InterpolatorModule);
         }
     }
-    void PropertyManager::setInterpolator(int id, std::shared_ptr<Interpolator> interpolator)
+    void PropertyManager::setInterpolator(int id, InterpolatorModule InterpolatorModule)
     {
-        mPropertyList[id]->setInterpolator(interpolator);
+        mPropertyList[id]->setInterpolator(InterpolatorModule);
     }
     void PropertyManager::initValue(int id, double value)
     {

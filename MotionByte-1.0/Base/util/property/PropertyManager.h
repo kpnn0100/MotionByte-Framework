@@ -3,7 +3,7 @@
 namespace MotionByte
 {
     class Property;
-    class Interpolator;
+    class InterpolatorModule;
     class IPropertyListener
     {
     public:
@@ -19,8 +19,8 @@ namespace MotionByte
         int setCount = 0;
     public:
         PropertyManager(int propertyCount);
-        void setInterpolatorForAll(std::shared_ptr<Interpolator> interpolator);
-        void setInterpolator(int id, std::shared_ptr<Interpolator> interpolator);
+        void setInterpolatorForAll(InterpolatorModule InterpolatorModule);
+        void setInterpolator(int id, InterpolatorModule InterpolatorModule);
         void initValue(int id, double value);
         void setValue(int id, double value);
         double getValue(int id);

@@ -1,9 +1,10 @@
 #include "../PropertyHeader.h"
 namespace MotionByte
 {
-	Step::Step() : Interpolator(0)
+	InterpolatorModule Step::create()
 	{
-
+		InterpolatorModule step(InterpolatorType::STEP, 0);
+		return step;
 	}
 	bool Step::isSet(Property& property)
 	{
@@ -12,5 +13,12 @@ namespace MotionByte
 	double Step::getValueAtTime(Property& property)
 	{
 		return property.getTargetValue();
+	}
+	double Step::getVelocityAtTime(Property& property)
+	{
+		return 0;
+	}
+	void Step::updateStateFor(Property& property)
+	{
 	}
 }

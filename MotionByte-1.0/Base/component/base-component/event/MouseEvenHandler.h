@@ -84,7 +84,7 @@ namespace MotionByte
 		}
 		bool isHoverOn()
 		{
-			return mIsPress;
+			return mIsInside;
 		}
 		void setClickCallback(std::function<void(Point)> callback)
 		{
@@ -197,14 +197,19 @@ namespace MotionByte
 		}
 		void mouseEnter()
 		{
-			mIsInside = true;
-			onMouseEntered();
+			if (isHoverOn() == false)
+			{
+				mIsInside = true;
+				onMouseEntered();
+				test_debug("Mouse enter");
+			}
 		}
 		void mouseExit()
 		{
 			if (isHoverOn())
 			{
 				onMouseExited();
+				test_debug("Mouse exit");
 			}
 			mIsInside = false;
 		}

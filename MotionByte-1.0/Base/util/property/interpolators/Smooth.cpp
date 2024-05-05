@@ -11,10 +11,12 @@ namespace MotionByte
 		return std::abs(AcceleratingDistance + finalDistance) < std::abs(finalValue - initValue);
 
 	}
-	Smooth::Smooth(double accelerator, double expectedVelocity) : Interpolator(ParameterCount)
+	InterpolatorModule Smooth::create(double accelerator, double expectedVelocity)
 	{
-		mPropertyList[ParameterList::Accelerator] = accelerator;
-		mPropertyList[ParameterList::ExpectedVelocity] = expectedVelocity;
+		InterpolatorModule smooth(InterpolatorType::SMOOTH, ParameterList::ParameterCount);
+		smooth.getPropertyList()[ParameterList::Accelerator] = accelerator;
+		smooth.getPropertyList()[ParameterList::ExpectedVelocity] = expectedVelocity;
+		return smooth;
 	}
 	void Smooth::updateStateFor(Property& property)
 	{
@@ -23,8 +25,8 @@ namespace MotionByte
 		state[InitVelocity] = property.getLastVelocity();
 		state[InitValue] = property.getLastValue();
 		state[TargetValue] = property.getTargetValue();
-		state[Acceleration] = mPropertyList[ParameterList::Accelerator];
-		state[TargetVelocity] = mPropertyList[ParameterList::ExpectedVelocity];
+		state[Acceleration] = property.getInterpolator().getPropertyList()[ParameterList::Accelerator];
+		state[TargetVelocity] = property.getInterpolator().getPropertyList()[ParameterList::ExpectedVelocity];
 		if (state[TargetValue] < state[InitValue]) {
 			state[TargetVelocity] = -state[TargetVelocity];
 			state[Acceleration] = -state[Acceleration];

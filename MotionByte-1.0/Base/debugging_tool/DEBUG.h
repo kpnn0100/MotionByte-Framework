@@ -1,6 +1,7 @@
 #pragma once
 //#define DEBUG
 #define RELEASE
+#define FPS_SHOW true
 #include <string>
 inline void debug(std::string logstring)
 {

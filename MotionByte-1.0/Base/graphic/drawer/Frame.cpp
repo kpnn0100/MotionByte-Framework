@@ -19,12 +19,13 @@ namespace MotionByte
         {
             offset = mSegment->mParent->getOffsetFromOrigin();
         }
-        Point topLeft = offset+ mSegment->getBound().getCorner(Rectangle::TopLeft);
-        Point bottomRight = offset+ mSegment->getBound().getCorner(Rectangle::BottomRight);
+        auto segmentBound = mSegment->getBound();
+        Point topLeft = offset+ segmentBound.getCorner(Rectangle::TopLeft);
+        Point bottomRight = offset+ segmentBound.getCorner(Rectangle::BottomRight);
 
         //limit to local border
-        Point topLeftLimit = offset + mSegment->getBound().getCorner(Rectangle::TopLeft);
-        Point bottomRightLimit = offset + mSegment->getBound().getCorner(Rectangle::BottomRight);
+        Point topLeftLimit = offset + segmentBound.getCorner(Rectangle::TopLeft);
+        Point bottomRightLimit = offset + segmentBound.getCorner(Rectangle::BottomRight);
 
         float xMin = topLeftLimit.getX();
         float xMax = bottomRightLimit.getX();
@@ -104,11 +105,15 @@ namespace MotionByte
     }
     void Frame::fillColor(Color color)
 	{
+        if (color.getAlpha() == 0.0)
+            return;
         fillRectangle(color, mSegment->getLocalBound());
 	}
 
     void Frame::drawRectangle(Color color, Rectangle bound, double stroke)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
         const float lineThickness = stroke/2;  // Adjust this value for the desired line thickness
         for (int i = 0; i < Rectangle::CornerCount; ++i) 
@@ -153,6 +158,8 @@ namespace MotionByte
     }
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
         for (int i = 0; i <= Rectangle::CornerCount; ++i) {
             Point currentCorner = bound.getCorner(i % Rectangle::CornerCount);
@@ -168,6 +175,8 @@ namespace MotionByte
     }
     void Frame::fillPolygon(Color color, std::vector<Point> pointList)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
         std::vector<float> colors;  // Add color information
         int s = pointList.size();
@@ -182,6 +191,8 @@ namespace MotionByte
     }
     void Frame::fillPolygon(Color color, Point origin, std::vector<Point> pointList)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
         std::vector<float> colors;  // Add color information
         int s = pointList.size();
@@ -196,6 +207,8 @@ namespace MotionByte
     }
     void Frame::drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         //special case when only outside edge got bended
 
         if (radius > bound.getWidth() / 2.0)
@@ -270,6 +283,8 @@ namespace MotionByte
     }
     void Frame::fillRoundedRectangle(Color color, Rectangle bound, double radius)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         //Rectangle bound(ubound.getPosition(),
         //    ubound.getWidth().getValue(),
         //    ubound.getHeight().getValue());
@@ -310,8 +325,10 @@ namespace MotionByte
     }
     void Frame::drawCircle(Color color, Rectangle bound, double stroke)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
-        const int segments = 100;
+        const int segments = bound.getWidth();
         const float lineThickness = stroke;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
         double width = bound.getWidth();
@@ -336,8 +353,10 @@ namespace MotionByte
 
     void Frame::fillCircle(Color color, Rectangle bound)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
-        const int segments = 100;
+        const int segments = bound.getWidth();
         Point midPoint = bound.getCenter();
         double width = bound.getWidth();
         double height = bound.getHeight();
@@ -364,6 +383,8 @@ namespace MotionByte
     }
     void Frame::fillCircle(Color color, Point center, double radius)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         Rectangle bound;
         bound.setSize(radius*2.0, radius*2.0);
         bound = bound.withCenter(center);
@@ -371,8 +392,10 @@ namespace MotionByte
     }
     void Frame::drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         VertexList vertices;
-        const int segments = 100;
+        const int segments = bound.getWidth();
         const float lineThickness = stroke/2.0;  // Adjust this value for the desired line thickness
         Point midPoint = bound.getCenter();
         double width = bound.getWidth();
@@ -413,6 +436,8 @@ namespace MotionByte
     }
     void Frame::drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         Rectangle bound;
         bound.setSize(radius*2.0, radius*2.0);
         bound = bound.withCenter(center);
@@ -420,17 +445,23 @@ namespace MotionByte
     }
     void Frame::drawAnnularArc(Color color, Point center, double innerRadius, double outerRadius, double startDegree, double endDegree, Direction direction)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         drawArc(color, center, (innerRadius + outerRadius) / 2.0, outerRadius - innerRadius, startDegree, endDegree, direction);
     }
 
     void Frame::drawText(Color color, std::string text, Point position, double size)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         FontManager::instance().RenderText(text, position.getX(), position.getY(), size,
             withEffect(color));
     }
 
     void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
     {
+        if (color.getAlpha() == 0.0)
+            return;
         Point coor = mSegment->getOffsetFromOrigin() + mSegment->getBound().getCorner(Rectangle::TopLeft);
         bound.moveBy(coor);
         FontManager::instance().RenderText(withEffect(color), text, size, bound, align);
