@@ -78,30 +78,6 @@ namespace MotionByte
     Property& Property::operator=(const Property& other)
     {
         if (this != &other) {
-            {
-                //// Copy non-atomic members
-                //mInterpolatorTimer = other.mInterpolatorTimer;
-                //lastSetTime = other.lastSetTime;
-                //mIsSet = other.mIsSet;
-                //mInterpolator = other.mInterpolator;
-                //mSetCallback = other.mSetCallback;
-                //    
-                //// Note: If your class contains dynamic memory or other resources,
-                //// you might need to perform deep copying or resource management here.
-
-                //// For atomic types, you can use the atomic store member function
-                //lastVelocity.store(other.lastVelocity.load());
-                //last.store(other.last.load());
-                //current.store(other.current.load());
-                //target.store(other.target.load());
-                //// Assuming InterpolatorModule is copyable
-                //mInterpolator = other.mInterpolator;
-                //mInterpolatorState = other.mInterpolatorState;
-                //// Assuming std::function is copyable
-                //mSetCallback = other.mSetCallback;
-                //mPropertyName = other.mPropertyName;
-                //mBindFunction = other.mBindFunction;
-            }
             //I mean get value should be const right?
             setValue(((Property*)(&other))->getValue());
             update();

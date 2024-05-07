@@ -6,7 +6,7 @@ namespace MotionByte
         mObjectPropertyList.setPropertyPointer(X, &mBound.getPosition().getX());
         mObjectPropertyList.setPropertyPointer(Y, &mBound.getPosition().getY());
         mObjectPropertyList.setPropertyPointer(Width, &mBound.getWidth());
-        mObjectPropertyList.setPropertyPointer(Height, &mBound.getWidth());
+        mObjectPropertyList.setPropertyPointer(Height, &mBound.getHeight());
         mObjectPropertyList.setPropertyPointer(Radius, &mInsiderObject->mRadius);
         mObjectPropertyList.setPropertyPointer(BorderThickness, &mInsiderObject->mBorderThickness);
         mObjectPropertyList.setPropertyPointer(Radius, &mInsiderObject->mRadius);

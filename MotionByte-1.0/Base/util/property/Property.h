@@ -3,7 +3,6 @@
 #include <memory>
 #include <atomic>
 
-#include "animator/FrameRenderer.h"
 #include "animator/timer/Timer.h"
 #include "util/functional/GraphicMath.h"
 #include "InterpolatorModule.h"

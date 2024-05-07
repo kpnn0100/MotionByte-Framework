@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "util/functional/FpsCounter.h"
-#include "animator/FrameRenderer.h"
 #include "util/property/PropertyHeader.h"
 #include "graphic/drawer/Frame.h"
 #include "component/base-component/VisualObject.h"
@@ -26,7 +25,7 @@ namespace MotionByte {
      *        It inherits from IFrameEventListener and Segment, providing functionalities for
      *        handling window events and rendering graphics.
      */
-    class Window : public IFrameEventListener, public Segment {
+    class Window : public Segment {
     private:
         std::shared_ptr<Label> mFps = std::make_shared<Label>("FPS: 0");
         std::atomic<bool> mIsFrameProcessed;
@@ -91,24 +90,6 @@ namespace MotionByte {
          * @param height New height of the window.
          */
         void setSize(int width, int height);
-
-        /**
-         * @brief Callback when the frame is initialized.
-         *        This function is called when the frame is initialized.
-         */
-        void onFrameInitialized() override;
-
-        /**
-         * @brief Callback when the frame is processed.
-         *        This function is called when the frame is processed, triggering a paint event.
-         */
-        void onFrameProcessed() override;
-
-        /**
-         * @brief Callback when the frame is rendered.
-         *        This function is called when the frame is rendered.
-         */
-        void onFrameRendered() override;
 
         /**
          * @brief Waits for the render thread to close.

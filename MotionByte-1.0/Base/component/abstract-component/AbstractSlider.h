@@ -17,6 +17,7 @@ public:
     };
 public:
     AbstractSlider(float minValue, float maxValue, float value);
+    void setOnValueChangedCallback(std::function<void(double value)> callback);
     void setValue(float value);
     float getValue();
     void setMinValue(float minValue);
@@ -36,7 +37,9 @@ public:
     void onMouseDragged(Point point, Point origin) override;
 protected:
     Property mPercent;
+    std::function<void(double value)> mOnValueChangedCallback;
 private:
+    
     void setPercent(float percent);
     void updateValue();
     virtual void updateVisualWithPercent(float percent);

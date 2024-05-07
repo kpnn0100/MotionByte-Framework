@@ -136,37 +136,18 @@ namespace MotionByte
             fpsCounter.tick();
             mFps->setText(fpsCounter.getFpsString() + " fps");
 #endif
-            glClear(GL_COLOR_BUFFER_BIT);
             PausableTimer::getInstance().pause();
+            glClear(GL_COLOR_BUFFER_BIT);
             triggerPaint();
-            PausableTimer::getInstance().resume();
             mIsFrameProcessed = true;
             glfwSwapBuffers(mMainWindow);
-
-            // Swap front and back buffers
-            
-
-            // Poll for and process events
             glfwPollEvents();
+            PausableTimer::getInstance().resume();
         }
     }
     void Window::setSize(int width, int height)
     {
         mBound.setSize(width, height);
-    }
-    void Window::onFrameInitialized()
-    {
-        int a = 2;
-    }
-    void Window::onFrameProcessed()
-    {
-        if (mMainWindow)
-        {
-            mIsFrameProcessed = false;  
-        }
-    }
-    void Window::onFrameRendered()
-    {
     }
     void Window::waitToClose()
     {

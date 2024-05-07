@@ -8,6 +8,10 @@ namespace MotionByte
         setValue(value);
         mPercent.setInterpolator(InterpolatorFactory::createSmooth(50.0, 1.2));
     }
+    void AbstractSlider::setOnValueChangedCallback(std::function<void(double value)> callback)
+    {
+        mOnValueChangedCallback = callback;
+    }
     void AbstractSlider::setValue(float value)
     {
         if (value < mMinValue)
@@ -28,6 +32,10 @@ namespace MotionByte
         }
         this->mValue = value;
         onValueChanged(value);
+        if (mOnValueChangedCallback)
+        {
+            mOnValueChangedCallback(value);
+        }
         setPercent((value - mMinValue) / (mMaxValue - mMinValue));
         
         test_debug(mSegmentTypeName + " change value to " + std::to_string(value));
