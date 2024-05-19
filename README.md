@@ -3,6 +3,7 @@
 ## Introduction
 
 Hello! Welcome to my development project. As I am currently in the development phase, there is no detailed documentation available yet. However, if you are interested in testing my project, you can follow the instructions below to set up the environment and run a simple test.
+Here is demonstration with a slider of MotionByte with smooth interpolator and 60FPS
 [![Demo](https://img.youtube.com/vi/vN4mTlsvrZo/0.jpg)](https://www.youtube.com/watch?v=vN4mTlsvrZo)
 ## Setup Environment
 
