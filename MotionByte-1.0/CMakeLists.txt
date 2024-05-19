@@ -11,6 +11,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         freetype
 	    glfw
 	    X11
+        Xi
         Xrandr
         Xinerama
         pthread

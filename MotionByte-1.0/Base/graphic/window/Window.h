@@ -18,7 +18,7 @@
 #include "util/property/PropertyHeader.h"
 #include "graphic/drawer/Frame.h"
 #include "component/base-component/VisualObject.h"
-#include "component/display-Component/Label.h"
+#include "component/display-component/Label.h"
 namespace MotionByte {
     /**
      * @brief The Window class represents a graphical window using GLFW for rendering.
