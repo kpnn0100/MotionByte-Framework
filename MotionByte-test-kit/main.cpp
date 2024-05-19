@@ -29,10 +29,10 @@ int main() {
         });
     window.addSegment(checkBox);
     slider->setBound(Rectangle(Point(200, 200), 600, 20));
-    slider->setStep(10);
+    slider->setStep(0);
     slider->setOnValueChangedCallback([](double value)
         {
-            checkBox->setBound(checkBox->getBound().withSizeKeepCenter(value, value));
+            // checkBox->setBound(checkBox->getBound().withSizeKeepCenter(value, value));
         });
     window.addSegment(slider);
     // window.addSegment(temp);
