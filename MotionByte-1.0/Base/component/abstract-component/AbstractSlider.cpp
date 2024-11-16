@@ -38,7 +38,6 @@ namespace MotionByte
         }
         setPercent((value - mMinValue) / (mMaxValue - mMinValue));
         
-        test_debug(mSegmentTypeName + " change value to " + std::to_string(value));
     }
     void AbstractSlider::setStep(int step)
     {
@@ -148,7 +147,6 @@ namespace MotionByte
     void AbstractSlider::setPercent(float percent)
     {
         mPercent = percent;
-        test_debug(mSegmentTypeName + " change percent to " + std::to_string(percent));
         updateVisualWithPercent(mPercent);
     }
     void AbstractSlider::updateValue()

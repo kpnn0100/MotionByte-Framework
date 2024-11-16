@@ -198,7 +198,7 @@ namespace MotionByte
             });
         if (targetSharedPtr->mParent != mParent)
         {
-            debug("Cannot bind to non sibling");
+            debug(3,"Cannot bind to non sibling");
             return;
         }
         mBound.getPosition().getX().bind([target]

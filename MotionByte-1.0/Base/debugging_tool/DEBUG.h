@@ -1,23 +1,31 @@
 #pragma once
-//#define DEBUG
-#define RELEASE
+#define DEBUG 4
+// #define RELEASE
 #define FPS_SHOW true
 #include <string>
-inline void debug(std::string logstring)
-{
-#ifdef DEBUG
-	std::cout << logstring << std::endl;
-#endif
+#include <mutex>
+#include <iostream>
+#include <sstream>
+#include <utility>
+// Variadic template function to handle argument unpacking
+template <typename T>
+void appendToStream(std::ostringstream& oss, T&& arg) {
+    oss << std::forward<T>(arg);
 }
 
-inline void debug(double number)
-{
-#ifdef DEBUG
-	std::cout << number << std::endl;
-#endif
+template <typename T, typename... Args>
+void appendToStream(std::ostringstream& oss, T&& first, Args&&... rest) {
+    oss << std::forward<T>(first); // Add the first argument
+    appendToStream(oss, std::forward<Args>(rest)...); // Recurse for remaining arguments
 }
 
-inline void test_debug(std::string logstring)
-{
-	std::cout << logstring << std::endl;
+// Debug function with variadic templates
+template <typename... Args>
+void debug(int level, Args&&... args) {
+    std::ostringstream oss;
+    // Append all arguments to the stream
+    appendToStream(oss, std::forward<Args>(args)...);
+
+    // Output the final debug message
+    std::cout << oss.str() << std::endl;
 }

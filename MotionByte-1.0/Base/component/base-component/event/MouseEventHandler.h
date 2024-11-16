@@ -224,7 +224,6 @@ namespace MotionByte
 				onMouseEntered();
 				if (isPressing()==false)
 					onMouseFocused();
-				test_debug("Mouse enter");
 			}
 		}
 		void mouseExit()
@@ -234,7 +233,6 @@ namespace MotionByte
 				onMouseExited();
 				if (isPressing()==false)
 					onMouseUnfocused();
-				test_debug("Mouse exit");
 			}
 			mIsInside = false;
 		}

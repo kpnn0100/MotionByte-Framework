@@ -158,11 +158,9 @@ namespace MotionByte
 		double time = property.getElapsedTime();
 		auto& state = property.getInterpolatorState();
 		double position = 0.0;
-		debug("state");
 		if (time < state[OffsetDuration]) {
 			position = (state[InitValue] - state[OffsetDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow((state[OffsetDuration] - time), 3));
-			debug("OffsetDuration");
-			debug(position);
+			debug(3,"position:",position);
 			return position;
 		}
 		time -= state[OffsetDuration];
@@ -170,21 +168,18 @@ namespace MotionByte
 		if (state[IsHavingSustainPhase] == 1.0) {
 
 			if (time < state[AcceleratingDuration]) {
-				debug("AcceleratingDuration");
 				position = state[InitValue] - state[OffsetDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow(time, 3);
 			}
 			time -= state[AcceleratingDuration];
 
 			// Maintaining Phase
 			if (0 <= time && time < state[MaintainingDuration]) {
-				debug("MaintainingDuration");
 				position = state[InitValue] - state[OffsetDistance] + state[AcceleratingDistance] + state[TargetVelocity]* time;
 			}
 			time -= state[MaintainingDuration];
 
 			// End Phase
 			if (0 <= time && time < state[DeceleratingDuration]) {
-				debug("DeceleratingDuration");
 				position = state[InitValue] - state[OffsetDistance]
 					+ state[AcceleratingDistance]
 					+ state[MaintainingDistance]
@@ -196,7 +191,6 @@ namespace MotionByte
 
 			// Final Phase
 			if (time >= 0.0) {
-				debug("Final");
 				position = state[TargetValue];
 			}
 		}
@@ -204,14 +198,12 @@ namespace MotionByte
 			// Sustain Phase
 			if (0 <= time && time < state[AcceleratingDuration]) {
 				position = state[InitValue] - state[OffsetDistance] + 1.0 / 3.0 * state[Acceleration] * std::pow(time, 3);
-				debug("AcceleratingDuration");
 			}
 			time -= state[AcceleratingDuration];
 
 			// End Phase
 			if (0 <= time && time < state[AcceleratingDuration]) {
 				position = state[InitValue] - state[OffsetDistance] + state[AcceleratingDistance] * 2.0 + 1.0 / 3.0 * state[Acceleration] * std::pow((time - state[AcceleratingDuration]), 3.0);
-				debug("DeceleratingDuration");
 			}
 			time -= state[AcceleratingDuration];
 
@@ -220,7 +212,7 @@ namespace MotionByte
 				position = state[TargetValue];
 			}
 		}
-		debug(position);
+		debug(3,"position:",position);
 		return position;
 	}
 }
