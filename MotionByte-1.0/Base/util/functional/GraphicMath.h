@@ -20,4 +20,5 @@ namespace MotionByte
     double clamp(double value, double min, double max);
 
     // Other mathematical functions can be added based on your requirements
+    double getNegativeSign(double value);
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -9,7 +10,11 @@ namespace MotionByte
     {
     public:
         Timer() : isRunning(false) {}
-
+        Timer(bool needStart)
+        {
+            if (needStart)
+                start();
+        }
         void start()
         {
             if (!isRunning)
@@ -52,10 +57,10 @@ namespace MotionByte
             if (isRunning)
             {
                 auto now = PausableTimer::getInstance().now();
-#ifndef DEBUG
-                return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0;
-#else
+#if defined(DEBUG) && DEBUG > 5
                 return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 10000.0;
+#else
+                return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() / 1000.0;
 #endif
             }
             else

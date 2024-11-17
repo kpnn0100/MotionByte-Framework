@@ -1,5 +1,6 @@
 #pragma once
-#define DEBUG 4
+#define DEBUG 1
+#define DEBUG 6
 // #define RELEASE
 #define FPS_SHOW true
 #include <string>
@@ -22,6 +23,9 @@ void appendToStream(std::ostringstream& oss, T&& first, Args&&... rest) {
 // Debug function with variadic templates
 template <typename... Args>
 void debug(int level, Args&&... args) {
+    if (level > DEBUG) {
+        return;
+    }
     std::ostringstream oss;
     // Append all arguments to the stream
     appendToStream(oss, std::forward<Args>(args)...);

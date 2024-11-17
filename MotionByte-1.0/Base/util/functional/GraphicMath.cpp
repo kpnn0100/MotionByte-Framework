@@ -30,4 +30,8 @@ namespace MotionByte
         }
         return value;
     }
+    double getNegativeSign(double value)
+    {
+        return value < 0.0 ? -1.0 : 1.0;
+    }
 }

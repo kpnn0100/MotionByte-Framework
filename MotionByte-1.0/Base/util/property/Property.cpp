@@ -88,6 +88,10 @@ namespace MotionByte
     {
         mPropertyName = propertyName;
     }
+    std::string Property::getName()
+    {
+        return mPropertyName;
+    }
     void Property::initValue(double value)
     {
         last = value;
@@ -114,12 +118,12 @@ namespace MotionByte
     }
     void Property::setValue(double value)
     {
-        update();
         if (target == value)
         {
             //nothing change
             return;
         }
+        update();
         value = clamp(value, mMin, mMax);
         lastVelocity = mInterpolator.getVelocityAtTime(*this);
         target = value;

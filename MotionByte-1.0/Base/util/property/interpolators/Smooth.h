@@ -8,6 +8,7 @@ namespace MotionByte
 	{
 	private:
 		static inline bool isHavingSustainPhase( double initV2, double expectedV2, double initValue, double finalValue, double acc);
+		static inline bool isHavingAcceleratingPhase(double initV, double expectedV, double initValue, double finalValue, double acc);
 	public:
 		enum ParameterList
 		{
@@ -18,7 +19,9 @@ namespace MotionByte
 		enum StateList
 		{
 			IsHavingSustainPhase,
+			IsHavingAcceleratingPhase,
 			InitVelocity,
+			MiddleVelocity,
 			TargetVelocity,
 			InitValue,
 			TargetValue,
@@ -29,8 +32,6 @@ namespace MotionByte
 			DeceleratingDistance,
 			MaintainingDuration,
 			MaintainingDistance,
-			OffsetDuration,
-			OffsetDistance,
 			SizeOfState
 			
 		};

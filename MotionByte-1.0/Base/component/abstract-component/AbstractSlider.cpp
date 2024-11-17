@@ -6,6 +6,7 @@ namespace MotionByte
     mDragType(DragType::Drag), mDragOrientation(DragOrientation::Horizontal)
     {
         setValue(value);
+        mPercent.setPropertyName("slider::percent");
         mPercent.setInterpolator(InterpolatorFactory::createSmooth(50.0, 1.2));
     }
     void AbstractSlider::setOnValueChangedCallback(std::function<void(double value)> callback)

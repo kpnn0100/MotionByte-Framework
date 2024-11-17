@@ -45,6 +45,7 @@ public:
     Property& operator=(double value);
     Property& operator=(const Property & other);
     void setPropertyName(std::string propertyName);
+    std::string getName();
     void initValue(double value);
     void setInterpolator(InterpolatorModule InterpolatorModule);
     void setCallback(std::function<void()> function);
