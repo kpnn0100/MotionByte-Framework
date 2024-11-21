@@ -134,8 +134,7 @@ namespace MotionByte
 				clickOutsideCallback(point);
 			}
 			recursivePress(point, handled);
-			std::cout << "click outside at "
-				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+			debug(DebugLevel::Verbose,"click outside at ", point.getX().getValue()," ", point.getY().getValue());
 		}
 		void clickAt(Point point)
 		{
@@ -147,8 +146,8 @@ namespace MotionByte
 				clickCallback(point);
 			}
 			
-			std::cout << "Clicked at "
-				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+			debug(DebugLevel::Verbose,"Clicked at "
+				, point.getX().getValue(), " ", point.getY().getValue());
 		}
 		void pressAt(Point point)
 		{
@@ -162,8 +161,8 @@ namespace MotionByte
 			{
 				pressedCallback(point);
 			}
-			std::cout << "Pressed at "
-				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+			debug(DebugLevel::Verbose,"Pressed at "
+				, point.getX().getValue(), " ", point.getY().getValue());
 		}
 		void mouseMove(Point point)
 		{
@@ -192,8 +191,8 @@ namespace MotionByte
 			{
 				releasedCallback(point);
 			}
-			std::cout << "Released at "
-				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
+			debug(DebugLevel::Verbose,"Released at "
+				, point.getX().getValue(), " ", point.getY().getValue());
 		}
 		void mouseAction(Point point, MouseButton button, MouseAction mouseEvent)
 		{
@@ -211,10 +210,10 @@ namespace MotionByte
 				scrollCallback(point, xValue, yValue);
 			}
 			onScroll(point, xValue, yValue);
-			std::cout << "Scroll at "
-				<< point.getX().getValue() << " " << point.getY().getValue() << std::endl;
-			std::cout << "With value "
-				<< xValue << " " << yValue << std::endl;
+			debug(DebugLevel::Verbose,"Scroll at "
+				, point.getX().getValue(), " ", point.getY().getValue());
+			debug(DebugLevel::Verbose,"With value "
+				, xValue , " " , yValue);
 		}
 		void mouseEnter()
 		{

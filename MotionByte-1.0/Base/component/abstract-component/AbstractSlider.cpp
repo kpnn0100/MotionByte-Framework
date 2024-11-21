@@ -7,7 +7,7 @@ namespace MotionByte
     {
         setValue(value);
         mPercent.setPropertyName("slider::percent");
-        mPercent.setInterpolator(InterpolatorFactory::createSmooth(50.0, 1.2));
+        mPercent.setInterpolator(InterpolatorFactory::createSmooth(10.0, 1.2));
     }
     void AbstractSlider::setOnValueChangedCallback(std::function<void(double value)> callback)
     {

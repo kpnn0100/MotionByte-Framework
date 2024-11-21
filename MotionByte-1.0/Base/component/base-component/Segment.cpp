@@ -198,7 +198,7 @@ namespace MotionByte
             });
         if (targetSharedPtr->mParent != mParent)
         {
-            debug(3,"Cannot bind to non sibling");
+            debug(DebugLevel::Verbose,"Cannot bind to non sibling");
             return;
         }
         mBound.getPosition().getX().bind([target]
@@ -261,5 +261,14 @@ namespace MotionByte
     void Segment::setIsChildLimited(bool limited)
     {
         mIsChildLimited = limited;
+    }
+    void Segment::setTopParent(Window *window)
+    {
+        mTopParent = window;
+        mainFrame.setWindow(window);
+        for (auto& segment : mChildrenList)
+        {
+            segment->setTopParent(window);
+        }
     }
 }
