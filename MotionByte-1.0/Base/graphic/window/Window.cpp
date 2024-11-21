@@ -17,6 +17,8 @@ namespace MotionByte
         if (mMainWindow == nullptr)
         {
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+            glfwMakeContextCurrent(mMainWindow);
+            
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
         }
     }
@@ -38,21 +40,15 @@ namespace MotionByte
     void Window::handleWindow()
     {
 
-        // Make the window's context current
-        glfwMakeContextCurrent(mMainWindow);
-
         // Enable anti-aliasing (multisampling)
-
-        glewExperimental = true;
-        glewInit();
         glEnable(GL_MULTISAMPLE);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(GLDebug, NULL);
         FontManager::instance();
-
+        mFps = std::make_shared<Label>();
         onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
         mainFrame.setWindow(this);
         //mainFrame.fillColor(Color(0, 0, 0, 255));

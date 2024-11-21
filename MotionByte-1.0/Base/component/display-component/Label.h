@@ -10,6 +10,7 @@ namespace MotionByte
         Color mTextColor;
         Property mTextSize;
         Align mTextAlignment;
+        std::shared_ptr<Font> mFont;
         void onParentChanged() override;
         void paint(Frame& frame) override;
     public:
@@ -20,6 +21,8 @@ namespace MotionByte
         static const double DEFAULT_HEIGHT; 
         Label();
         Label(std::string text);
+        void setFont(std::string fontPath);
+        std::shared_ptr<Font> getFont();
         void setAlignment(Align alignment);
         void setText(std::string text);
         void setTextColor(Color color);

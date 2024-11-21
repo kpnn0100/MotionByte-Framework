@@ -11,7 +11,9 @@ namespace MotionByte {
     GraphicManager::GraphicManager()
     {
         glfwInit();
-        setAntiAliasing(Level::Medium);
+        glewExperimental = true;
+        glewInit();
+        setAntiAliasing(Level::High);
     }
     GraphicManager& GraphicManager::getInstance()
     {
