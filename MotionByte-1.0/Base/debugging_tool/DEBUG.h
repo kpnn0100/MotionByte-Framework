@@ -1,6 +1,6 @@
 #pragma once
-#define DEBUG 1
-#define DEBUG 6
+#define DEBUG 4
+// #define DEBUG 6
 // #define RELEASE
 #define FPS_SHOW true
 #include <string>
@@ -8,6 +8,15 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+enum DebugLevel
+{
+    None = 0,
+    Error = 1,
+    Warning = 2,
+    Info = 3,
+    Debug = 4,
+    Verbose = 5
+};
 // Variadic template function to handle argument unpacking
 template <typename T>
 void appendToStream(std::ostringstream& oss, T&& arg) {
