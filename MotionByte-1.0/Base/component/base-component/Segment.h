@@ -109,5 +109,6 @@ namespace MotionByte {
         void setParent(Segment* parent);
         void setIsLimited(bool limited);
         void setIsChildLimited(bool limited);
+        void setTopParent(Window* window);
     };
 }
