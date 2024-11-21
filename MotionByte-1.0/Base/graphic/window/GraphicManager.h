@@ -23,6 +23,7 @@ public:
     };
     static GraphicManager& getInstance();
     static void setAntiAliasing(Level level);
+    static void init();
 };
 
 }

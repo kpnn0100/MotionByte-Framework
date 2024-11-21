@@ -5,45 +5,50 @@
 namespace MotionByte
 {
 	// base function : x = v0*t + 1/2*a*t^2
-
+	/**
+	 * let's trace from the destination, because it should reach the destination with velocity 0
+	 * x0 ------ x1
+	 * x1 is the destination with velocity 0
+	 * distance needed to reach velocity 0 from expected velocity is v0^2/(2*a)
+	 * 2 cases:
+	 * 	1. Destination can be reached with default acceleration
+	 *    1.1. there are mainting phase
+	 *    1.2. there are no maintaining phase
+	 * 	2. Destination can't be reached with default acceleration
+	 */
 	Timer timer(true);
-	inline bool Smooth::isHavingSustainPhase(double initV, double expectedV, double initValue, double finalValue, double acc)
+	inline bool canReachDesinationWithDefaultAcc(double velocity, double initValue, double finalValue, double acc)
 	{
-		double t_indepent = (expectedV - initV) / acc;
-		double AcceleratingDistance = initV * t_indepent + 1.0 / 2.0 * acc * std::pow(t_indepent, 2);
-		double t_indepent2 = expectedV / acc;
-		double finalDistance = 1.0 / 2.0 * acc * std::pow(t_indepent2, 2);
-		return std::abs(AcceleratingDistance + finalDistance) < std::abs(finalValue - initValue);
-	}
-	inline bool Smooth::isHavingAcceleratingPhase(double initV, double expectedV, double initValue, double finalValue, double acc)
-	{
-		if ((finalValue-initValue)*initV <= 0.0)
-		{
-			return true;
-		}
+		double distanceToGo = finalValue - initValue;
 		// v1^2 - v0^2 = 2as
-		double expectedV2 = 0;
-		double initV2 = std::pow(initV, 2);
-		double expectedV2_initV2 = expectedV2 - initV2;
-		double distance_needed_to_slow_down = expectedV2_initV2 / (2 * acc);
-		debug(3, "distance_needed_to_slow_down:", distance_needed_to_slow_down);
-		if (distance_needed_to_slow_down > 0)
+		double distanceToReachV0 = velocity*velocity / (2 * acc);
+		if (distanceToGo < 0)
 		{
-			if (distance_needed_to_slow_down < finalValue - initValue)
-			{
-				return true;
-			}
-			return false;
-		} else
-		{
-			if (distance_needed_to_slow_down > finalValue - initValue)
-			{
-				return true;
-			}
-			return false;
+			return distanceToGo <= distanceToReachV0;
 		}
-		
+		else
+		{
+			return distanceToGo >= distanceToReachV0;
+		}
 	}
+	inline bool isHavingMaintainingPhase(double initV, double expectedV, double initValue, double finalValue, double acc)
+	{
+		double distanceToGo = finalValue - initValue;
+		double distanceToReachV1 = (expectedV*expectedV-initV*initV) / (2 * acc);
+		double distanceToStopFromV1 = expectedV*expectedV / (2 * acc);
+		debug(DebugLevel::Verbose, "distanceToGo:", distanceToGo
+			, ",distanceToReachV1:", distanceToReachV1, ",distanceToStopFromV1:", distanceToStopFromV1
+			, ",initV:", initV, ",expectedV:", expectedV, ",initValue:", initValue, ",finalValue:", finalValue, ",acc:", acc);
+		if (distanceToGo < 0)
+		{
+			return distanceToGo <= distanceToReachV1 + distanceToStopFromV1;
+		}
+		else
+		{
+			return distanceToGo >= distanceToReachV1 + distanceToStopFromV1;
+		}
+	}
+
 	InterpolatorModule Smooth::create(double accelerator, double expectedVelocity)
 	{
 		InterpolatorModule smooth(InterpolatorType::SMOOTH, ParameterList::ParameterCount);
@@ -63,94 +68,81 @@ namespace MotionByte
 		double distanceToGo = state[TargetValue] - state[InitValue];
 		if (state[TargetValue] < state[InitValue])
 		{
-			state[TargetVelocity] = -state[TargetVelocity];
 			state[Acceleration] = -state[Acceleration];
+			state[TargetVelocity] = -state[TargetVelocity];
 		}
-		state[IsHavingAcceleratingPhase] = 1.0 * isHavingAcceleratingPhase(state[InitVelocity], state[TargetVelocity],
-																 state[InitValue], state[TargetValue], state[Acceleration]);
-		state[IsHavingSustainPhase] = 1.0 * isHavingSustainPhase(state[InitVelocity], state[TargetVelocity],
-																 state[InitValue], state[TargetValue], state[Acceleration]);
-		if (state[IsHavingAcceleratingPhase] == 0.0)
+
+		if (canReachDesinationWithDefaultAcc(state[InitVelocity], state[InitValue], state[TargetValue], state[Acceleration]))
 		{
+			debug(DebugLevel::Verbose,property.getName(),"can reach destination with default acceleration");
+			// v1^2 - v0^2 = 2as
+			if (isHavingMaintainingPhase(state[InitVelocity], state[TargetVelocity], state[InitValue], state[TargetValue], state[Acceleration]))
+			{
+				debug(DebugLevel::Verbose,property.getName(),"have maintaining phase");
+				state[AcceleratingDuration] = (state[TargetVelocity] - state[InitVelocity]) / state[Acceleration];
+				state[AcceleratingDistance] = state[InitVelocity] * state[AcceleratingDuration] + 0.5 * state[Acceleration] * std::pow(state[AcceleratingDuration],2);
+				state[DeceleratingDuration] =  state[TargetVelocity] / state[Acceleration];
+				state[DeceleratingDistance] = state[TargetVelocity] * state[DeceleratingDuration] - 0.5 * state[Acceleration] * std::pow(state[DeceleratingDuration],2);
+				state[MaintainingDistance] = distanceToGo - state[AcceleratingDistance] - state[DeceleratingDistance];
+				state[MaintainingDuration] = state[MaintainingDistance] / state[TargetVelocity];
+				state[MiddleVelocity] = state[TargetVelocity];
+			}
+			else
+			{
+				/**
+				 * c-----------------d
+						 r
+				x0       x1       x2
+
+				x1 = x0 + v0 * t1 + 1/2 a t1^2
+				x2 = x1 + v1 * t2 - 1/2 a t2^2
+
+				x2 = x0 + v0 * t1 + 1/2 a t1^2 + v1 * t2 - 1/2 a t2^2
+				d - c = v0 * t1 + 1/2 a t1^2 + v1 * t2 - 1/2 a t2^2
+				d - c = v0 * t1 + 1/2 a t1^2 + (v0 + at1) * (v0/a + t1) - 1/2 a (v0/a + t1)^2
+				0 = v1 -at2
+				v1 = v0 + at1
+				v0 + at1-at2=0
+				v0/a + t1 = t2
+				t1 = (signOf(d-c) sqrt(2) * sqrt(2*a*(d-c) + v0^2) - 2*v0)/(2*a)
+				*/
+				state[AcceleratingDuration] = 
+							(std::sqrt(2)
+							* std::sqrt(2 * state[Acceleration] * distanceToGo + std::pow(state[InitVelocity], 2))
+						- 2 * state[InitVelocity])
+					/ (2 * state[Acceleration]);
+				if (state[AcceleratingDuration] < 0.0)
+				{
+					state[AcceleratingDuration] = 
+							(-std::sqrt(2)
+							* std::sqrt(2 * state[Acceleration] * distanceToGo + std::pow(state[InitVelocity], 2))
+						- 2 * state[InitVelocity])
+					/ (2 * state[Acceleration]);
+				}
+				state[MiddleVelocity] = state[InitVelocity] + state[Acceleration] * state[AcceleratingDuration];
+				state[AcceleratingDistance]	= state[InitVelocity] * state[AcceleratingDuration]
+					+ 0.5 * state[Acceleration] * std::pow(state[AcceleratingDuration], 2);
+				state[MaintainingDuration] = 0;
+				state[MaintainingDistance] = 0;
+				state[DeceleratingDistance] = distanceToGo - state[AcceleratingDistance];
+				state[DeceleratingDuration] = state[MiddleVelocity] / state[Acceleration];
+			}
+		}
+		else // can not reach destination with default acceleration
+		{
+			// v1^2 - v0^2 = 2as
+			debug(DebugLevel::Verbose,property.getName(),"can not reach destination with default acceleration");
+			state[Acceleration] = std::pow(state[InitVelocity], 2)
+									/ (2 * distanceToGo);
 			state[AcceleratingDuration] = 0.0;
 			state[AcceleratingDistance] = 0.0;
-			state[MaintainingDistance] = 0.0;
 			state[MaintainingDuration] = 0.0;
-			// calculate acc needed to reach target value
-			// v1^2 - v0^2 = 2as
-			// 0 - state[InitVelocity]^2 = 2 * state[Acceleration] * distanceToGo
-			state[Acceleration] = -state[InitVelocity]*state[InitVelocity] / (2.0 * distanceToGo);
+			state[MaintainingDistance] = 0.0;
+			state[DeceleratingDuration] = state[InitVelocity] / state[Acceleration];
+			state[DeceleratingDistance] = state[TargetValue] - state[InitValue];
 			state[MiddleVelocity] = state[InitVelocity];
-			// 0 = v1 - a*t => t = v1/a
-			state[DeceleratingDuration] = state[MiddleVelocity] / state[Acceleration];
-			state[DeceleratingDistance] = distanceToGo;
-			return;
 		}
-		if (state[IsHavingSustainPhase] == 1.0)
-		{
-			// v1 = v0 + a*t -> t = (v1 - v0) / a
-			state[AcceleratingDuration] = (state[TargetVelocity] - state[InitVelocity]) / state[Acceleration];
-			state[AcceleratingDistance] = state[InitVelocity] * state[AcceleratingDuration] + 1.0 / 2.0 * state[Acceleration] * std::pow(state[AcceleratingDuration], 2);
-			state[DeceleratingDuration] = state[TargetVelocity] / state[Acceleration];
-			state[DeceleratingDistance] = state[TargetVelocity] * state[DeceleratingDuration] -  1.0 / 2.0 * state[Acceleration] * std::pow(state[DeceleratingDuration], 2);
-			state[MaintainingDistance] = state[TargetValue] - state[InitValue]- state[AcceleratingDistance] - state[DeceleratingDistance];
-			state[MaintainingDuration] = state[MaintainingDistance] / state[TargetVelocity];
-			state[MiddleVelocity] = state[TargetVelocity];
-		}
-		else
-		{
-		/**
-		 * c-----------------d
-				 r
-		   x0       x1       x2
-
-		x1 = x0 + v0 * t1 + 1/2 a t1^2
-		x2 = x1 + v1 * t2 - 1/2 a t2^2
-
-		x2 = x0 + v0 * t1 + 1/2 a t1^2 + v1 * t2 - 1/2 a t2^2
-		d - c = v0 * t1 + 1/2 a t1^2 + v1 * t2 - 1/2 a t2^2
-		d - c = v0 * t1 + 1/2 a t1^2 + (v0 + at1) * (v0/a + t1) - 1/2 a (v0/a + t1)^2
-		0 = v1 -at2
-		v1 = v0 + at1
-		v0 + at1-at2=0
-		v0/a + t1 = t2
-		t1 = (signOf(d-c) sqrt(2) * sqrt(2*a*(d-c) + v0^2) - 2*v0)/(2*a)
-		*/
-			state[AcceleratingDuration] =
-			(
-					std::sqrt(2)
-					*std::sqrt(
-						2*state[Acceleration]*distanceToGo
-						+ std::pow(state[InitVelocity],2)
-					)
-				- 2*state[InitVelocity]
-			) 
-			/ (2*state[Acceleration]);
-
-			if (state[AcceleratingDuration] < 0.0)
-			{
-				state[AcceleratingDuration] =
-				(
-						-std::sqrt(2)
-						*std::sqrt(
-							2*state[Acceleration]*distanceToGo
-							+ std::pow(state[InitVelocity],2)
-						)
-					- 2*state[InitVelocity]
-				) / (2*state[Acceleration]);
-			}
-			state[AcceleratingDistance] = state[InitVelocity] * state[AcceleratingDuration] + 1.0 / 2.0 * state[Acceleration] * std::pow(state[AcceleratingDuration], 2);
-			state[DeceleratingDistance] = distanceToGo - state[AcceleratingDistance];
-			state[MiddleVelocity] = state[InitVelocity] + state[Acceleration] * state[AcceleratingDuration];
-			// 0 = v1 - a*t => t = v1/a
-			state[DeceleratingDuration] = state[MiddleVelocity] / state[Acceleration];
-			state[MaintainingDistance] = 0.0;
-			state[MaintainingDuration] = 0.0;
-
-		}
-		if (property.getName() == "slider::percent")
-			{
-			debug(3, property.getName(), ",time:", time, 
+		debug(DebugLevel::Verbose, property.getName(), 
 						",IsHavingAcceleratingPhase:", state[IsHavingAcceleratingPhase],
 						",IsHavingSustainPhase:", state[IsHavingSustainPhase],
 						",InitVelocity:", state[InitVelocity],
@@ -165,15 +157,13 @@ namespace MotionByte
 						",DeceleratingDistance:", state[DeceleratingDistance],
 						",MaintainingDuration:", state[MaintainingDuration],
 						",MaintainingDistance:", state[MaintainingDistance]);
-			}
 	}
 	bool Smooth::isSet(Property &property)
 	{
 		double time = property.getElapsedTime();
 		auto &state = property.getInterpolatorState();
-		if (time >= state[AcceleratingDuration] + state[MaintainingDuration] + state[DeceleratingDuration])
+		if (time > state[AcceleratingDuration] + state[DeceleratingDuration] + state[MaintainingDuration])
 		{
-			
 			return true;
 		}
 		return false;
@@ -182,113 +172,40 @@ namespace MotionByte
 	{
 		double time = property.getElapsedTime();
 		auto &state = property.getInterpolatorState();
-		double velocity = 0.0;
 		if (time < state[AcceleratingDuration])
 		{
-			velocity =  state[InitVelocity]  + state[Acceleration] * time;
+			return state[InitVelocity] + state[Acceleration] * time;
 		}
-
-		time -= state[AcceleratingDuration];
-
-		// Maintaining Phase
-		if (0 <= time && time < state[MaintainingDuration])
+		time = time - state[AcceleratingDuration];
+		if (time < state[MaintainingDuration])
 		{
-			velocity = state[MiddleVelocity];
+			return state[TargetVelocity];
 		}
-		time -= state[MaintainingDuration];
-
-		// End Phase
-		if (0 <= time && time < state[DeceleratingDuration])
+		time = time - state[MaintainingDuration];
+		if (time < state[DeceleratingDuration])
 		{
-			velocity = state[MiddleVelocity] - state[Acceleration] * time;
+			return state[MiddleVelocity] - state[Acceleration] * time;
 		}
-		time -= state[DeceleratingDuration];
-
-		// Final Phase
-		if (time >= 0.0)
-		{
-			velocity = 0.0;
-		}
-		return velocity;
+		return 0;
 	}
 	double Smooth::getValueAtTime(Property &property)
 	{
 		double time = property.getElapsedTime();
 		auto &state = property.getInterpolatorState();
-		double position = 0.0;
-				if (property.getName() == "slider::percent")
-			{
-			debug(3, property.getName(), 
-						",IsHavingAcceleratingPhase:", state[IsHavingAcceleratingPhase],
-						",IsHavingSustainPhase:", state[IsHavingSustainPhase],
-						",InitVelocity:", state[InitVelocity],
-						",MiddleVelocity:", state[MiddleVelocity],
-						",TargetVelocity:", state[TargetVelocity],
-						",InitValue:", state[InitValue],
-						",TargetValue:", state[TargetValue],
-						",Acceleration:", state[Acceleration],
-						",AcceleratingDuration:", state[AcceleratingDuration],
-						",AcceleratingDistance:", state[AcceleratingDistance],
-						",DeceleratingDuration:", state[DeceleratingDuration],
-						",DeceleratingDistance:", state[DeceleratingDistance],
-						",MaintainingDuration:", state[MaintainingDuration],
-						",MaintainingDistance:", state[MaintainingDistance]);
-			}
-		debug(3,property.getName(), "start phase", "time:", time, "position:", position);
-		if (time >= 0.0 && time < state[AcceleratingDuration])
+		if (time < state[AcceleratingDuration])
 		{
-			position = state[InitValue] + state[InitVelocity] * time + 1.0 / 2.0 * state[Acceleration] * std::pow(time, 2);
-			if (property.getName() == "slider::percent")
-			{
-				debug(3,property.getName(), "acc phase", "time:", time, "position:", position);
-			}
+			return state[InitValue] + state[InitVelocity] * time + 0.5 * state[Acceleration] * std::pow(time, 2);
 		}
-
-		time -= state[AcceleratingDuration];
-
-		// Maintaining Phase
-		if (0.0 <= time && time < state[MaintainingDuration])
+		time = time - state[AcceleratingDuration];
+		if (time < state[MaintainingDuration])
 		{
-			position = state[InitValue] + state[AcceleratingDistance] + state[MiddleVelocity] * time;
-			if (property.getName() == "slider::percent")
-			{
-				debug(3,property.getName(), "maintaining phase", "time:", time, "position:", position);
-			}
+			return state[InitValue] + state[AcceleratingDistance] + state[TargetVelocity] * time;
 		}
-		time -= state[MaintainingDuration];
-
-		// End Phase
-		if (0.0 <= time && time < state[DeceleratingDuration])
+		time = time - state[MaintainingDuration];
+		if (time < state[DeceleratingDuration])
 		{
-			position = state[InitValue] + state[AcceleratingDistance] + state[MaintainingDistance]
-						+ state[MiddleVelocity] * time
-						- 1.0 / 2.0 * state[Acceleration] * std::pow(time, 2);
-			if (property.getName() == "slider::percent")
-			{
-				debug(3,property.getName(), "decce phase", "time:", time, "position:", position);
-			}
+			return state[InitValue] + state[AcceleratingDistance] + state[MaintainingDistance] + state[MiddleVelocity]*time - 0.5 * state[Acceleration] * std::pow(time, 2);
 		}
-		time -= state[DeceleratingDuration];
-
-		// Final Phase
-		if (time >= 0.0)
-		{
-			if (property.getName() == "slider::percent")
-			{
-				debug(3,property.getName(), "end phase", "time:", time, "position:", position);
-			}
-			position = state[TargetValue];
-		}
-		if (property.getName() == "slider::percent")
-		{
-			debug(3,property.getName(), ":time:", time
-						,",init :", state[InitValue]
-						,",position:", position
-						,",having sustain phase:", state[IsHavingSustainPhase] ? "true" : "false"
-						,",middle velocity:", state[MiddleVelocity]
-						, ",target"
-						,state[TargetValue]);
-		}
-		return position;
+		return state[TargetValue];
 	}
 }

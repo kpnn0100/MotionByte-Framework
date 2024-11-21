@@ -17,6 +17,8 @@ namespace MotionByte
         if (mMainWindow == nullptr)
         {
             mMainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+            glfwMakeContextCurrent(mMainWindow);
+            
             mBound = Rectangle(Point(0.0, 0.0), (double)width, (double)height);
         }
     }
@@ -37,22 +39,14 @@ namespace MotionByte
     }
     void Window::handleWindow()
     {
-
-        // Make the window's context current
-        glfwMakeContextCurrent(mMainWindow);
-
+        GraphicManager::getInstance();
+        GraphicManager::init();
         // Enable anti-aliasing (multisampling)
-
-        glewExperimental = true;
-        glewInit();
-        glEnable(GL_MULTISAMPLE);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //glEnable(GL_DEBUG_OUTPUT);
+        
+        
         glDebugMessageCallback(GLDebug, NULL);
         FontManager::instance();
-
+        mFps = std::make_shared<Label>();
         onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
         mainFrame.setWindow(this);
         //mainFrame.fillColor(Color(0, 0, 0, 255));
@@ -118,11 +112,10 @@ namespace MotionByte
                 instance->scrollAt(Point(mouseX, mouseY),xPos,yPos);
             });
         glfwSetMouseButtonCallback(mMainWindow, callbackFunction);
-        GraphicManager::getInstance();
-        //show fps
+        
 #ifdef FPS_SHOW==true
-        mFps->setTextSize(15);
-        mFps->setBound(Rectangle(Point(10, 10), 100, 100));
+        mFps->setTextSize(20);
+        mFps->setBound(Rectangle(Point(5, 5), 100, 100));
         mFps->setAlignment(MotionByte::Align::TopLeft);
         FpsCounter fpsCounter;
         addSegment(mFps);

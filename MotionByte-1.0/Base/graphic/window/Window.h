@@ -27,7 +27,7 @@ namespace MotionByte {
      */
     class Window : public Segment {
     private:
-        std::shared_ptr<Label> mFps = std::make_shared<Label>("FPS: 0");
+        std::shared_ptr<Label> mFps;
         std::atomic<bool> mIsFrameProcessed;
         std::atomic<GLFWwindow*> mMainWindow;     ///< Atomic pointer to the GLFW window.
         PropertyManager mPropertyManager;         ///< Manages properties associated with the window.
