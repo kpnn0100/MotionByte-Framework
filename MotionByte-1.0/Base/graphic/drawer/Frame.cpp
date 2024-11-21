@@ -450,21 +450,20 @@ namespace MotionByte
         drawArc(color, center, (innerRadius + outerRadius) / 2.0, outerRadius - innerRadius, startDegree, endDegree, direction);
     }
 
-    void Frame::drawText(Color color, std::string text, Point position, double size)
+    void Frame::drawText(Color color, Font &font, std::string text, Point position, double size)
     {
         if (color.getAlpha() == 0.0)
             return;
-        FontManager::instance().RenderText(text, position.getX(), position.getY(), size,
-            withEffect(color));
+        FontManager::instance().RenderText(withEffect(color), font, text, position.getX(), position.getY(), size);
     }
 
-    void Frame::drawText(Color color, std::string text, double size, Rectangle bound, Align align)
+    void Frame::drawText(Color color, Font &font, std::string text, double size, Rectangle bound, Align align)
     {
         if (color.getAlpha() == 0.0)
             return;
         Point coor = mSegment->getOffsetFromOrigin() + mSegment->getBound().getCorner(Rectangle::TopLeft);
         bound.moveBy(coor);
-        FontManager::instance().RenderText(withEffect(color), text, size, bound, align);
+        FontManager::instance().RenderText(withEffect(color), font, text, size, bound, align);
     }
 
 }

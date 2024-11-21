@@ -13,11 +13,20 @@ namespace MotionByte
         mTextSize = DEFAULT_TEXT_SIZE;
         mTextSize.setMin(0.0);
         mBound.setSize(DEFAULT_WIDTH,DEFAULT_HEIGHT);
+        mFont = FontManager::instance().createDefaultFont();
         
     }
     Label::Label(std::string text) : Label()
     {
         mText = text;
+    }
+    void Label::setFont(std::string fontPath)
+    {
+        mFont = FontManager::instance().createFont(fontPath);
+    }
+    std::shared_ptr<Font> Label::getFont()
+    {
+        return mFont;
     }
     void Label::setAlignment(Align alignment)
     {
@@ -29,7 +38,7 @@ namespace MotionByte
     }
     void Label::paint(Frame &frame)
     {
-        frame.drawText(mTextColor, mText, mTextSize.getValue(), mBound, mTextAlignment);
+        frame.drawText(mTextColor, *mFont, mText, mTextSize.getValue(), mBound, mTextAlignment);
     }
     void Label::setText(std::string text)
     {

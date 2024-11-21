@@ -36,23 +36,9 @@ namespace MotionByte
 		FT_Init_FreeType(&ft);
 		mProgram = ProgramManager::createCompiledProgram(textShaderSource, textFragmentShaderSource);
 		glEnable(GL_MULTISAMPLE);
-		glCreateVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		glCreateBuffers(1, &buffer);
-
-		glNamedBufferStorage(buffer, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_STORAGE_BIT);
-		glVertexArrayVertexBuffer(vao, 3, buffer, 0, sizeof(GLfloat) * 4);
-
-		// Update the vertex attribute index in the following lines
-		glVertexArrayAttribFormat(vao, 3, 4, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(vao, 3, 3);
-		glEnableVertexArrayAttrib(vao, 3);
-		glEnableVertexAttribArray(3);
-		loadFont(_Roboto_Regular_ttf,sizeof(_Roboto_Regular_ttf));
 	}
 
-	void FontManager::useThisProgram()
+    void FontManager::useThisProgram()
 	{
 		glUseProgram(mProgram);
 		glm::mat4 projection = glm::ortho(0.0f, mWidth, 0.0f, mHeight);
@@ -76,71 +62,153 @@ namespace MotionByte
 	{
 		return ft;
 	}
-
-	void MotionByte::FontManager::loadFont(std::string fontPath)
-	{
-		if (FT_New_Face(ft, fontPath.c_str(), 0, &face))
-		{
-			fprintf(stderr, "Error opening font file\n");
-			FT_Done_FreeType(ft);  // Cleanup FreeType library
-			return;
-		}
-		FT_Set_Pixel_Sizes(face, 0, FONT_RENDER_SIZE);
-		update();
-	}
-
-    void FontManager::loadFont(unsigned char data[], unsigned int size)
+	
+	std::shared_ptr<Font> FontManager::createFont()
     {
-		if (FT_New_Memory_Face(ft, data, size, 0, &face))
+		std::shared_ptr<Font> font = std::make_shared<Font>();
+		for (double i = FONT_MIN_SIZE; i< FONT_MAX_SIZE; i+= FONT_SIZE_STEP)
 		{
-			fprintf(stderr, "Error opening font file\n");
-			FT_Done_FreeType(ft);  // Cleanup FreeType library
-			return;
+			int index = font->getIndexForSize(i);
+			glCreateVertexArrays(1, &font->vaoInVariousSize[index]);
+			glBindVertexArray(font->vaoInVariousSize[index]);
+
+			glCreateBuffers(1, &font->bufferInVariousSize[index]);
+
+			glNamedBufferStorage(font->bufferInVariousSize[index], sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_STORAGE_BIT);
+			glVertexArrayVertexBuffer(font->vaoInVariousSize[index], 3, font->bufferInVariousSize[index], 0, sizeof(GLfloat) * 4);
+
+			// Update the vertex attribute index in the following lines
+			glVertexArrayAttribFormat(font->vaoInVariousSize[index], 3, 4, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(font->vaoInVariousSize[index], 3, 3);
+			glEnableVertexArrayAttrib(font->vaoInVariousSize[index], 3);
+			glEnableVertexAttribArray(3);
 		}
-		FT_Set_Pixel_Sizes(face, 0, FONT_RENDER_SIZE);
-		update();
+		return font;
+
+    }
+	std::shared_ptr<Font> FontManager::createFont(std::string fontPath)
+    {
+		std::shared_ptr<Font> font = createFont();
+		loadFont(*font, fontPath);
+        return font;
+    }
+    std::shared_ptr<Font> FontManager::createFont(unsigned char data[], unsigned int size)
+    {
+		std::shared_ptr<Font> font = createFont();
+		loadFont(*font, data, size);
+        return font;
     }
 
-    void MotionByte::FontManager::update()
-	{
+    std::shared_ptr<Font> FontManager::createDefaultFont()
+    {
+        return createFont(_Roboto_Regular_ttf,sizeof(_Roboto_Regular_ttf));
+    }
+
+    void FontManager::initAfterLoad(Font &font)
+    {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
+		for (double i = FONT_MIN_SIZE; i<=FONT_MAX_SIZE;i+=FONT_SIZE_STEP)
+		{
+			int index = font.getIndexForSize(i);
+			for (GLubyte c = 0; c < 128; c++) {
+				FT_Load_Char(font.faceInVariousSize[index], c, FT_LOAD_RENDER);
 
-		for (GLubyte c = 0; c < 128; c++) {
-			FT_Load_Char(face, c, FT_LOAD_RENDER);
+				GLuint texture;
+				glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+				glTextureStorage2D(texture, 1, GL_R8, font.faceInVariousSize[index]->glyph->bitmap.width, font.faceInVariousSize[index]->glyph->bitmap.rows);
+				glTextureSubImage2D(texture, 0, 0, 0, font.faceInVariousSize[index]->glyph->bitmap.width, font.faceInVariousSize[index]->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, font.faceInVariousSize[index]->glyph->bitmap.buffer);
 
-			GLuint texture;
-			glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-			glTextureStorage2D(texture, 1, GL_R8, face->glyph->bitmap.width, face->glyph->bitmap.rows);
-			glTextureSubImage2D(texture, 0, 0, 0, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+				glBindTexture(GL_TEXTURE_2D, texture);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glBindTexture(GL_TEXTURE_2D, 0);
 
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glBindTexture(GL_TEXTURE_2D, 0);
-
-			Character character = {
-			texture,
-			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			face->glyph->advance.x
-			};
-			Characters.insert(std::pair<GLchar, Character>(c, character));
+				Character character = {
+				texture,
+				glm::ivec2(font.faceInVariousSize[index]->glyph->bitmap.width, font.faceInVariousSize[index]->glyph->bitmap.rows),
+				glm::ivec2(font.faceInVariousSize[index]->glyph->bitmap_left, font.faceInVariousSize[index]->glyph->bitmap_top),
+				font.faceInVariousSize[index]->glyph->advance.x
+				};
+				font.charactersInVariousSize[index].insert(std::pair<GLchar, Character>(c, character));
+			}
+			FT_Done_Face(font.faceInVariousSize[index]);
 		}
-		/*FT_Done_Face(face);
-		FT_Done_FreeType(ft);*/
+		
 	}
-
-	void FontManager::RenderText(Color color, std::string text, float scale, Rectangle bound, Align align)
+	void FontManager::loadFont(Font &font, std::string fontPath)
 	{
+		for (double i = FONT_MIN_SIZE; i<FONT_MAX_SIZE;i+=FONT_SIZE_STEP)
+		{
+			int index = font.getIndexForSize(i);
+			if (FT_New_Face(ft, fontPath.c_str(), 0, &font.faceInVariousSize[index]))
+			{
+				fprintf(stderr, "Error opening font file\n");
+				FT_Done_FreeType(ft);  // Cleanup FreeType library
+				return;
+			}
+			FT_Set_Pixel_Sizes(font.faceInVariousSize[index], 0, i);
+		}
+		initAfterLoad(font);
+	}
+	void FontManager::loadFont(Font &font, unsigned char data[], unsigned int size)
+	{
+		for (double i = FONT_MIN_SIZE; i<=FONT_MAX_SIZE;i+=FONT_SIZE_STEP)
+		{
+			int index = font.getIndexForSize(i);
+			if (FT_New_Memory_Face(ft, data, size, 0, &font.faceInVariousSize[index]))
+			{
+				fprintf(stderr, "Error opening font file\n");
+				FT_Done_FreeType(ft);  // Cleanup FreeType library
+				return;
+			}
+			FT_Set_Pixel_Sizes(font.faceInVariousSize[index], 0, i);
+		}
+		initAfterLoad(font);
+	}
+    Font::Font()
+    {
+		bufferInVariousSize.resize((FONT_MAX_SIZE - FONT_MIN_SIZE) / FONT_SIZE_STEP+1);
+		vaoInVariousSize.resize((FONT_MAX_SIZE - FONT_MIN_SIZE) / FONT_SIZE_STEP+1);
+		charactersInVariousSize.resize((FONT_MAX_SIZE - FONT_MIN_SIZE) / FONT_SIZE_STEP+1);
+		faceInVariousSize.resize((FONT_MAX_SIZE - FONT_MIN_SIZE) / FONT_SIZE_STEP+1);
+    }
+    int Font::getIndexForSize(double size)
+    {
+		if (size < FONT_MIN_SIZE)
+		   	return 0;
+		if (size > FONT_MAX_SIZE)
+			return bufferInVariousSize.size() - 1;
+        return (size - FONT_MIN_SIZE) / FONT_SIZE_STEP;
+    }
+    double Font::fromIndexToSize(int index)
+    {
+        return index * FONT_SIZE_STEP + FONT_MIN_SIZE;
+    }
+
+    Font::~Font()
+    {
+		// free all resources
+		for (int i = 0; i < bufferInVariousSize.size(); i++)
+		{
+			glDeleteBuffers(1, &bufferInVariousSize[i]);
+			glDeleteVertexArrays(1, &vaoInVariousSize[i]);
+		}
+    }
+
+	void FontManager::RenderText(Color color, Font& font, std::string text, float size, Rectangle bound, Align align)
+    {
 		useThisProgram();
 		double width_of_text = 0;
 		double height_of_text = 0;
-		double newScale = scale / FONT_RENDER_SIZE;
+		int index = font.getIndexForSize(size);
+		double abs_size = font.fromIndexToSize(index);
+
+		double newScale = size / abs_size;
 		std::string::const_iterator c;
 		for (c = text.begin(); c != text.end(); c++) {
-			Character ch = Characters[*c];
+			Character ch = font.charactersInVariousSize[index][*c];
 			if (ch.Bearing.y* newScale > height_of_text)
 			{
 				height_of_text = ch.Bearing.y * newScale;
@@ -193,19 +261,22 @@ namespace MotionByte
 			}
 		}
 
-		RenderText(text, x,y, scale, color);
-	}
+		RenderText(color, font, text, x, y, size);
+    }
+    void FontManager::RenderText(Color color, Font& font, std::string text, float x, float y, float size)
+    {
+		int index = font.getIndexForSize(size);
+		double abs_size = font.fromIndexToSize(index);
 
-	void MotionByte::FontManager::RenderText(std::string text, float x, float y, float scale, Color color)
-	{
-		glEnableVertexArrayAttrib(vao, 3);
+		double newScale = size / abs_size;
+		glEnableVertexArrayAttrib(font.vaoInVariousSize[index], 3);
 		glEnableVertexAttribArray(3);
 		glUniform4f(6, color.getRed(), color.getGreen(), color.getBlue(),color.getAlpha());
 		y = mHeight - y;
-		scale /= FONT_RENDER_SIZE;
+		double scale = size / abs_size;
 		std::string::const_iterator c;
 		for (c = text.begin(); c != text.end(); c++) {
-			Character ch = Characters[*c];
+			Character ch = font.charactersInVariousSize[index][*c];
 			GLfloat xpos = x + ch.Bearing.x * scale;
 			GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
@@ -222,11 +293,10 @@ namespace MotionByte
 				 xpos + w, ypos + h,   1.0f, 0.0f
 			};
 
-			glNamedBufferSubData(buffer, 0, sizeof(GLfloat) * 6 * 4, vertices);
+			glNamedBufferSubData(font.bufferInVariousSize[index], 0, sizeof(GLfloat) * 6 * 4, vertices);
 			glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			x += (ch.Advance >> 6) * scale;
-
 		}
-	}
+    }
 }
