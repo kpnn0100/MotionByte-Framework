@@ -10,7 +10,12 @@ namespace MotionByte
         Vertex vertex(x, y);
         vertices.push_back(vertex);
     }
-
+    void VertexList::addVertex(Vertex vertex) {
+        vertices.push_back(vertex);
+    }
+    Vertex& VertexList::getLast() {
+        return vertices.back();
+    }
     size_t VertexList::size() const {
         return vertices.size();
     }
@@ -30,5 +35,10 @@ namespace MotionByte
     float* VertexList::toBufferArray() const
     {
         return (float*)vertices.data();
+    }
+
+    bool VertexList::empty() const
+    {
+        return vertices.empty();
     }
 }

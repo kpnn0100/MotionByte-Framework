@@ -35,8 +35,8 @@ namespace MotionByte
         mIsEditable = true;
         addSegment(mMainText);
         addSegment(mHintText);
-        mHintText->bindBoundToParent();
-        mMainText->bindBoundToParent();
+        // mHintText->bindBoundToParent();
+        // mMainText->bindBoundToParent();
     }
     AbstractTextBox::~AbstractTextBox()
     {

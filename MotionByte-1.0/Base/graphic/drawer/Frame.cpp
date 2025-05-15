@@ -152,9 +152,7 @@ namespace MotionByte
             }
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
-        // Draw
-        glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawQuad(withEffect(color), vertices);
     }
     void Frame::fillRectangle(Color color, Rectangle bound)
     {
@@ -168,10 +166,8 @@ namespace MotionByte
             vertices.addVertex(x_outer, y_outer);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
-
         // Draw
-        glDrawArrays(GL_QUADS, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawQuad(withEffect(color), vertices);
     }
     void Frame::fillPolygon(Color color, std::vector<Point> pointList)
     {
@@ -186,8 +182,7 @@ namespace MotionByte
 
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawTriangleStrip(withEffect(color), vertices);
     }
     void Frame::fillPolygon(Color color, Point origin, std::vector<Point> pointList)
     {
@@ -202,8 +197,7 @@ namespace MotionByte
                 pointList[i % s].getY());
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
-        glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawTriangleFan(withEffect(color), vertices);
     }
     void Frame::drawRoundedRectangle(Color color, Rectangle bound, double radius, double stroke)
     {
@@ -347,8 +341,7 @@ namespace MotionByte
             vertices.addVertex(x_inner, y_inner);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawTriangleStrip(withEffect(color), vertices);
     }
 
     void Frame::fillCircle(Color color, Rectangle bound)
@@ -378,8 +371,7 @@ namespace MotionByte
 
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));;
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawTriangleStrip(withEffect(color), vertices);
     }
     void Frame::fillCircle(Color color, Point center, double radius)
     {
@@ -431,8 +423,7 @@ namespace MotionByte
             vertices.addVertex(x_inner, y_inner);
         }
         updateUniformForShape();
-        ShapeManager::instance().prepareBuffer(vertices, withEffect(color));
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.sizeInFloat() / 2);
+        ShapeManager::instance().drawTriangleStrip(withEffect(color), vertices);
     }
     void Frame::drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction)
     {
@@ -461,9 +452,7 @@ namespace MotionByte
     {
         if (color.getAlpha() == 0.0)
             return;
-        Point coor = mSegment->getOffsetFromOrigin() + mSegment->getBound().getCorner(Rectangle::TopLeft);
-        bound.moveBy(coor);
+        updateUniformForShape();
         FontManager::instance().RenderText(withEffect(color), font, text, size, bound, align);
     }
-
 }

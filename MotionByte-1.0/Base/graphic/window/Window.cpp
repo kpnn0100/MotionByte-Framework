@@ -46,6 +46,7 @@ namespace MotionByte
         
         glDebugMessageCallback(GLDebug, NULL);
         FontManager::instance();
+        ShapeManager::instance();
         mFps = std::make_shared<Label>();
         onWindowSizeChanged((double)mBound.getWidth(), (double)mBound.getHeight());
         mainFrame.setWindow(this);
@@ -115,7 +116,7 @@ namespace MotionByte
         
 #ifdef FPS_SHOW==true
         mFps->setTextSize(20);
-        mFps->setBound(Rectangle(Point(5, 5), 100, 100));
+        mFps->setBound(Rectangle(Point(0, 0), 20, 20));
         mFps->setAlignment(MotionByte::Align::TopLeft);
         FpsCounter fpsCounter;
         addSegment(mFps);
@@ -174,7 +175,6 @@ namespace MotionByte
     void Window::onWindowSizeChanged(int width, int height)
     {
         ShapeManager::instance().onWindowSizeChanged(width, height);
-        FontManager::instance().onWindowSizeChanged(width, height);
         Frame::onWindowSizeChanged(mMainWindow, width, height);
         mBound.setSize(width, height);
     }
