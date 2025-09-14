@@ -30,6 +30,8 @@ namespace MotionByte
         std::vector<Vertex>& getVertexList();
         float* toBufferArray() const;
         bool empty() const;
+        Vertex &operator[](size_t index);
+        const Vertex &operator[](size_t index) const;
 
     };
 }

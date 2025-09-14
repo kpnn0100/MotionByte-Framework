@@ -1,4 +1,4 @@
-#include "util/geometry/Vertex.h"
+#include "Vertex.h"
 
 namespace MotionByte
 {
@@ -40,5 +40,9 @@ namespace MotionByte
     bool VertexList::empty() const
     {
         return vertices.empty();
+    }
+
+    const Vertex& VertexList::operator[](size_t index) const {
+        return vertices[index];
     }
 }

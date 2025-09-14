@@ -1,5 +1,6 @@
 #include "KeyboardEventManager.h"
 #include <debugging_tool/DEBUG.h>
+#include <algorithm>
 
 namespace MotionByte
 {

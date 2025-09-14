@@ -2,15 +2,13 @@
 #include <cstdlib>
 #include "Roboto-Regular.h"
 #include "graphic/program/ShapeManager.h"
-#define FONT_MIN_SIZE 2     // Higher resolution minimum size
-#define FONT_MAX_SIZE 200     // Higher resolution maximum size
-#define FONT_SIZE_STEP 2    // Larger step for more resolution options
-#define FONT_RENDER_SIZE 48 // Reference size for vector outlines
 #include <vector>
 #include <freetype/freetype.h>
 #include <freetype/ftoutln.h>
 #include <cmath>
-
+#include <algorithm>
+#include <limits>
+#include <util/functional/Triangulation.h>
 
 
 namespace MotionByte
@@ -47,10 +45,10 @@ namespace MotionByte
 
 			float x = mt * mt * from.x +
 					2 * mt * t * (control->x / 64.0f) +
-					t * t * (to->x / 64.0f);
+					 t * t * (to->x / 64.0f);
 			float y = mt * mt * from.y +
 					2 * mt * t * (control->y / 64.0f) +
-					t * t * (to->y / 64.0f);
+					 t * t * (to->y / 64.0f);
 			state->currentContour->push_back({ x, y });
 		}
 		return 0;
@@ -66,12 +64,12 @@ namespace MotionByte
 			float x = mt * mt * mt * from.x +
 					3 * mt * mt * t * (control1->x / 64.0f) +
 					3 * mt * t * t * (control2->x / 64.0f) +
-					t * t * t * (to->x / 64.0f);
+					 t * t * t * (to->x / 64.0f);
 
 			float y = mt * mt * mt * from.y +
 					3 * mt * mt * t * (control1->y / 64.0f) +
 					3 * mt * t * t * (control2->y / 64.0f) +
-					t * t * t * (to->y / 64.0f);
+					 t * t * t * (to->y / 64.0f);
 
 			state->currentContour->push_back({ x, y });
 		}
@@ -107,9 +105,36 @@ namespace MotionByte
         return instance;
     }
     
-    VertexList MotionByte::FontManager::getTriangluationVertexList(std::vector<std::vector<Vertex>> ContourList)
+    // ---- Safe Ear Clipping helper implementation (no raw pointer ownership) -----
+    namespace {
+        // Basic area (same as JS earcut orientation test)
+        static float contourSignedArea(const VertexList& c){
+            if (c.size() < 3) return 0.0f;
+            float a=0.0f; for(size_t i=0,j=c.size()-1;i<c.size();j=i++) a += (c[j].x - c[i].x) * (c[i].y + c[j].y); return a; }
+
+        static bool isClockwise(const VertexList& c){ return contourSignedArea(c) > 0.0f; }
+    }
+
+    VertexList MotionByte::FontManager::getTriangulation(std::vector<VertexList> &ContourList)
     {
+        VertexList result;
+        if(ContourList.empty()) return result;
         
+        // Separate contours by orientation (outer vs holes)
+        bool outerClockwiseRef = isClockwise(ContourList[0]);
+        std::vector<VertexList> outerContours; 
+        std::vector<VertexList> holeContours; 
+        
+        for(auto &c : ContourList){
+            if(isClockwise(c) == outerClockwiseRef) {
+                outerContours.push_back(c);
+            } else {
+                holeContours.push_back(c);
+            }
+        }
+        // Perform triangulation
+        result = triangulate(outerContours, holeContours);
+        return result;
     }
 
     std::shared_ptr<Font> FontManager::createFont()
@@ -138,34 +163,42 @@ namespace MotionByte
 
     void FontManager::initAfterLoad(Font &font)
     {
-		for (int size = 0; size < (FONT_MAX_SIZE - FONT_MIN_SIZE)/FONT_SIZE_STEP; ++size) {
-			double renderSize = FONT_MIN_SIZE + size*FONT_SIZE_STEP;
-			FT_Set_Pixel_Sizes(font.face, 0, renderSize);
-			for (GLubyte c = 0; c < 128; c++) {
-				// Load the glyph with FT_LOAD_NO_BITMAP to get vector outlines
-				if (FT_Load_Char(font.face, c, FT_LOAD_DEFAULT))
-					continue;
-				
-				// Store vector outline data
-				Character character;
-				character.Size = glm::ivec2(font.face->glyph->metrics.width >> 6, 
-							font.face->glyph->metrics.height >> 6);
-				character.Bearing = glm::ivec2(font.face->glyph->bitmap_left, 
-							font.face->glyph->bitmap_top);
-				character.Advance = font.face->glyph->advance.x;
-				
-				// Extract outline points and contours
-				FT_Outline& outline = font.face->glyph->outline;
-				
-				// Process each contour in the outline
-				int startPoint = 0;
-				character.ContourList = decomposeOutlineToContours(outline, size);
-                character.Vertices = getTriangluationVertex(character.ContourList);
-				character.RenderSize = renderSize;
-				font.characters[size].insert(std::pair<GLchar, Character>(c, character));
-			}
-		}
-        
+        double renderSize = FONT_RENDER_SIZE;
+        FT_Set_Pixel_Sizes(font.face, 0, renderSize);
+        for (GLubyte c = 0; c < 128; c++) {
+            // Load the glyph with FT_LOAD_NO_BITMAP to get vector outlines
+            if (FT_Load_Char(font.face, c, FT_LOAD_DEFAULT))
+                continue;
+            
+            // Store vector outline data
+            Character character;
+            character.Size = glm::ivec2(font.face->glyph->metrics.width >> 6, 
+                        font.face->glyph->metrics.height >> 6);
+            character.Bearing = glm::ivec2(font.face->glyph->bitmap_left, 
+                        font.face->glyph->bitmap_top);
+            character.Advance = font.face->glyph->advance.x;
+            
+            // Extract outline points and contours
+            FT_Outline& outline = font.face->glyph->outline;
+            
+            // Process each contour in the outline
+            int startPoint = 0;
+            character.ContourList = decomposeOutlineToContours(outline, FONT_RENDER_SIZE);
+            std::vector<VertexList> contourVertexLists;
+            for (const auto& contour : character.ContourList) {
+                if (contour.size() >= 3) { // Only consider contours with at least 3 points
+                    VertexList vlist;
+                    for (const auto& point : contour) {
+                        vlist.addVertex(point.x, point.y);
+                    }
+                    contourVertexLists.push_back(vlist);
+                }
+            }
+            character.Vertices = getTriangulation(contourVertexLists);
+
+            character.RenderSize = renderSize;
+            font.characters.insert(std::pair<GLchar, Character>(c, character));
+        }
     }
 
     void FontManager::loadFont(Font &font, std::string fontPath)
@@ -195,7 +228,6 @@ namespace MotionByte
     Font::Font()
     {
         // Empty constructor
-		characters.resize((FONT_MAX_SIZE - FONT_MIN_SIZE) / FONT_SIZE_STEP + 1);
     }
 
     Font::~Font()
@@ -260,13 +292,12 @@ namespace MotionByte
     void FontManager::RenderText(Color color, Font& font, std::string text, float x, float y, float size)
     {
         // Scale the outline points based on the desired size
-        float scale = font.getNearestSize(size) / size;
-        float sizeIndex = font.getIndexForSize(size);
+        float scale = size / FONT_RENDER_SIZE;
         
         float currentX = x;
         std::string::const_iterator c;
         for (c = text.begin(); c != text.end(); c++) {
-			Character& character = font.characters[sizeIndex][*c];
+			Character& character = font.characters[*c];
 			float x_offset = character.Bearing.x * scale;
 			float y_offset = character.Bearing.y * scale;
 			auto vertices = character.Vertices;
