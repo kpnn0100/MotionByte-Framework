@@ -45,10 +45,11 @@ enum class FunctionKeyCode {
 
 class KeyboardEventListener {
 public:
+    KeyboardEventListener();
+    virtual ~KeyboardEventListener();
     virtual void onInput(FunctionKeyCode keyCode, KeyAction action);
     virtual void onInput(char character, KeyAction action);
     virtual void onInput(const std::string &text);
-    virtual ~KeyboardEventListener() = default;
 };
 
 class KeyboardEventManager {

@@ -4,6 +4,15 @@
 
 namespace MotionByte
 {
+    KeyboardEventListener::KeyboardEventListener() 
+    {
+        KeyboardEventManager::getInstance().addListener(this);
+    }
+
+    KeyboardEventListener::~KeyboardEventListener()
+    {
+        KeyboardEventManager::getInstance().removeListener(this);
+    }
 
     KeyboardEventManager &KeyboardEventManager::getInstance()
     {
@@ -61,7 +70,7 @@ namespace MotionByte
 
     void KeyboardEventManager::removeListener(KeyboardEventListener *listener)
     {
-        mListenerList.erase(std::remove(mListenerList.begin(), mListenerList.end(), listener), mListenerList.end());
+        std::remove(mListenerList.begin(), mListenerList.end(), listener);
     }
     // Callbacks
     void paste_callback(const std::string &pasteString)

@@ -295,6 +295,7 @@ namespace MotionByte
         float scale = size / FONT_RENDER_SIZE;
         
         float currentX = x;
+        VertexList drawVertices;
         std::string::const_iterator c;
         for (c = text.begin(); c != text.end(); c++) {
 			Character& character = font.characters[*c];
@@ -305,9 +306,10 @@ namespace MotionByte
 				vertex.x = vertex.x * scale + currentX;
 				vertex.y = y - vertex.y * scale;
 			}
-			ShapeManager::instance().drawTriangle(color, vertices);
+            drawVertices.addVertices(vertices);
 			// Advance the cursor for the next character
 			currentX += (character.Advance >> 6) * scale; // Bitshift by 6 to convert from 1/64th to pixels
         }
+        ShapeManager::instance().drawTriangle(color, drawVertices);
     }
 }

@@ -13,6 +13,9 @@ namespace MotionByte
     void VertexList::addVertex(Vertex vertex) {
         vertices.push_back(vertex);
     }
+    void VertexList::addVertices(const VertexList& other) {
+        vertices.insert(vertices.end(), other.vertices.begin(), other.vertices.end());
+    }
     Vertex& VertexList::getLast() {
         return vertices.back();
     }

@@ -26,6 +26,13 @@ namespace MotionByte
         blue((b < 0 ? 0.0 : (b > 255 ? 1.0 : static_cast<double>(b) / 255.0))),
         alpha((a < 0 ? 0.0 : (a > 255 ? 1.0 : static_cast<double>(a) / 255.0))) {}
 
+    void Color::setColorName(const std::string& name) {
+        colorName = name;
+    }
+    std::string Color::getColorName() const {
+        return colorName;
+    }
+
     void Color::setColor(Color color)
     {
         red = color.red;

@@ -53,6 +53,7 @@ namespace MotionByte
         //mainFrame.fillColor(Color(0, 0, 0, 255));
         glfwSetWindowUserPointer(mMainWindow, this);
         glfwSetKeyCallback(mMainWindow, key_callback);
+        glfwSetCharCallback(mMainWindow, char_callback);
         glfwSetWindowSizeCallback(mMainWindow, [](GLFWwindow* window, int width, int height)
             {
                 Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));

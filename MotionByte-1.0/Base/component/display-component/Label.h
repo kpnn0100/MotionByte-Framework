@@ -5,7 +5,7 @@ namespace MotionByte
 {
     class Label : public VisualObject
     {
-    private:
+    protected:
         std::string mText;
         Color mTextColor;
         Property mTextSize;

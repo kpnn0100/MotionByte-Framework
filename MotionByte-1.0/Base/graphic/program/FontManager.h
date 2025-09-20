@@ -14,7 +14,7 @@
 #include "util/geometry/Rectangle.h"
 #include "util/geometry/Align.h"
 #include "ProgramManager.h"
-#define FONT_RENDER_SIZE 48 // Single reference render size
+#define FONT_RENDER_SIZE 10 // Single reference render size
 namespace MotionByte
 {
 	struct Character {
