@@ -14,6 +14,7 @@
 #include "util/geometry/Rectangle.h"
 #include "util/geometry/Align.h"
 #include "ProgramManager.h"
+#include "util/functional/ThreadPool.h"
 #define FONT_RENDER_SIZE 10 // Single reference render size
 namespace MotionByte
 {
@@ -65,6 +66,7 @@ namespace MotionByte
 		GLuint mProgram;
 		GLuint mTextureID; // Single texture used for all characters
 		float mWidth, mHeight;
+		ThreadPool mRenderThreadPool;
 		
 		FontManager();
 		void loadFont(Font &font, std::string fontPath);

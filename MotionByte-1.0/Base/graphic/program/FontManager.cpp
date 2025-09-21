@@ -94,7 +94,7 @@ namespace MotionByte
 		FT_Outline_Decompose(&outline, &funcs, &state);
 		return contours;
 	}
-    FontManager::FontManager()
+    FontManager::FontManager() : mRenderThreadPool()
     {
 
     }
@@ -294,22 +294,62 @@ namespace MotionByte
         // Scale the outline points based on the desired size
         float scale = size / FONT_RENDER_SIZE;
         
+        // Prepare character processing data
+        std::vector<std::future<VertexList>> charFutures;
+        std::vector<float> charPositions;
+        
+        // Calculate all character positions first
         float currentX = x;
-        VertexList drawVertices;
-        std::string::const_iterator c;
-        for (c = text.begin(); c != text.end(); c++) {
-			Character& character = font.characters[*c];
-			float x_offset = character.Bearing.x * scale;
-			float y_offset = character.Bearing.y * scale;
-			auto vertices = character.Vertices;
-			for (auto& vertex : vertices.getVertexList()) {
-				vertex.x = vertex.x * scale + currentX;
-				vertex.y = y - vertex.y * scale;
-			}
-            drawVertices.addVertices(vertices);
-			// Advance the cursor for the next character
-			currentX += (character.Advance >> 6) * scale; // Bitshift by 6 to convert from 1/64th to pixels
+        for (char c : text) {
+            charPositions.push_back(currentX);
+            Character& character = font.characters[c];
+            currentX += (character.Advance >> 6) * scale;
         }
+        
+        // Process text in sections using thread pool
+        int divideIntoCount = mRenderThreadPool.getThreadCount();
+        size_t textLength = text.length();
+        size_t charsPerSection = (textLength + divideIntoCount - 1) / divideIntoCount; // Ceiling division
+        
+        for (int section = 0; section < divideIntoCount && section * charsPerSection < textLength; ++section) {
+            size_t startIdx = section * charsPerSection;
+            size_t endIdx = std::min(startIdx + charsPerSection, textLength);
+            
+            // Submit section processing task to thread pool
+            auto future = mRenderThreadPool.enqueue([&font, &text, &charPositions, startIdx, endIdx, y, scale]() -> VertexList {
+                VertexList sectionVertices;
+                
+                // Process all characters in this section
+                for (size_t i = startIdx; i < endIdx; ++i) {
+                    char c = text[i];
+                    float charX = charPositions[i];
+                    
+                    Character& character = font.characters[c];
+                    VertexList vertices = character.Vertices;
+                    
+                    // Transform vertices for this character
+                    for (auto& vertex : vertices.getVertexList()) {
+                        vertex.x = vertex.x * scale + charX;
+                        vertex.y = y - vertex.y * scale;
+                    }
+                    
+                    sectionVertices.addVertices(vertices);
+                }
+                
+                return sectionVertices;
+            });
+            
+            charFutures.push_back(std::move(future));
+        }
+        
+        // Collect results from all character processing tasks
+        VertexList drawVertices;
+        for (auto& future : charFutures) {
+            VertexList charVertices = future.get();
+            drawVertices.addVertices(charVertices);
+        }
+        
+        // Render all vertices at once
         ShapeManager::instance().drawTriangle(color, drawVertices);
     }
 }
