@@ -42,8 +42,8 @@ namespace MotionByte
         void drawArc(Color color, Rectangle bound, double stroke, double startDegree, double endDegree, Direction direction);
         void drawArc(Color color, Point center, double radius, double stroke, double startDegree, double endDegree, Direction direction);
         void drawAnnularArc(Color color, Point center, double innerRadius,double outerRadius, double startDegree, double endDegree, Direction direction);
-        void drawText(Color color, std::string text, Point position, double size);
-        void drawText(Color color, std::string text, double size, Rectangle bound, Align align);
+        void drawText(Color color, Font &font, std::string text, Point position, double size);
+        void drawText(Color color, Font &font, std::string text, double size, Rectangle bound, Align align);
 
     };
 }

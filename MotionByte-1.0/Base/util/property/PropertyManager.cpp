@@ -37,6 +37,10 @@ namespace MotionByte
     }
     Property& PropertyManager::getProperty(int id)
     {
+        if (mPropertyList[id] == nullptr)
+        {
+            throw std::runtime_error("PropertyManager::getProperty: Property at id " + std::to_string(id) + " is not set");
+        }
         return *mPropertyList[id];
     }
     void PropertyManager::setPropertyPointer(int id, Property* pointer)

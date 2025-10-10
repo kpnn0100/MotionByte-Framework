@@ -1,4 +1,4 @@
-#include "util/geometry/Vertex.h"
+#include "Vertex.h"
 
 namespace MotionByte
 {
@@ -10,7 +10,15 @@ namespace MotionByte
         Vertex vertex(x, y);
         vertices.push_back(vertex);
     }
-
+    void VertexList::addVertex(Vertex vertex) {
+        vertices.push_back(vertex);
+    }
+    void VertexList::addVertices(const VertexList& other) {
+        vertices.insert(vertices.end(), other.vertices.begin(), other.vertices.end());
+    }
+    Vertex& VertexList::getLast() {
+        return vertices.back();
+    }
     size_t VertexList::size() const {
         return vertices.size();
     }
@@ -30,5 +38,14 @@ namespace MotionByte
     float* VertexList::toBufferArray() const
     {
         return (float*)vertices.data();
+    }
+
+    bool VertexList::empty() const
+    {
+        return vertices.empty();
+    }
+
+    const Vertex& VertexList::operator[](size_t index) const {
+        return vertices[index];
     }
 }

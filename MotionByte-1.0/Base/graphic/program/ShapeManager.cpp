@@ -53,6 +53,7 @@ namespace MotionByte
         {
             glGenBuffers(1, &vertexBuffer);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+            glUseProgram(mProgram);
         }
 
         ShapeManager& ShapeManager::instance()
@@ -95,4 +96,31 @@ namespace MotionByte
             glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
         }
 
+        void ShapeManager::drawTriangleStrip(Color color, VertexList Buffer)
+        {
+            prepareBuffer(Buffer, color);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, Buffer.sizeInFloat() / 2);
+        }
+        void ShapeManager::drawTriangleFan(Color color, VertexList Buffer)
+        {
+            prepareBuffer(Buffer, color);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, Buffer.sizeInFloat() / 2);
+        }
+        void ShapeManager::drawQuad(Color color, VertexList Buffer)
+        {
+            prepareBuffer(Buffer, color);
+            glDrawArrays(GL_QUADS, 0, Buffer.sizeInFloat() / 2);
+        }
+        
+        void ShapeManager::drawTriangle(Color color, VertexList Buffer)
+        {
+            prepareBuffer(Buffer, color);
+            glDrawArrays(GL_TRIANGLES, 0, Buffer.sizeInFloat() / 2);
+        }
+        
+        void ShapeManager::drawPolygon(Color color, VertexList Buffer)
+        {
+            prepareBuffer(Buffer, color);
+            glDrawArrays(GL_POLYGON, 0, Buffer.sizeInFloat() / 2);
+        }
 }

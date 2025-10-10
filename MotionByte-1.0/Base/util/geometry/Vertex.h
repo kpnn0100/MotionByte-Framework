@@ -20,14 +20,19 @@ namespace MotionByte
     public:
         // Add a vertex to the list
         void addVertex(float x, float y);
-
+        void addVertex(Vertex vertex);
+        void addVertices(const VertexList& other);
         // Get the number of vertices in the list
         size_t size() const;
         size_t sizeInFloat() const;
         // Access a vertex by index
         Vertex& getVertex(size_t index);
+        Vertex& getLast();
         std::vector<Vertex>& getVertexList();
         float* toBufferArray() const;
+        bool empty() const;
+        Vertex &operator[](size_t index);
+        const Vertex &operator[](size_t index) const;
 
     };
 }

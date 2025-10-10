@@ -11,13 +11,16 @@ namespace MotionByte
         Property green;
         Property blue;
         Property alpha;
-
+        std::string colorName;
     public:
         // Constructors
         Color();
         Color(Property r, Property g, Property b, Property a = 1.0f);
         Color(double r, double g , double b , double a = 1.0f);
         Color(int r, int g, int b, int a = 255);
+
+        void setColorName(const std::string& name);
+        std::string getColorName() const;
 
         void setColor(Color color);
         void setInterpolator(InterpolatorModule InterpolatorModule);

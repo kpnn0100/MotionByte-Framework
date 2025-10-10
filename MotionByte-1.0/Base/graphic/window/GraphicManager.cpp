@@ -11,7 +11,6 @@ namespace MotionByte {
     GraphicManager::GraphicManager()
     {
         glfwInit();
-        setAntiAliasing(Level::Medium);
     }
     GraphicManager& GraphicManager::getInstance()
     {
@@ -20,7 +19,6 @@ namespace MotionByte {
     GraphicManager::~GraphicManager()
     {
     }
-
     void GraphicManager::setAntiAliasing(Level level)
     {
         getInstance();
@@ -38,4 +36,23 @@ namespace MotionByte {
         }
     }
 
+    void GraphicManager::init()
+    {
+        glewExperimental = true;
+        
+        glewInit();
+        setAntiAliasing(Level::High);
+        glEnable(GL_MULTISAMPLE);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_POLYGON_SMOOTH);  // Enable polygon smoothing
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);  // Use the best quality for line smoothing
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);  // Use the best quality for polygon smoothing
+        glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST); // Better texture compression quality
+        glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST); // Better mipmap generation
+
+        // Enable alpha blending for transparent textures
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_DEBUG_OUTPUT);
+    }
 }
